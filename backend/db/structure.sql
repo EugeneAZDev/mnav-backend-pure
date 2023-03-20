@@ -1,0 +1,36 @@
+-- CREATED MANUALLY
+CREATE TABLE "User" (
+  id bigint generated always as identity,
+  login varchar(64) NOT NULL,
+  password varchar NOT NULL
+);
+ALTER TABLE "User" ADD CONSTRAINT "pkUser" PRIMARY KEY (id);
+CREATE UNIQUE INDEX "akUserLogin" ON "User" (login);
+
+CREATE TYPE "ItemPriority" AS ENUM ('low', 'medium', 'high');
+CREATE TABLE "Item" (
+	id bigint GENERATED ALWAYS AS IDENTITY,
+	title varchar NOT NULL,
+	description varchar,
+	"targetValue" varchar,
+	priority "ItemPriority",
+	"userId" bigint, -- SHOULD BE NOT NULL, will be implemented with authorization
+	"createdAt" timestamp WITHOUT time ZONE DEFAULT now(),
+	"updatedAt" timestamp WITHOUT time ZONE,
+	"deletedAt" timestamp WITHOUT time ZONE
+);
+ALTER TABLE "Item" ADD CONSTRAINT "pkItem" PRIMARY KEY (id);
+ALTER TABLE "Item" ADD CONSTRAINT "fkItemUser" FOREIGN KEY ("userId") REFERENCES "User" (id);
+
+CREATE TABLE "ItemValue" (
+	id bigint GENERATED ALWAYS AS IDENTITY,
+	"itemId" bigint,
+	"userId" bigint,
+	value varchar,
+	"createdAt" timestamp WITHOUT time ZONE DEFAULT now(),
+	"updatedAt" timestamp WITHOUT time ZONE,
+	"deletedAt" timestamp WITHOUT time ZONE
+);
+ALTER TABLE "ItemValue" ADD CONSTRAINT "pkItemValue" PRIMARY KEY (id);
+ALTER TABLE "ItemValue" ADD CONSTRAINT "fkItemValueItem" FOREIGN KEY ("itemId") REFERENCES "Item" (id);
+ALTER TABLE "ItemValue" ADD CONSTRAINT "fkItemValueUser" FOREIGN KEY ("userId") REFERENCES "User" (id);
