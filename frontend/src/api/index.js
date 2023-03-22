@@ -1,6 +1,6 @@
-'use strict';
+// api/index.js
 
-const transport = {};
+const transport = {}
 
 transport.http = (url) => (structure) => {
   console.log('[static.client.http]');
@@ -29,7 +29,10 @@ transport.http = (url) => (structure) => {
   return Promise.resolve(api);
 };
 
+
 transport.ws = (url) => (structure) => {
+  console.log('structure');
+  console.log(structure);
   const socket = new WebSocket(url);
   const api = {};
   const services = Object.keys(structure);
@@ -59,20 +62,12 @@ const scaffold = (url) => {
   return transport[protocol](url);
 };
 
-(async () => {
-  const api = await scaffold('http://localhost:8001')({
+export default async function apiMethods() {  
+  const result = await scaffold('ws://localhost:8001')({
     item: {
       create: ['record'],
       read: ['id']
     }
-  });
-  const data = await api.item.read(1);
-  console.dir({ data });
-  // const newItem = await api.item.create({
-  //   title: 'Title',
-  //   description: 'Some',
-  //   targetValue: 10,
-  //   priority: 'high'
-  // });
-  // console.dir({ newItem });
-})();
+  });  
+  return result
+}

@@ -2,7 +2,6 @@
 
 const fsp = require('node:fs').promises;
 const path = require('node:path');
-const staticServer = require('./lib/static.js');
 const logger = require('./lib/logger.js');
 const common = require('./lib/common.js');
 const config = require('./config.js');
@@ -28,6 +27,5 @@ const routing = {};
     routing[serviceName] = await load(filePath, sandbox);
   }
 
-  staticServer('./static', config.static.port, logger);
   transport(routing, config.api.port, logger);
 })();

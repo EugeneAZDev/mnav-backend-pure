@@ -7,5 +7,6 @@
 - Install node dependencies from the backend folder: `npm i` (`npm ci`)
 
 ## License
+
 MIT License.<br>
-Based on [HowProgrammingWorks](https://github.com/HowProgrammingWorks/Index) and [Metarhia Tech Stack](https://metarhia.com)
+Based on [Metarhia Tech Stack](https://metarhia.com) and [HowProgrammingWorks](https://github.com/HowProgrammingWorks/Index)
