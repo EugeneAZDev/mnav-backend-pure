@@ -8,5 +8,5 @@
 
 ## License
 
-MIT License.<br>
+[MIT License](./LICENSE)<br>
 Based on [Metarhia Tech Stack](https://metarhia.com) and [HowProgrammingWorks](https://github.com/HowProgrammingWorks/Index)
