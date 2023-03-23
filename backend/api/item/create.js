@@ -1,5 +1,1 @@
-({
-  async create(...record) {
-    return db('Item').create(...record);
-  }
-});
+({ method: async (...record) => db('Item').create(...record) });

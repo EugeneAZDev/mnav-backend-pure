@@ -1,5 +1,3 @@
 ({
-  async read(id) {
-    return db('Item').read(id); // or .read(id, ['title']);
-  }
+  method: async (id) => db('Item').read(id) // or .read(id, ['title']);
 });
