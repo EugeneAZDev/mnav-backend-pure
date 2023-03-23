@@ -9,7 +9,7 @@ const crud = (pool) => (table) => ({
   },
 
   async read(id, fields = ['*']) {
-    console.log('[db.read]');
+    // console.log('[db.read]');
     const names = fields.join(', ');
     const sql = `SELECT ${names} FROM "${table}"`;
     if (!id) return pool.query(sql);

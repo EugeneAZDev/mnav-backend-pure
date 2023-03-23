@@ -5,6 +5,8 @@ const { Server } = require('ws');
 module.exports = (routing, port, console) => {
   const ws = new Server({ port });
 
+  console.log(JSON.stringify(routing));
+
   ws.on('connection', (connection, req) => {
     const ip = req.socket.remoteAddress;
     connection.on('message', async (message) => {
@@ -12,7 +14,7 @@ module.exports = (routing, port, console) => {
       const { name, method, args = [] } = obj;
       const entity = routing[name];
       if (!entity) return connection.send('"Not found"', { binary: false });
-      const handler = entity[method];
+      const handler = entity[method]?.method;
       if (!handler) return connection.send('"Not found"', { binary: false });
       const json = JSON.stringify(args);
       const parameters = json.substring(1, json.length - 1);
