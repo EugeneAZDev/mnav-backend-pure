@@ -1,7 +1,7 @@
 // context/global.js
 
 import React, { createContext, useState, useEffect } from 'react';
-import apiMethods from '../api/index';
+//import apiMethods from '../api/index';
 
 const GlobalContext = createContext(null);
 
@@ -10,8 +10,8 @@ export const GlobalProvider = ({ children }) => {
 
   useEffect(() => {
     async function fetchData() {
-      const result = await apiMethods();
-      setData(result);
+      // const result = await apiMethods();
+      // setData(result);
     }
     fetchData();
   }, []);

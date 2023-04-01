@@ -1,11 +1,11 @@
 -- CREATED MANUALLY
 CREATE TABLE "User" (
   id bigint generated always as identity,
-  login varchar(64) NOT NULL,
+  email varchar(64) NOT NULL,
   password varchar NOT NULL
 );
 ALTER TABLE "User" ADD CONSTRAINT "pkUser" PRIMARY KEY (id);
-CREATE UNIQUE INDEX "akUserLogin" ON "User" (login);
+CREATE UNIQUE INDEX "akUserEmail" ON "User" (email);
 
 CREATE TYPE "ItemPriority" AS ENUM ('none', 'low', 'medium', 'high');
 CREATE TYPE "ItemType" AS ENUM('active', 'sport', 'other');
