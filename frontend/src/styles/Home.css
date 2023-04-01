@@ -1,0 +1,19 @@
+.home-form {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.button-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;  
+}
+
+.button-container button:first-child {
+  margin-right: 20px;
+}
