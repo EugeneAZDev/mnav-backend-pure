@@ -29,10 +29,9 @@ transport.http = (url) => (structure) => {
   return Promise.resolve(api);
 };
 
-
 transport.ws = (url) => (structure) => {
-  console.log('structure');
-  console.log(structure);
+  // console.log('structure');
+  // console.log(structure);
   const socket = new WebSocket(url);
   const api = {};
   const services = Object.keys(structure);
@@ -67,7 +66,14 @@ export default async function apiMethods() {
     item: {
       create: ['record'],
       read: ['id']
+    },
+    user: {
+      create: ['record'],
+      find: ['fields', 'filter', 'value']
+    },
+    auth: {
+      register: ['id', 'password']
     }
-  });  
+  });
   return result
 }

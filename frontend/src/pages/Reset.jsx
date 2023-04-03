@@ -1,63 +1,69 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import '../styles/Reset.css'
-import Button from '../components/Button/Button';
+import { useContext, useState } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
 
-const CenteredForm = () => {
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [error, setError] = useState('');
+import Button from '../components/Button/Button'
+import Title from '../components/Title/Title'
 
-  const navigate = useNavigate();
+import GlobalContext from '../context/global.js'
 
-  const handlePasswordChange = (event) => {
-    setPassword(event.target.value);
-  };
+import '../styles/Common.css'
 
-  const handleConfirmPasswordChange = (event) => {
-    setConfirmPassword(event.target.value);
-  };
+const Reset = () => {
+  const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [error, setError] = useState('')
+  const { id } = useParams()
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
+  const api = useContext(GlobalContext)
+
+  const navigate = useNavigate()
+
+  const handlePasswordChange = event => {
+    setPassword(event.target.value)
+  }
+  const handleConfirmPasswordChange = event => {
+    setConfirmPassword(event.target.value)
+  }
+  const handleSubmit = async (event) => {
+    event.preventDefault()
 
     if (password !== confirmPassword) {
-      setError('Passwords do not match');
-      return;
+      setError('Passwords do not match')
+      return
     }
 
-    // Redirect to the login page with the user ID in the URL
-    const userId = '123'; // Replace with actual user ID
-    navigate(`/login/${userId}`);
-  };
+    if (!password || !confirmPassword) {
+      return
+    }
+
+    const result = await api.auth.register({ id, password })
+    console.log(result)
+    navigate(`/login`)
+  }
 
   return (
-    <div className="centered-form">
-      <form onSubmit={handleSubmit}>
-        <div className="form-group">
-          <label>Reset Password Form</label>      
+    <div className='form'>
+      <div className='form-content'>
+        <Title text='Password Verification Form' />
           <input
-            type="password"
-            id="password"
-            placeholder="Password"
+            id='password'
+            type='password'            
+            placeholder='Password'
             value={password}
             onChange={handlePasswordChange}
           />
-        </div>
-        <div className="form-group">          
           <input
-            type="password"
-            id="confirm-password"
-            placeholder="Confirm Password"
+            id='confirm-password'
+            type='password'            
+            placeholder='Confirm Password'
             value={confirmPassword}
             onChange={handleConfirmPasswordChange}
           />
-        </div>
-        {error && <div className="error">{error}</div>}
-        <Button type="submit">Finish</Button>
-      </form>
+          <Button onClick={handleSubmit}>Finish</Button>
+          {error && <div className='error'>{error}</div>}
+      </div>
     </div>
-  );
-};
+  )
+}
 
-export default CenteredForm;
+export default Reset

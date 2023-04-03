@@ -2,7 +2,7 @@
 CREATE TABLE "User" (
   id bigint generated always as identity,
   email varchar(64) NOT NULL,
-  password varchar NOT NULL
+  password varchar
 );
 ALTER TABLE "User" ADD CONSTRAINT "pkUser" PRIMARY KEY (id);
 CREATE UNIQUE INDEX "akUserEmail" ON "User" (email);

@@ -50,6 +50,12 @@ const crud = (pool) => (table) => ({
     const sql = 'DELETE FROM "${table}" WHERE id = $1';
     return this.query(sql, [id]);
   },
+
+  async find(column, value, fields = ['*']) {
+    const names = fields.join(', ');
+    const sql = `SELECT ${names} FROM "${table}" WHERE ${column} = '${value}'`;
+    return this.query(sql);
+  }
 });
 
 module.exports = (options) => crud(new pg.Pool(options));

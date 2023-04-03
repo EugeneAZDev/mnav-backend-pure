@@ -39,6 +39,7 @@ const executeFile = async (client, name) => {
   await db.connect();
   await executeFile(db, 'reset.sql');
   await executeFile(db, 'structure.sql');
+  await executeFile(db, 'data.sql');
   await db.end();
   console.log('Environment is ready');
 })().catch((err) => {
