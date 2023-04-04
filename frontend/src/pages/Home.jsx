@@ -5,21 +5,24 @@ import { useNavigate } from 'react-router-dom'
 import Title from '../components/Title/Title'
 import '../styles/Home.css'
 
-const Home = () => {
-  const router = useNavigate()
+const Home = () => {  
   const { isAuth, setIsAuth } = useContext(AuthContext)
+
+  const navigate = useNavigate()
+
   const login = event => {
     event.preventDefault()
-    setIsAuth(true)
-    localStorage.setItem('auth', 'true')
+    navigate(`/login`)
+    // setIsAuth(true)
+    // localStorage.setItem('auth', 'true')
   }
 
   return (
     <div className='home-form'>
       <Title text='My Navigator'/>
       <div className="button-container">
-        <Button onClick={() => {router('/register')}}>GET STARTED</Button>
-        <Button onClick={login}>SIGN IN</Button>        
+        <Button onClick={() => {navigate('/register')}}>GET STARTED</Button>
+        <Button onClick={() => {navigate('/login')}}>SIGN IN</Button>
       </div>
     </div>
    )

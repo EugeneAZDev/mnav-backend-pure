@@ -72,7 +72,8 @@ export default async function apiMethods() {
       find: ['fields', 'filter', 'value']
     },
     auth: {
-      register: ['id', 'password']
+      register: ['id', 'password'],
+      login: ['email', 'password']
     }
   });
   return result

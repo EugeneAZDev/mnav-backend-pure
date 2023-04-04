@@ -36,8 +36,8 @@ const Reset = () => {
       return
     }
 
-    const result = await api.auth.register({ id, password })
-    console.log(result)
+    await api.auth.register({ id, password })
+    
     navigate(`/login`)
   }
 
