@@ -4,17 +4,16 @@ const fsp = require('node:fs').promises;
 const path = require('node:path');
 const vm = require('node:vm');
 
-const load = async (filePath, sandbox, options) => {
+const load = async (filePath, sandbox, contextualize = false, options) => {
   const src = await fsp.readFile(filePath, 'utf8');
-  const code = `'use strict';\n{\n${src}\n}`;
-  const script = new vm.Script(code);
+  const opening = contextualize ? '(context) => ' : '';
+  const code = `'use strict';\n${opening}${src}`;
+  const script = new vm.Script(code, { ...options, lineOffset: -1 });
   const context = vm.createContext(Object.freeze({ ...sandbox }));
-  const exported = script.runInContext(context, options);
-
-  return exported;
+  return script.runInContext(context, options);
 };
 
-const loadDir = async (dir, sandbox, options) => {
+const loadDir = async (dir, sandbox, contextualize = false, options) => {
   const files = await fsp.readdir(dir, { withFileTypes: true });
   const container = {};
   for (const file of files) {
@@ -23,11 +22,12 @@ const loadDir = async (dir, sandbox, options) => {
     const location = path.join(dir, name);
     const key = path.basename(name, '.js');
     const loader = file.isFile() ? load : loadDir;
-    container[key] = await loader(location, sandbox, options);
+    container[key] = await loader(location, sandbox, contextualize, options);
   }
-
   return container;
 };
 
-module.exports = (options) => async (filePath, sandbox) =>
-  loadDir(filePath, sandbox, options);
+module.exports =
+  (options) =>
+    async (filePath, sandbox, contextualize) =>
+      loadDir(filePath, sandbox, contextualize, options);

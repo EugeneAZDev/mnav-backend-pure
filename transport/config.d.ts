@@ -4,7 +4,7 @@ declare namespace config {
   };
   const api: {
     port: number;
-    transport: 'http' | 'https';
+    transport: 'rest' | 'ws';
   };
   const sandbox: {
     timeout: number;

@@ -27,5 +27,5 @@ module.exports = (routing, port, console) => {
     });
   });
 
-  console.log(`API on port ${port}`);
+  console.log(`Websocket API on port ${port}`);
 };

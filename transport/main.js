@@ -1,12 +1,16 @@
 'use strict';
 
 const path = require('node:path');
+
 const logger = require('./lib/logger.js');
 const common = require('./lib/common.js');
 
+const appPath = path.join(process.cwd(), '../app');
+const apiPath = path.join(appPath, './api');
+
 const config = require('./config.js');
 
-const load = require('./lib/load.js')(config.sandbox);
+const load = require('./src/loader.js')(config.sandbox);
 const db = require('./lib/db.js')(config.db);
 const transport = require(`./transport/${config.api.transport}.js`);
 
@@ -16,9 +20,8 @@ const sandbox = {
   console: Object.freeze(logger),
   common: Object.freeze(common),
 };
-const apiPath = path.join(process.cwd(), './api');
 
 (async () => {
-  const routing = await load(apiPath, sandbox);
+  const routing = await load(apiPath, sandbox, true);
   transport(routing, config.api.port, logger);
 })();
