@@ -1,4 +1,4 @@
 ({
-  method: async ({ filter, value }) =>
-    db('User').find(filter, value, ['id', 'email'])
+  method: async (email) =>
+    db('User').find('email', email.toLowerCase(), ['id', 'email'])
 });

@@ -34,22 +34,22 @@ module.exports = (routing, port, console) => {
     .createServer(async (req, res) => {
       res.writeHead(200, HEADERS);
       const { method, url, socket } = req;
-      console.log(`${socket.remoteAddress} ${method} ${url}`);
       const [name, id] = url.substring(1).split('/');
       const entity = routing[name.toLowerCase()];
-      if (!entity) return res.end('Entity not found');
+      if (!entity) return res.end('"Entity not found"');
       const procedure =
         id === undefined ?
           crud[method.toLowerCase()] :
           isNaN(id) ? id : crud[method.toLowerCase()];
       const handler = entity[procedure];
-      if (!handler) return res.end('Handler not found');
+      if (!handler) return res.end('"Handler not found"');
       const args = [];
       const src = handler.toString().split('method: ')[1]; console.log(src);
       const signature = src.substring(0, src.indexOf(')'));
       if (signature.includes('(id')) args.push(id);
       if (signature.includes('{')) args.push(await receiveArgs(req));
       const result = await handler().method(...args);
+      console.log(`${socket.remoteAddress} ${method} ${url}`);
       res.end(JSON.stringify(result.rows));
     })
     .listen(port);

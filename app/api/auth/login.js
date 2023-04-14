@@ -1,5 +1,5 @@
 ({
-  method: async ({ email, password }) => {
+  method: async (email, password) => {
     const users =
       await db('User').find('email', email, ['id', 'email']);
     if (users.length === 0)
