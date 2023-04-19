@@ -3,7 +3,7 @@
 const http = require('node:http');
 
 const TRY_LIMITATIONS = 10000;
-const TRY_LIMIT = 1;
+const TRY_LIMIT = 3;
 const MINUTE = 60 * 1000;
 const HOUR = 60 * MINUTE;
 const REQUEST_LIMITS = [
@@ -24,6 +24,8 @@ const HEADERS = {
 
 const ipRequestCountMap = new Map();
 
+const Client = require('../src/client.js');
+
 const receiveArgs = async (req) => {
   const buffers = [];
   for await (const chunk of req) buffers.push(chunk);
@@ -38,15 +40,24 @@ const receiveArgs = async (req) => {
 module.exports = (routing, port, console) => {
   http
     .createServer(async (req, res) => {
+      const client = await Client.getInstance(req, res);
       res.writeHead(200, HEADERS);
-      if (req.method !== 'POST') return res.end('"Only POST method allowed"');
+      if (req.method !== 'POST') return res.end('"Method not found"');
       const { url, socket } = req;
       const [place, name, method] = url.substring(1).split('/');
+      console.log(`${socket.remoteAddress} ${method} ${url}`);
       if (place !== 'api') return res.end('"API not found"');
       const entity = routing[name.toLowerCase()];
       if (!entity) return res.end('"Entity not found"');
       const handler = entity[method.toLowerCase()];
       if (!handler) return res.end('"Handler not found"');
+
+      if (!handler().access === 'public') {
+        if (!client.id) {
+          res.writeHead(401, HEADERS);
+          res.end(JSON.stringify({ message: 'Unauthorized' }));
+        }
+      }
 
       // Limit requests for find user endpoint
       if (name.toLowerCase() === 'user' && method.toLowerCase() === 'find') {
@@ -63,7 +74,7 @@ module.exports = (routing, port, console) => {
         for (let i = REQUEST_LIMITS.length - 1; i >= 0; i--) {
           if (
             ipRequestCount.filter(
-              (timestamp) => now - timestamp < REQUEST_LIMITS[i].interval
+              (timestamp) => now - timestamp < REQUEST_LIMITS[i].interval,
             ).length >= REQUEST_LIMITS[i].limit
           ) {
             requestLimit = REQUEST_LIMITS[i];
@@ -76,8 +87,11 @@ module.exports = (routing, port, console) => {
             requestLimit.delay -
             (now - ipRequestCount[ipRequestCount.length - requestLimit.limit]);
           res.writeHead(429, HEADERS);
-          res.end(`Too Many Requests. Please try again in ${
-            Math.ceil(remainingTime / MINUTE % 60)} minutes.`);
+          res.end(
+            `Too Many Requests. Please try again in ${Math.ceil(
+              (remainingTime / MINUTE) % 60,
+            )} minutes.`,
+          );
           return;
         }
 
@@ -88,9 +102,13 @@ module.exports = (routing, port, console) => {
       }
 
       const { args } = await receiveArgs(req);
-      const result = await handler().method(...args);
-      console.log(`${socket.remoteAddress} ${method} ${url}`);
-      res.end(JSON.stringify(result.rows));
+      const result = await handler().method({ ...args });
+      if (result.error) {
+        console.log(result.error);
+      }
+
+      res.writeHead(result.code, HEADERS);
+      res.end(JSON.stringify(result.body));
     })
     .listen(port);
 

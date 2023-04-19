@@ -1,13 +1,19 @@
 ({
-  method: async (email, password) => {
-    const users =
-      await db('User').find('email', email, ['id', 'email']);
-    if (users.length === 0)
-      throw new Error('Incorrect login or password');
-    const { password: hash } = users[0];
-    const valid = await api.common.validatePassword(password, hash);
-    if (!valid) throw new Error('Incorrect login or password');
-    const token = await api.common.generateToken();
-    return { status: 'logged', token };
+  access: 'public',
+  method: async ({ email, password }) => {
+    try {
+      const result = await db('User').find('email', email.toLowerCase());
+      if (result.rows.length === 1) {
+        const [ user ] = result.rows;
+        const valid = await common.validatePassword(password, user.password);
+        if (valid) {
+          const token = await common.generateToken(user.id);
+          return { ...httpResponses.success(), body: { token } };
+        }
+      }
+      return httpResponses.unauthorized();
+    } catch (error) {
+      return { ...httpResponses.error(), error };
+    }
   },
 });

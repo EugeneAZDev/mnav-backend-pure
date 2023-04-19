@@ -4,7 +4,7 @@ const fsp = require('node:fs').promises;
 const path = require('node:path');
 const pg = require('pg');
 
-const DB = path.join(process.cwd(), './db');
+const DB = path.join(__dirname, './db');
 const CONNECTION = {
   host: '127.0.0.1',
   port: 7000,

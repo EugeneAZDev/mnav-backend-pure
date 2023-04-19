@@ -44,7 +44,7 @@ module.exports = (routing, port, console) => {
       const handler = entity[procedure];
       if (!handler) return res.end('"Handler not found"');
       const args = [];
-      const src = handler.toString().split('method: ')[1]; console.log(src);
+      const src = handler.toString().split('method: ')[1];
       const signature = src.substring(0, src.indexOf(')'));
       if (signature.includes('(id')) args.push(id);
       if (signature.includes('{')) args.push(await receiveArgs(req));

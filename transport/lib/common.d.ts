@@ -8,4 +8,5 @@ declare namespace common {
   ): Promise<boolean>;
   function jsonParse(buffer: Buffer): object | null;
   function receiveBody(req: ClientRequest): Promise<string>;
+  // TODO Add functions
 }

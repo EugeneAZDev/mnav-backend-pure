@@ -81,9 +81,48 @@ const receiveBody = async (req) => {
   return Buffer.concat(buffers).toString();
 };
 
+function encodeBase64URL(str) {
+  const base64 = Buffer.from(str).toString('base64');
+  return base64.replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
+}
+
+const generateToken = (id) => {
+  const header = { alg: 'HS256', typ: 'JWT', };
+  const payload = { 'userId': id };
+  const base64Header = encodeBase64URL(JSON.stringify(header));
+  const base64Payload = encodeBase64URL(JSON.stringify(payload));
+  const hmac = crypto.createHmac('sha256', process.env.SECRET_KEY);
+  hmac.update(`${base64Header}.${base64Payload}`);
+  const base64Signature = encodeBase64URL(hmac.digest('base64'));
+
+  return `${base64Header}.${base64Payload}.${base64Signature}`;
+};
+
+const validateToken = (token) => {
+  console.log(token);
+  console.log(Boolean(!token));
+  const objError = { error: 'Token verification failed' };
+  if (!token) return objError;
+
+  const [base64Header, base64Payload, signature] = token.split('.');
+  const payload = JSON.parse(
+    Buffer.from(base64Payload, 'base64').toString('utf8'),
+  );
+  const hmac = crypto.createHmac('sha256', process.env.SECRET_KEY);
+  hmac.update(`${base64Header}.${base64Payload}`);
+  const calculatedSignature = encodeBase64URL(hmac.digest('base64'));
+  if (signature === calculatedSignature) {
+    return { ...payload };
+  } else {
+    return objError;
+  }
+};
+
 module.exports = {
   hashPassword,
   validatePassword,
   jsonParse,
   receiveBody,
+  generateToken,
+  validateToken
 };

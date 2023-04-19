@@ -8,7 +8,7 @@ const common = require('./lib/common.js');
 const { loadDir } = require('./src/loader.js');
 const { Server } = require('./src/server.js');
 
-const appPath = path.join(process.cwd(), '../app');
+const appPath = path.join(__dirname, '../app');
 const apiPath = path.join(appPath, './api');
 const configPath = path.join(appPath, './config');
 
