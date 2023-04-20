@@ -33,7 +33,7 @@ const crud = (pool) => (table) => ({
     let i = 0;
     for (const key of keys) {
       data[i] = record[key];
-      updates[i] = `${key} = $${++i}`;
+      updates[i] = `"${key}" = $${++i}`;
     }
     const delta = updates.join(', ');
     const sql = `UPDATE "${table}" SET ${delta} WHERE id = $${++i}`;
@@ -42,7 +42,7 @@ const crud = (pool) => (table) => ({
   },
 
   async delete(id) {
-    const sql = 'DELETE FROM "${table}" WHERE id = $1';
+    const sql = `DELETE FROM "${table}" WHERE id = $1`;
     return pool.query(sql, [id]);
   },
 

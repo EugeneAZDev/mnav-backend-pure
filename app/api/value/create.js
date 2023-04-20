@@ -1,13 +1,13 @@
 ({
   method: async ({ ...records }) => {
     try {
-      const result = await db('Item').create({ ...records });
-      const [ item ] = result.rows;
+      const result = await db('ItemValue').create({ ...records });
+      const [ value ] = result.rows;
       return {
         ...httpResponses.created(),
         body: {
           ...httpResponses.created().body,
-          itemId: item.id,
+          valueId: value.id,
         },
       };
     } catch (error) {

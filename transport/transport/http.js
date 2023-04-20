@@ -31,7 +31,8 @@ const receiveArgs = async (req) => {
   for await (const chunk of req) buffers.push(chunk);
   const data = Buffer.concat(buffers).toString();
   try {
-    return JSON.parse(data);
+    if (data.length > 0) return JSON.parse(data);
+    else return {};
   } catch (err) {
     throw new Error(err.message);
   }
@@ -44,12 +45,12 @@ module.exports = (routing, port, console) => {
       res.writeHead(200, HEADERS);
       if (req.method !== 'POST') return res.end('"Method not found"');
       const { url, socket } = req;
-      const [place, name, method] = url.substring(1).split('/');
+      const [ place, name, method ] = url.substring(1).split('/');
       console.log(`${socket.remoteAddress} ${method} ${url}`);
       if (place !== 'api') return res.end('"API not found"');
       const entity = routing[name.toLowerCase()];
       if (!entity) return res.end('"Entity not found"');
-      const handler = entity[method.toLowerCase()];
+      const handler = entity[method];
       if (!handler) return res.end('"Handler not found"');
 
       if (!handler().access === 'public') {
@@ -59,7 +60,7 @@ module.exports = (routing, port, console) => {
         }
       }
 
-      // Limit requests for find user endpoint
+      // Limit requests for "user/find" endpoint
       if (name.toLowerCase() === 'user' && method.toLowerCase() === 'find') {
         const now = Date.now();
         const ip = req.socket.remoteAddress;
