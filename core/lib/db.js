@@ -3,7 +3,6 @@
 const pg = require('pg');
 
 const crud = (pool) => (table) => ({
-
   async read(id, fields = ['*']) {
     const names = fields.join(', ');
     const sql = `SELECT ${names} FROM "${table}"`;
@@ -33,7 +32,7 @@ const crud = (pool) => (table) => ({
     let i = 0;
     for (const key of keys) {
       data[i] = record[key];
-      updates[i] = `${key} = $${++i}`;
+      updates[i] = `"${key}" = $${++i}`;
     }
     const delta = updates.join(', ');
     const sql = `UPDATE "${table}" SET ${delta} WHERE id = $${++i}`;
@@ -42,13 +41,15 @@ const crud = (pool) => (table) => ({
   },
 
   async delete(id) {
-    const sql = 'DELETE FROM "${table}" WHERE id = $1';
+    const sql = `DELETE FROM "${table}" WHERE id = $1`;
     return pool.query(sql, [id]);
   },
 
-  async find(column, value, fields = ['*']) {
+  async find(column, values, fields = ['*']) {
     const names = fields.join(', ');
-    const sql = `SELECT ${names} FROM "${table}" WHERE ${column} = '${value}'`;
+    const valueList = values.map((value) => `'${value}'`).join(', ');
+    const sql =
+      `SELECT ${names} FROM "${table}" WHERE "${column}" IN (${valueList})`;
     return pool.query(sql);
   }
 });

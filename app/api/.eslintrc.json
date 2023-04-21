@@ -6,7 +6,8 @@
     "api": "readonly",
     "db": "readonly",
     "common": "readonly",
-    "httpResponses": "readonly"
+    "httpResponses": "readonly",
+    "structure": "readonly"
   },
   "rules": {
     "strict": ["error", "never"],
@@ -16,7 +17,8 @@
       "db",
       "common",
       "console",
-      "httpResponses"
+      "httpResponses",
+      "structure"
     ]
   }
 }

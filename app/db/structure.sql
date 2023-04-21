@@ -16,7 +16,7 @@ CREATE TABLE "Item" (
 	"targetValue" smallint,
 	priority "ItemPriority",
 	type "ItemType",
-	"userId" bigint, -- SHOULD BE NOT NULL, will be implemented with authorization
+	"userId" bigint,
 	"createdAt" timestamp WITHOUT time ZONE DEFAULT now(),
 	"updatedAt" timestamp WITHOUT time ZONE,
 	"deletedAt" timestamp WITHOUT time ZONE
@@ -27,7 +27,6 @@ ALTER TABLE "Item" ADD CONSTRAINT "fkItemUser" FOREIGN KEY ("userId") REFERENCES
 CREATE TABLE "ItemValue" (
 	id bigint GENERATED ALWAYS AS IDENTITY,
 	"itemId" bigint,
-	"userId" bigint,
 	value varchar,
 	"createdAt" timestamp WITHOUT time ZONE DEFAULT now(),
 	"updatedAt" timestamp WITHOUT time ZONE,
@@ -35,4 +34,3 @@ CREATE TABLE "ItemValue" (
 );
 ALTER TABLE "ItemValue" ADD CONSTRAINT "pkItemValue" PRIMARY KEY (id);
 ALTER TABLE "ItemValue" ADD CONSTRAINT "fkItemValueItem" FOREIGN KEY ("itemId") REFERENCES "Item" (id);
-ALTER TABLE "ItemValue" ADD CONSTRAINT "fkItemValueUser" FOREIGN KEY ("userId") REFERENCES "User" (id);

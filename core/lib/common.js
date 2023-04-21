@@ -99,8 +99,6 @@ const generateToken = (id) => {
 };
 
 const validateToken = (token) => {
-  console.log(token);
-  console.log(Boolean(!token));
   const objError = { error: 'Token verification failed' };
   if (!token) return objError;
 
@@ -118,11 +116,26 @@ const validateToken = (token) => {
   }
 };
 
+const extractArguments = (input) => {
+  const match = input.match(/\{([^}]+)\}/);
+  if (!match) return [];
+  const props = {};
+  const propsStr = match[1];
+  const propRegex = /(\w+)|\.{3}(\w+)/g;
+  let propMatch;
+  while ((propMatch = propRegex.exec(propsStr)) !== null) {
+    const propName = propMatch[1] || propMatch[2];
+    props[propName] = true;
+  }
+  return Object.keys(props);
+};
+
 module.exports = {
   hashPassword,
   validatePassword,
   jsonParse,
   receiveBody,
   generateToken,
-  validateToken
+  validateToken,
+  extractArguments,
 };

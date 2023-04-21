@@ -50,10 +50,11 @@ module.exports = (routing, port, console) => {
       if (place !== 'api') return res.end('"API not found"');
       const entity = routing[name.toLowerCase()];
       if (!entity) return res.end('"Entity not found"');
+
       const handler = entity[method];
       if (!handler) return res.end('"Handler not found"');
 
-      if (!handler().access === 'public') {
+      if (!handler().access || handler().access !== 'public') {
         if (!client.id) {
           res.writeHead(401, HEADERS);
           res.end(JSON.stringify({ message: 'Unauthorized' }));

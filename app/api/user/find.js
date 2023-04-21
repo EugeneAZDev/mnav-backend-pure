@@ -2,7 +2,7 @@
   access: 'public',
   method: async ({ email }) => {
     try {
-      const result = await db('User').find('email', email.toLowerCase(), [
+      const result = await db('User').find('email', [email.toLowerCase()], [
         'id', 'email',
       ]);
       if (result.rows.length === 1) {
