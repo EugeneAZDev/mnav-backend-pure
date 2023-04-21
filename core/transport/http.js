@@ -12,13 +12,14 @@ const REQUEST_LIMITS = [
   { interval: 30 * MINUTE, limit: TRY_LIMIT * 3, delay: 3 * HOUR },
   { interval: 3 * HOUR, limit: TRY_LIMIT * 4, delay: 24 * HOUR },
 ];
+
 const HEADERS = {
   'X-XSS-Protection': '1; mode=block',
   'X-Content-Type-Options': 'nosniff',
   'Strict-Transport-Security': 'max-age=31536000; includeSubdomains; preload',
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'POST, GET, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
   'Content-Type': 'application/json; charset=UTF-8',
 };
 
@@ -43,6 +44,7 @@ module.exports = (routing, port, console) => {
     .createServer(async (req, res) => {
       const client = await Client.getInstance(req, res);
       res.writeHead(200, HEADERS);
+
       if (req.method !== 'POST') return res.end('"Method not found"');
       const { url, socket } = req;
       const [ place, name, method ] = url.substring(1).split('/');
