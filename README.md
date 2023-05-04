@@ -1,4 +1,4 @@
-# My Navigator Activity (MNav)
+# My Activity Navigator
 
 ## Clean Installation
 

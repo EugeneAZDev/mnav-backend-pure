@@ -2,6 +2,9 @@
 
 const crypto = require('node:crypto');
 
+const SALT_LEN = 32;
+const KEY_LEN = 64;
+
 const SCRYPT_PARAMS = { N: 32768, r: 8, p: 1, maxmem: 64 * 1024 * 1024 };
 const SCRYPT_PREFIX = '$scrypt$N=32768,r=8,p=1,maxmem=67108864$';
 
@@ -31,9 +34,6 @@ const deserializeHash = (phcString) => {
   const hash = Buffer.from(hash64, 'base64');
   return { params, salt, hash };
 };
-
-const SALT_LEN = 32;
-const KEY_LEN = 64;
 
 const hashPassword = (password) =>
   new Promise((resolve, reject) => {

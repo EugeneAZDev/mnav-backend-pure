@@ -1,3 +1,3 @@
-declare namespace structure {
+declare namespace clientApi {
   function clientApi (): object;
 }

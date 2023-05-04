@@ -1,6 +1,6 @@
 ({
   method: () => ({
     ...httpResponses.success(),
-    body: { priorities: ['low', 'medium', 'high', 'none', 'optional'] }
+    body: { priorities: ['low', 'medium', 'high', 'none', 'optional', 'other'] }
   }),
 });

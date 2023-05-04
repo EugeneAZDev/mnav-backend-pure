@@ -1,27 +1,25 @@
 'use strict';
 
 const path = require('node:path');
-
-const logger = require('./lib/logger.js');
-const common = require('./lib/common.js');
-const httpResponses = require('./lib/httpResponses.js');
-
 const appPath = path.join(__dirname, '../app');
 const apiPath = path.join(appPath, './api');
-
 const config = require('./config.js');
-
+const common = require('./lib/common.js');
+const db = require('./lib/db.js')(config.db);
+const excel = require('./lib/excel.js');
+const getClientApi = require('../app/structure/clientApi.js');
+const logger = require('./lib/logger.js');
 const load = require('./src/loader.js')(config.sandbox);
 const loadEnv = require('./src/getEnv.js');
-
-const db = require('./lib/db.js')(config.db);
+const httpResponses = require('./lib/httpResponses.js');
 const transport = require(`./transport/${config.api.transport}.js`);
-const getClientApi = require('../app/static/structure.js');
+
 const sandbox = {
   api: Object.freeze({}),
-  db: Object.freeze(db),
   console: Object.freeze(logger),
   common: Object.freeze(common),
+  db: Object.freeze(db),
+  excel: Object.freeze(excel),
   httpResponses: Object.freeze(httpResponses),
   structure: Object.freeze(getClientApi)
 };
@@ -29,7 +27,7 @@ const sandbox = {
 (async () => {
   await loadEnv();
 
-  const { clientApi } = require('../app/static/structure.js');
+  const { clientApi } = require('../app/structure/clientApi.js');
   const routing = await load(apiPath, sandbox, true);
 
   // Fill client structure api

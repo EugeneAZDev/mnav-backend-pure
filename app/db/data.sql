@@ -2,13 +2,13 @@
 INSERT INTO "User" ("email", "password") VALUES
   ('admin@local.loc', '$scrypt$N=32768,r=8,p=1,maxmem=67108864$p7DBp3v1Zx+69RVx34h5Ag7cD3afRPCzVRVnEjsHyJw$68t4RJhzu/jlU0LBQ1WcOT11/DF8Ycn3h6CqBOsC1HNKkQDYoTyzcd2G1AWxGM0h4rX/JeykrycI1FDMYM8psQ');   
 
-INSERT INTO "Item" (title, description, "targetValue", priority, "type", "userId", "createdAt")
+INSERT INTO "Item" (title, description, "targetValue", "type", "userId", "createdAt")
 VALUES
-	('EYES', 'Exercises', 10, 'high'::"ItemPriority", 'active'::"ItemType", 1, now()),
-	('LEGS', 'Squats', 20, 'medium'::"ItemPriority", 'sport'::"ItemType", 1, '2023-04-20 11:45:00'),
-	('ARMS', 'Push-ups', 15, 'low'::"ItemPriority", 'sport'::"ItemType", 1, '2023-04-20 14:00:00'),
-	('BACK', 'Deadlifts', 30, 'high'::"ItemPriority", 'sport'::"ItemType", 1, now()),
-	('CORE', 'Planks', 5, 'optional'::"ItemPriority", 'active'::"ItemType", 1, '2023-04-21 18:15:00');
+	('EYES', 'Exercises', 10, 'active'::"ItemType", 1, now()),
+	('LEGS', 'Squats', 20, 'sport'::"ItemType", 1, '2023-04-20 11:45:00'),
+	('ARMS', 'Push-ups', 15, 'sport'::"ItemType", 1, '2023-04-20 14:00:00'),
+	('BACK', 'Deadlifts', 30, 'sport'::"ItemType", 1, now()),
+	('CORE', 'Planks', 5, 'active'::"ItemType", 1, '2023-04-21 18:15:00');
 
 INSERT INTO public."ItemValue" ("itemId", value, "createdAt")
 VALUES (1, 8, '2023-04-19 08:00:00'), (1, 12, '2023-04-19 09:30:00'), (4, 16, '2023-04-20 11:00:00'),

@@ -7,14 +7,12 @@ CREATE TABLE "User" (
 ALTER TABLE "User" ADD CONSTRAINT "pkUser" PRIMARY KEY (id);
 CREATE UNIQUE INDEX "akUserEmail" ON "User" (email);
 
-CREATE TYPE "ItemPriority" AS ENUM ('low', 'medium', 'high', 'none', 'optional');
-CREATE TYPE "ItemType" AS ENUM('active', 'sport', 'other');
+CREATE TYPE "ItemType" AS ENUM('active', 'sport', 'optional', 'other');
 CREATE TABLE "Item" (
 	id bigint GENERATED ALWAYS AS IDENTITY,
 	title varchar NOT NULL,
 	description varchar,
 	"targetValue" smallint,
-	priority "ItemPriority",
 	type "ItemType",
 	"userId" bigint,
 	"createdAt" timestamp WITHOUT time ZONE DEFAULT now(),

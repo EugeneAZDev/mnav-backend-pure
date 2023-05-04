@@ -4,8 +4,9 @@
   },
   "globals": {
     "api": "readonly",
-    "db": "readonly",
     "common": "readonly",
+    "db": "readonly",
+    "excel": "readonly",
     "httpResponses": "readonly",
     "structure": "readonly"
   },
@@ -14,9 +15,10 @@
     "id-denylist": [
       2,
       "api",
-      "db",
       "common",
       "console",
+      "db",
+      "excel",
       "httpResponses",
       "structure"
     ]
