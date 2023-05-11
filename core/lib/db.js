@@ -4,6 +4,7 @@ const pg = require('pg');
 
 const crud = (pool) => (table) => ({
   async read(id, fields = ['*']) {
+    console.log(id);
     const names = fields.join(', ');
     const sql = `SELECT ${names} FROM "${table}"`;
     if (!id) return pool.query(sql);

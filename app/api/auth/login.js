@@ -13,7 +13,7 @@
       }
       return httpResponses.unauthorized();
     } catch (error) {
-      console.log(error)
+      console.log(error);
       return { ...httpResponses.error(), error };
     }
   },

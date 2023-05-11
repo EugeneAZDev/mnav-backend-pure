@@ -2,37 +2,43 @@
 
 const created = () => ({
   code: 201,
-  body: { message: 'Created' },
+  body: 'Created',
 });
 
 const error = () => ({
   code: 500,
-  body: { message: 'Internal Server Error' },
+  body: 'Internal Server Error',
 });
 
 const notFound = () => ({
   code: 404,
-  body: { message: 'Not Found' },
+  body: 'Not Found',
 });
 
 const success = () => ({
   code: 200,
-  body: { message: 'Success' },
+  body: 'Success',
 });
 
 const unauthorized = () => ({
   code: 401,
-  body: { message: 'Incorrect Login or Password' },
+  body: 'Incorrect Login or Password',
 });
 
 const updated = () => ({
   code: 200,
-  body: { message: 'Updated' },
+  body: 'Updated',
+});
+
+const deleted = () => ({
+  code: 204,
+  body: 'Updated',
 });
 
 
 module.exports = {
   created,
+  deleted,
   error,
   notFound,
   success,

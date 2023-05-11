@@ -131,11 +131,11 @@ const extractArguments = (input) => {
 };
 
 module.exports = {
+  extractArguments,
+  generateToken,
   hashPassword,
-  validatePassword,
   jsonParse,
   receiveBody,
-  generateToken,
+  validatePassword,
   validateToken,
-  extractArguments,
 };

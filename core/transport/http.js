@@ -106,7 +106,7 @@ module.exports = (routing, port, console) => {
       }
 
       const { args } = await receiveArgs(req);
-      const result = await handler().method({ ...args });
+      const result = await handler().method({ ...args, clientId: client.id });
       if (result.error) {
         console.log(result.error);
       }
