@@ -7,7 +7,7 @@ VALUES
   ('Activity', 1, now()),
   ('Other', 1, now());
 
-INSERT INTO "Item" (title, description, "targetValue", "sectionId", "valueType", characteristics, "userId", "createdAt")
+INSERT INTO "Item" (title, description, target, "sectionId", "valueType", "valueVariation", "userId", "createdAt")
 VALUES
 	('EYES', 'Exercises', 10, 1, 'number', TRUE, 1, now()),
 	('LEGS', 'Squats',    20, 1, 'number', TRUE, 1, '2023-04-20 11:45:00'),

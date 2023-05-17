@@ -31,7 +31,7 @@ const updated = () => ({
 });
 
 const deleted = () => ({
-  code: 204,
+  code: 200,
   body: 'Updated',
 });
 

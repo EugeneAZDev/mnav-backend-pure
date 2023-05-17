@@ -1,7 +1,5 @@
 'use strict';
 
-const xlsx = require('xlsx');
-
 const download = () => undefined;
 
 const upload = () => undefined;
