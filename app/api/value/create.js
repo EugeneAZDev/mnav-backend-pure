@@ -1,5 +1,6 @@
 ({
-  method: async ({ ...records }) => {
+  // eslint-disable-next-line no-unused-vars
+  method: async ({ clientId, ...records }) => {
     try {
       const result = await db('ItemValue').create({ ...records });
       const [ value ] = result.rows;

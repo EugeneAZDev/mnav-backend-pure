@@ -113,7 +113,8 @@ const validatePassword = (password, serHash) => {
 };
 
 const validItemTargetValue = (target) =>
-  (typeof target === 'string' && !isNaN(Number(target)) ?
+  ((typeof target === 'string' || typeof target === 'number') &&
+    !isNaN(Number(target)) ?
     Number(target) :
     undefined);
 

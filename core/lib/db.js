@@ -1,7 +1,6 @@
 'use strict';
-
 const pg = require('pg');
-
+const deletedAtWhere = '"deletedAt" IS NULL';
 const crud = (pool) => (table) => ({
   query(sql, args) {
     return pool.query(sql, args);
@@ -25,7 +24,8 @@ const crud = (pool) => (table) => ({
   async count(column, values) {
     const valueList = values.map((value) => `'${value}'`).join(', ');
     const sql =
-      `SELECT COUNT(*) FROM "${table}" WHERE "${column}" IN (${valueList})`;
+      `SELECT COUNT(id) FROM "${table}"
+       WHERE "${column}" IN (${valueList}) AND ${deletedAtWhere}`;
     const result = await pool.query(sql);
     if (result.rows.length > 0) {
       return result.rows[0].count;
@@ -34,7 +34,7 @@ const crud = (pool) => (table) => ({
   },
 
   async delete(id) {
-    const sql = `DELETE FROM "${table}" WHERE id = $1`;
+    const sql = `UPDATE "${table}" SET "deletedAt" = NOW() WHERE id = $1`;
     return pool.query(sql, [id]);
   },
 
@@ -42,15 +42,16 @@ const crud = (pool) => (table) => ({
     const names = fields.join(', ');
     const valueList = values.map((value) => `'${value}'`).join(', ');
     const sql =
-      `SELECT ${names} FROM "${table}" WHERE "${column}" IN (${valueList})`;
+      `SELECT ${names} FROM "${table}"
+       WHERE "${column}" IN (${valueList}) AND ${deletedAtWhere}`;
     return pool.query(sql);
   },
 
   async read(id, fields = ['*']) {
     const names = fields.join(', ');
-    const sql = `SELECT ${names} FROM "${table}"`;
+    const sql = `SELECT ${names} FROM "${table}" WHERE ${deletedAtWhere}`;
     if (!id) return pool.query(sql);
-    return pool.query(`${sql} WHERE id = $1`, [id]);
+    return pool.query(`${sql} AND id = $1`, [id]);
   },
 
   async update(id, { ...record }) {

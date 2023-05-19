@@ -7,7 +7,8 @@
         JOIN "Item" i ON	iv."itemId" = i.id
       WHERE	i."userId" = ${clientId}
         AND i.id = ${id}
-        AND DATE(iv."createdAt") = CURRENT_DATE;
+        AND DATE(iv."createdAt") = CURRENT_DATE
+        AND iv."deletedAt" IS NULL;
       `;
       const result = await db().query(sql);
       if (result.rows.length > 0) {
