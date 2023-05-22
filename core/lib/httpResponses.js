@@ -2,39 +2,49 @@
 
 const created = () => ({
   code: 201,
-  body: 'Created',
+  body: { message: 'Created' },
 });
 
 const error = () => ({
   code: 500,
-  body: 'Internal Server Error',
+  body: { message: 'Internal Server Error' },
 });
 
 const notFound = () => ({
   code: 404,
-  body: 'Not Found',
+  body: { message: 'Not Found' },
 });
 
 const success = () => ({
   code: 200,
-  body: 'Success',
+  body: { message: 'Success' },
 });
 
 const unauthorized = () => ({
   code: 401,
-  body: 'Incorrect Login or Password',
+  body: { message: 'Incorrect Login or Password' },
 });
 
 const updated = () => ({
   code: 200,
-  body: 'Updated',
+  body: { message:  'Updated' },
 });
 
 const deleted = () => ({
   code: 200,
-  body: 'Updated',
+  body: { message: 'Deleted' },
 });
 
+const modifiedBodyTemplate = (fn, extraField = {}) => {
+  const response = fn();
+  return {
+    ...response,
+    body: {
+      ...response.body,
+      ...extraField
+    }
+  };
+};
 
 module.exports = {
   created,
@@ -42,6 +52,7 @@ module.exports = {
   error,
   notFound,
   success,
+  modifiedBodyTemplate,
   unauthorized,
   updated
 };

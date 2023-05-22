@@ -18,10 +18,14 @@
             });
             return acc;
           }, []);
-          return { ...httpResponses.success(), body: { items: resultSet } };
+          return httpResponses.modifiedBodyTemplate(httpResponses.success, {
+            items: resultSet
+          });
         }
       }
-      return { ...httpResponses.success(), body: { items: [] } };
+      return httpResponses.modifiedBodyTemplate(httpResponses.success, {
+        items: []
+      });
     } catch (error) {
       return { ...httpResponses.error(), error };
     }

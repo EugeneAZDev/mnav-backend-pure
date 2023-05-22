@@ -5,7 +5,7 @@
       if (valuesCount > 0) {
         return {
           ...httpResponses.error(),
-          body: 'Unable to delete Item with associated values',
+          body: { message: 'Unable to delete Item with associated values' },
         };
       }
       await db('Item').delete(id);

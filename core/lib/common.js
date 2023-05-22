@@ -8,6 +8,16 @@ const KEY_LEN = 64;
 const SCRYPT_PARAMS = { N: 32768, r: 8, p: 1, maxmem: 64 * 1024 * 1024 };
 const SCRYPT_PREFIX = '$scrypt$N=32768,r=8,p=1,maxmem=67108864$';
 
+const parseOptions = (options) => {
+  const values = [];
+  const items = options.split(',');
+  for (const item of items) {
+    const [key, val] = item.split('=');
+    values.push([key, Number(val)]);
+  }
+  return Object.fromEntries(values);
+};
+
 const deserializeHash = (phcString) => {
   const [, name, options, salt64, hash64] = phcString.split('$');
   if (name !== 'scrypt') {
@@ -82,16 +92,6 @@ const jsonParse = (buffer) => {
   }
 };
 
-const parseOptions = (options) => {
-  const values = [];
-  const items = options.split(',');
-  for (const item of items) {
-    const [key, val] = item.split('=');
-    values.push([key, Number(val)]);
-  }
-  return Object.fromEntries(values);
-};
-
 const receiveBody = async (req) => {
   const buffers = [];
   for await (const chunk of req) buffers.push(chunk);
@@ -112,7 +112,7 @@ const validatePassword = (password, serHash) => {
   });
 };
 
-const validItemTargetValue = (target) =>
+const validNumberValue = (target) =>
   ((typeof target === 'string' || typeof target === 'number') &&
     !isNaN(Number(target)) ?
     Number(target) :
@@ -144,5 +144,5 @@ module.exports = {
   receiveBody,
   validatePassword,
   validateToken,
-  validItemTargetValue,
+  validNumberValue,
 };

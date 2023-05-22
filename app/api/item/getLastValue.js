@@ -1,16 +1,18 @@
 ({
-  method: async ({ clientId }) => {
+  method: async ({ id }) => {
     try {
-      console.log(clientId);
-      const result = await db('Item').find('userId', [clientId]);
+      const sql = `
+        SELECT value FROM "ItemValue" iv 
+        WHERE "itemId" = ${id} AND "deletedAt" IS NULL 
+        ORDER BY "createdAt" DESC LIMIT 1;`;
+      const result = await db().query(sql);
       if (result.rows.length > 0) {
-        const items = result.rows;
         return httpResponses.modifiedBodyTemplate(httpResponses.success, {
-          items
+          lastValue: result.rows[0].value,
         });
       }
       return httpResponses.modifiedBodyTemplate(httpResponses.success, {
-        items: [],
+        lastValue: undefined,
       });
     } catch (error) {
       return { ...httpResponses.error(), error };

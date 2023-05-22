@@ -12,11 +12,14 @@
       `;
       const result = await db().query(sql);
       if (result.rows.length > 0) {
-        console.log(result.rows);
         const values = result.rows;
-        return { ...httpResponses.success(), body: { values } };
+        return httpResponses.modifiedBodyTemplate(httpResponses.success, {
+          values
+        });
       }
-      return { ...httpResponses.success(), body: { values: [] } };
+      return httpResponses.modifiedBodyTemplate(httpResponses.success, {
+        value: []
+      });
     } catch (error) {
       return { ...httpResponses.error(), error };
     }
