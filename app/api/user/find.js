@@ -6,8 +6,6 @@
       const result = await db('User').find('email', [ email.toLowerCase() ], [
         'id', 'email',
       ]);
-      console.log(email);
-      console.log(result);
       if (result.rows.length === 1) {
         const [ user ] = result.rows;
         return httpResponses.modifiedBodyTemplate(httpResponses.success, {

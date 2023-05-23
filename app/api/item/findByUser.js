@@ -1,7 +1,6 @@
 ({
   method: async ({ clientId }) => {
     try {
-      console.log(clientId);
       const result = await db('Item').find('userId', [clientId]);
       if (result.rows.length > 0) {
         const items = result.rows;

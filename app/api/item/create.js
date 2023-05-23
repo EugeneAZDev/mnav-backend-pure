@@ -5,7 +5,7 @@
       const validTarget = common.validNumberValue(target);
       const result = await db('Item').create({
         userId: clientId,
-        target: validTarget,
+        target: validTarget || null,
         ...args,
       });
       const [item] = result.rows;
