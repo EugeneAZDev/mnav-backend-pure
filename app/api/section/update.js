@@ -4,9 +4,9 @@
     try {
       const { ...data } = records;
       await db('ItemSection').update(id, { ...data });
-      return httpResponses.updated();
+      return responseType.updated();
     } catch (error) {
-      return { ...httpResponses.error(), error };
+      return { ...responseType.error(), error };
     }
   },
 });

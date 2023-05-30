@@ -2,9 +2,9 @@
   method: async () => {
     try {
       console.log('Worked!');
-      return httpResponses.success();
+      return responseType.success();
     } catch (error) {
-      return { ...httpResponses.error(), error };
+      return { ...responseType.error(), error };
     }
   },
 });

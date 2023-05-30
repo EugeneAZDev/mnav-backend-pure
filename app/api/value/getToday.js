@@ -13,15 +13,15 @@
       const result = await db().query(sql);
       if (result.rows.length > 0) {
         const values = result.rows;
-        return httpResponses.modifiedBodyTemplate(httpResponses.success, {
+        return responseType.modifiedBodyTemplate(responseType.success, {
           values
         });
       }
-      return httpResponses.modifiedBodyTemplate(httpResponses.success, {
+      return responseType.modifiedBodyTemplate(responseType.success, {
         value: []
       });
     } catch (error) {
-      return { ...httpResponses.error(), error };
+      return { ...responseType.error(), error };
     }
   }
 });

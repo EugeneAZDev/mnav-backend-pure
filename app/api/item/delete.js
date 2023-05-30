@@ -4,14 +4,14 @@
       const valuesCount = await db('ItemValue').count('itemId', [id]);
       if (valuesCount > 0) {
         return {
-          ...httpResponses.error(),
+          ...responseType.error(),
           body: { message: 'Unable to delete Item with associated values' },
         };
       }
       await db('Item').delete(id);
-      return httpResponses.deleted();
+      return responseType.deleted();
     } catch (error) {
-      return { ...httpResponses.error(), error };
+      return { ...responseType.error(), error };
     }
   },
 });

@@ -8,15 +8,15 @@
         const valid = await common.validatePassword(password, user.password);
         if (valid) {
           const token = await common.generateToken(user.id);
-          return httpResponses.modifiedBodyTemplate(
-            httpResponses.success,
+          return responseType.modifiedBodyTemplate(
+            responseType.success,
             { token },
           );
         }
       }
-      return httpResponses.unauthorized();
+      return responseType.unauthorized();
     } catch (error) {
-      return { ...httpResponses.error(), error };
+      return { ...responseType.error(), error };
     }
   },
 });

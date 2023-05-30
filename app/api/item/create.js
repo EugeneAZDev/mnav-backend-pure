@@ -9,11 +9,11 @@
         ...args,
       });
       const [item] = result.rows;
-      return httpResponses.modifiedBodyTemplate(httpResponses.created, {
+      return responseType.modifiedBodyTemplate(responseType.created, {
         itemId: item.id,
       });
     } catch (error) {
-      return { ...httpResponses.error(), error };
+      return { ...responseType.error(), error };
     }
   },
 });

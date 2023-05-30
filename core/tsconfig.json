@@ -9,5 +9,5 @@
     "noEmit": true,
     "skipLibCheck": true
   },
-  "include": ["*", "**/*"]
+  "include": ["*", "**/*", "../app/lib/excel", "../app/lib/excel"]
 }

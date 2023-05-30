@@ -4,15 +4,15 @@
       const result = await db('ItemSection').find('userId', [clientId]);
       if (result.rows.length > 0) {
         const sections = result.rows;
-        return httpResponses.modifiedBodyTemplate(httpResponses.success, {
+        return responseType.modifiedBodyTemplate(responseType.success, {
           sections
         });
       }
-      return httpResponses.modifiedBodyTemplate(httpResponses.success, {
+      return responseType.modifiedBodyTemplate(responseType.success, {
         sections: []
       });
     } catch (error) {
-      return { ...httpResponses.error(), error };
+      return { ...responseType.error(), error };
     }
   },
 });

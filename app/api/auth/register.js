@@ -6,11 +6,11 @@
       const result = await db('User').read(id);
       if (result.rows.length === 1) {
         await db('User').update(id, { password: hash });
-        return httpResponses.success();
+        return responseType.success();
       }
-      return httpResponses.notFound();
+      return responseType.notFound();
     } catch (error) {
-      return { ...httpResponses.error(), error };
+      return { ...responseType.error(), error };
     }
   },
 });

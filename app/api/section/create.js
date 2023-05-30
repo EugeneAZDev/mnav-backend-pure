@@ -7,11 +7,11 @@
         ...args,
       });
       const [section] = result.rows;
-      return httpResponses.modifiedBodyTemplate(httpResponses.created, {
+      return responseType.modifiedBodyTemplate(responseType.created, {
         sectionId: section.id
       });
     } catch (error) {
-      return { ...httpResponses.error(), error };
+      return { ...responseType.error(), error };
     }
   },
 });

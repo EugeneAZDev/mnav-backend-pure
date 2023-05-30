@@ -8,9 +8,9 @@
         target: validTarget,
         ...data,
       });
-      return httpResponses.updated();
+      return responseType.updated();
     } catch (error) {
-      return { ...httpResponses.error(), error };
+      return { ...responseType.error(), error };
     }
   },
 });

@@ -4,15 +4,16 @@
       const result = await db('Item').read(id);
       if (result.rows.length === 1) {
         const [item] = result.rows;
-        return httpResponses.modifiedBodyTemplate(httpResponses.success, {
+        return responseType.modifiedBodyTemplate(responseType.success, {
           item,
         });
       }
-      return httpResponses.modifiedBodyTemplate(httpResponses.success, {
+      return responseType.modifiedBodyTemplate(responseType.success, {
         item: undefined,
       });
     } catch (error) {
-      return { ...httpResponses.error(), error };
+      console.log(error);
+      return { ...responseType.error(), error };
     }
   },
 });

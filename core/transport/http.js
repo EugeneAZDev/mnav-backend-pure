@@ -13,7 +13,7 @@ const REQUEST_LIMITS = [
   { interval: 3 * HOUR, limit: TRY_LIMIT * 4, delay: 24 * HOUR },
 ];
 
-const HEADERS = {
+let HEADERS = {
   'X-XSS-Protection': '1; mode=block',
   'X-Content-Type-Options': 'nosniff',
   'Strict-Transport-Security': 'max-age=31536000; includeSubdomains; preload',
@@ -47,7 +47,7 @@ module.exports = (routing, port, console) => {
 
       if (req.method !== 'POST') return res.end('"Method not found"');
       const { url, socket } = req;
-      const [ place, name, method ] = url.substring(1).split('/');
+      const [place, name, method] = url.substring(1).split('/');
       console.log(`${socket.remoteAddress} ${method} ${url}`);
       if (place !== 'api') return res.end('"API not found"');
       const entity = routing[name.toLowerCase()];
@@ -62,7 +62,6 @@ module.exports = (routing, port, console) => {
           res.end(JSON.stringify({ message: 'Unauthorized' }));
         }
       }
-
       // Limit requests for "user/find" endpoint
       if (name.toLowerCase() === 'user' && method.toLowerCase() === 'find') {
         const now = Date.now();
@@ -85,7 +84,7 @@ module.exports = (routing, port, console) => {
             break;
           }
         }
-
+        // =======================
         if (requestLimit) {
           const remainingTime =
             requestLimit.delay -
@@ -107,12 +106,18 @@ module.exports = (routing, port, console) => {
 
       const { args } = await receiveArgs(req);
       const result = await handler().method({ ...args, clientId: client.id });
+      if (result.extraHeaders) {
+        HEADERS = { ...HEADERS, ...result.extraHeaders };
+      }
       if (result.error) {
         console.log(result.error);
       }
-
       res.writeHead(result.code, HEADERS);
-      res.end(JSON.stringify(result.body));
+      if (result.buffer) {
+        res.end(result.buffer);
+      } else {
+        res.end(JSON.stringify(result.body));
+      }
     })
     .listen(port);
 

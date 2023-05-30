@@ -1,39 +1,38 @@
 'use strict';
+const config = require('./config.js');
+const common = require('./lib/common.js');
+const db = require('./lib/db.js')(config.db);
+const load = require('./src/loader.js')(config.sandbox);
+const loadEnv = require('./src/getEnv.js');
+const logger = require('./lib/logger.js');
+const responseType = require('./lib/responseType.js');
+const transport = require(`./transport/${config.api.transport}.js`);
+const vm = require('node:vm');
 
 const path = require('node:path');
 const appPath = path.join(__dirname, '../app');
 const apiPath = path.join(appPath, './api');
-const config = require('./config.js');
-const common = require('./lib/common.js');
-const db = require('./lib/db.js')(config.db);
-const excel = require('./lib/excel.js');
-const getClientApi = require('../app/structure/clientApi.js');
-const logger = require('./lib/logger.js');
-const load = require('./src/loader.js')(config.sandbox);
-const loadEnv = require('./src/getEnv.js');
-const httpResponses = require('./lib/httpResponses.js');
-const transport = require(`./transport/${config.api.transport}.js`);
+const libPath = path.join(appPath, './lib');
 
 const sandbox = {
-  api: Object.freeze({}),
+  api: {},
   console: Object.freeze(logger),
   common: Object.freeze(common),
   db: Object.freeze(db),
-  excel: Object.freeze(excel),
-  httpResponses: Object.freeze(httpResponses),
-  structure: Object.freeze(getClientApi)
+  lib: {},
+  responseType: Object.freeze(responseType),
 };
+const context = vm.createContext(sandbox);
 
 (async () => {
   await loadEnv();
-
-  const { clientApi } = require('../app/structure/clientApi.js');
-  const routing = await load(apiPath, sandbox, true);
-
-  // Fill client structure api
-  for (const name in routing) {
+  const api = await load(apiPath, context, true);
+  context.api = Object.freeze(api);
+  const lib = await load(libPath, context);
+  const clientApi = lib.client.api.get();
+  for (const name in api) {
     clientApi[name] = {};
-    const entity = routing[name];
+    const entity = api[name];
     for (const method in entity) {
       const handler = entity[method];
       const str = handler.toString().split('method: ')[1].split('=> ')[0];
@@ -41,6 +40,7 @@ const sandbox = {
       clientApi[name][method] = args;
     }
   }
-
+  context.lib = Object.freeze(lib);
+  const routing = await load(apiPath, context, true);
   transport(routing, config.api.port, logger);
 })();

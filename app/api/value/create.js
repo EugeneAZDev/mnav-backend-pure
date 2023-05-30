@@ -4,11 +4,11 @@
     try {
       const result = await db('ItemValue').create({ ...records });
       const [ value ] = result.rows;
-      return httpResponses.modifiedBodyTemplate(httpResponses.created, {
+      return responseType.modifiedBodyTemplate(responseType.created, {
         valueId: value.id
       });
     } catch (error) {
-      return { ...httpResponses.error(), error };
+      return { ...responseType.error(), error };
     }
   },
 });

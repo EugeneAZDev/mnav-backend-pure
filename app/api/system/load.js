@@ -1,4 +1,7 @@
 ({
   access: 'public',
-  method: () => ({ ...httpResponses.success(), body: structure.getClientApi() })
+  method: () => ({
+    ...responseType.success(),
+    body: lib.client.api.get(),
+  }),
 });

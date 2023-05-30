@@ -1,6 +1,7 @@
 'use strict';
 
 const crypto = require('node:crypto');
+const ExcelJS = require('exceljs');
 
 const SALT_LEN = 32;
 const KEY_LEN = 64;
@@ -137,6 +138,7 @@ const validateToken = (token) => {
 };
 
 module.exports = {
+  ExcelJS,
   extractArguments,
   generateToken,
   hashPassword,
