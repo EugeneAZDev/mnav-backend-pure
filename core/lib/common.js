@@ -2,7 +2,7 @@
 
 const crypto = require('node:crypto');
 const ExcelJS = require('exceljs');
-
+const fs = require('node:fs');
 const SALT_LEN = 32;
 const KEY_LEN = 64;
 
@@ -147,4 +147,5 @@ module.exports = {
   validatePassword,
   validateToken,
   validNumberValue,
+  fs
 };

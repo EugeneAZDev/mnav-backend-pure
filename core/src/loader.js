@@ -9,8 +9,8 @@ const load = async (filePath, sandbox, contextualize = false, options) => {
   const opening = contextualize ? '(context) => ' : '';
   const code = `'use strict';\n${opening}${src}`;
   const script = new vm.Script(code, { ...options, lineOffset: -1 });
-  const context = vm.createContext(Object.freeze({ ...sandbox }));
-  return script.runInContext(context, options);
+  // const context = vm.createContext(Object.freeze({ ...sandbox }));
+  return script.runInContext(sandbox, options);
 };
 
 const loadDir = async (dir, sandbox, contextualize = false, options) => {

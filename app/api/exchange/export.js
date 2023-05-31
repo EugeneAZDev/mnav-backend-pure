@@ -1,8 +1,7 @@
 ({
   method: async ({ clientId }) => {
     try {
-      const buffer = clientId;
-      await lib.excel.createExcelFile(clientId);
+      const buffer = await lib.excel.createExcelFile(clientId);
       return {
         ...responseType.success(),
         extraHeaders: {

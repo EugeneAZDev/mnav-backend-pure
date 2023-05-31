@@ -1,0 +1,38 @@
+({
+  async saveBufferToFile(buffer, filePath) {
+    try {
+      await common.fs.promises.writeFile(filePath, buffer);
+      console.log('DONE');
+    } catch (error) {
+      console.error('ERROR:', error);
+    }
+  },
+
+  async createExcelFile() {
+    const setCellDateValue = (sheet, cell, date) => {
+      const formatted = date
+        .toLocaleDateString('en-GB', {
+          day: 'numeric',
+          month: 'short',
+          year: 'numeric',
+        })
+        .replace(/ /g, '-');
+      sheet.getCell(cell).value = formatted;
+      sheet.getCell(cell).numFmt = 'd-mmm-yy';
+    };
+
+    const wb = new common.ExcelJS.Workbook();
+    wb.properties.date1904 = false;
+    wb.locale = 'en-US';
+
+    const sheet = wb.addWorksheet('MyActivities');
+    const today = new Date();
+
+    setCellDateValue(sheet, 'F2', today);
+    const buffer = await wb.xlsx.writeBuffer();
+    // eslint-disable-next-line max-len
+    // await this.saveBufferToFile(buffer, '/home/eugene/Desktop/Buffer.xlsx');
+    await wb.xlsx.writeFile('/home/eugene/Desktop/Buffer.xlsx');
+    return buffer;
+  },
+});

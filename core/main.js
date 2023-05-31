@@ -15,11 +15,9 @@ const apiPath = path.join(appPath, './api');
 const libPath = path.join(appPath, './lib');
 
 const sandbox = {
-  api: {},
   console: Object.freeze(logger),
   common: Object.freeze(common),
   db: Object.freeze(db),
-  lib: {},
   responseType: Object.freeze(responseType),
 };
 const context = vm.createContext(sandbox);
@@ -27,7 +25,6 @@ const context = vm.createContext(sandbox);
 (async () => {
   await loadEnv();
   const api = await load(apiPath, context, true);
-  context.api = Object.freeze(api);
   const lib = await load(libPath, context);
   const clientApi = lib.client.api.get();
   for (const name in api) {
@@ -40,7 +37,9 @@ const context = vm.createContext(sandbox);
       clientApi[name][method] = args;
     }
   }
+  context.api = Object.freeze(api);
   context.lib = Object.freeze(lib);
+
   const routing = await load(apiPath, context, true);
   transport(routing, config.api.port, logger);
 })();
