@@ -3,6 +3,7 @@ const BOLD_CENTER_STYLE = {
   font: { bold: true },
   alignment: { horizontal: 'center' },
 };
+const MY_ACTIVITY = 'MyActivity';
 
 const cellStyles = new Map([
   [
@@ -66,6 +67,17 @@ const cellFormulaValues = new Map();
         year: 'numeric',
       })
       .replace(/ /g, '-');
+  },
+
+  getActivitySheet(wb) {
+    for (const sheet of wb.worksheets) {
+      const cell = sheet.getCell('B1');
+      if (
+        cell.value &&
+        cell.value.toString().toLowerCase() === MY_ACTIVITY.toLowerCase()
+      )
+        return sheet;
+    }
   },
 
   getExcelAlpha(columnNumber) {
@@ -141,7 +153,6 @@ const cellFormulaValues = new Map();
             cellValues.set(cell, Number(values[0]));
           }
         } else if (values.length > 0) {
-          console.log(values);
           const resultString = values.reduce((res, str, index) => {
             const separator = ', \n';
             if (index === 0) {
@@ -189,10 +200,12 @@ const cellFormulaValues = new Map();
 
   async createExcelFile(clientId) {
     let LATEST_COLUMN = 7;
+
     const wb = new common.ExcelJS.Workbook();
     wb.properties.date1904 = false;
     wb.locale = 'en-US';
-    const sheet = wb.addWorksheet('MyActivities');
+
+    const sheet = wb.addWorksheet(MY_ACTIVITY);
 
     const { body } = await api.value.exportByUser().method({ clientId });
     const exportValues = body && body.exportValues;
@@ -296,5 +309,17 @@ const cellFormulaValues = new Map();
 
     const buffer = await wb.xlsx.writeBuffer();
     return buffer;
+  },
+
+  async getDataFromExcel(clientId, file) {
+    const wb = new common.ExcelJS.Workbook();
+    wb.properties.date1904 = false;
+    wb.locale = 'en-US';
+
+    await wb.xlsx.load(file);
+    const sheet = this.getActivitySheet(wb);
+    if (!sheet) return;
+
+    return true;
   },
 });

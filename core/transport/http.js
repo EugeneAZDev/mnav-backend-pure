@@ -1,6 +1,7 @@
 'use strict';
 
 const http = require('node:http');
+// const fs = require('node:fs');
 
 const TRY_LIMITATIONS = 10000;
 const TRY_LIMIT = 3;
@@ -13,7 +14,7 @@ const REQUEST_LIMITS = [
   { interval: 3 * HOUR, limit: TRY_LIMIT * 4, delay: 24 * HOUR },
 ];
 
-let HEADERS = {
+const INITIAL_HEADERS = {
   'X-XSS-Protection': '1; mode=block',
   'X-Content-Type-Options': 'nosniff',
   'Strict-Transport-Security': 'max-age=31536000; includeSubdomains; preload',
@@ -30,9 +31,13 @@ const Client = require('../src/client.js');
 const receiveArgs = async (req) => {
   const buffers = [];
   for await (const chunk of req) buffers.push(chunk);
-  const data = Buffer.concat(buffers).toString();
+  const resultBuffer = Buffer.concat(buffers);
   try {
-    if (data.length > 0) return JSON.parse(data);
+    const data = resultBuffer.toString();
+    if (data.includes('Content-Disposition: form-data;')) return {
+      file: resultBuffer
+    };
+    else if (data.length > 0) return JSON.parse(data);
     else return {};
   } catch (err) {
     throw new Error(err.message);
@@ -42,6 +47,7 @@ const receiveArgs = async (req) => {
 module.exports = (routing, port, console) => {
   http
     .createServer(async (req, res) => {
+      let HEADERS = INITIAL_HEADERS;
       const client = await Client.getInstance(req, res);
       res.writeHead(200, HEADERS);
 
@@ -104,8 +110,14 @@ module.exports = (routing, port, console) => {
         }
       }
 
-      const { args } = await receiveArgs(req);
-      const result = await handler().method({ ...args, clientId: client.id });
+      const { args, file } = await receiveArgs(req);
+
+      const records = {
+        ...args,
+        clientId: client.id
+      };
+      if (file) records.file = file;
+      const result = await handler().method(records);
       if (result.extraHeaders) {
         HEADERS = { ...HEADERS, ...result.extraHeaders };
       }
