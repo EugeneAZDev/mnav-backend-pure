@@ -3,8 +3,11 @@ const BOLD_CENTER_STYLE = {
   font: { bold: true },
   alignment: { horizontal: 'center' },
 };
-const MY_ACTIVITY = 'MyActivity';
+const CENTER_WRAPTEXT_STYLE = {
+  alignment: { horizontal: 'center', wrapText: true },
+};
 
+const MY_ACTIVITY = 'MyActivity';
 const cellStyles = new Map([
   [
     ['B1'],
@@ -26,6 +29,8 @@ const cellValues = new Map([
 ]);
 
 const cellFormulaValues = new Map();
+const cellsToCenterWrapTextStyle = [];
+const rowsFixedHeight = [];
 
 ({
   applyCellsStyle(data, sheet) {
@@ -54,7 +59,7 @@ const cellFormulaValues = new Map();
       const maxLength = column.values.reduce((prev, next) =>
         (prev.length > next.length ? prev : next),
       ).length;
-      column.width = maxLength + 2;
+      column.width = maxLength + 3;
       if (Number.isNaN(column.width)) column.width = 12;
     }
   },
@@ -122,22 +127,24 @@ const cellFormulaValues = new Map();
   fillCellValuesFromItem(items, row, letters, centerStyle) {
     for (const item in items) {
       let description;
+      let target;
       let title;
       let valueType;
       for (const day in items[item]) {
         const valueObj = items[item][day];
         const values = valueObj.values;
-        if (!title && !description) {
+        if (!title && !description && !target) {
           title = valueObj.title;
           description = valueObj.description;
+          target = valueObj.target;
         }
         if (!valueType) {
           valueType = valueObj.valueType;
         }
         const letter = letters.get(day);
         const cell = `${letter}${row}`;
-        centerStyle.push(cell);
         if (valueType !== 'text') {
+          centerStyle.push(cell);
           if (values.length > 1) {
             const resultString = values.reduce(
               (obj, val, index) => {
@@ -153,20 +160,26 @@ const cellFormulaValues = new Map();
             cellValues.set(cell, Number(values[0]));
           }
         } else if (values.length > 0) {
-          const resultString = values.reduce((res, str, index) => {
-            const separator = ', \n';
-            if (index === 0) {
-              const lines = str.split(' ');
-              res +=
-                lines.length > 1 ?
-                  `${lines[0]}\n${lines[1]}${separator}` :
-                  `${lines[0]}${separator}`;
-            } else {
-              res += `${str}${separator}`;
-            }
-            return res;
-          }, '');
+          let resultString = values[0];
+          if (values.length !== 1) {
+            const combinedValues = values.reduce((res, str, index) => {
+              const separator = ', \n';
+              if (index === 0) {
+                const lines = str.split(' ');
+                res +=
+                  lines.length > 1 ?
+                    `${lines[0]}\n${lines[1]}${separator}` :
+                    `${lines[0]}${separator}`;
+              } else {
+                res += `${str}${separator}`;
+              }
+              return res;
+            }, '');
+            resultString = combinedValues.slice(0, -4);
+          }
           cellValues.set(cell, resultString);
+          cellsToCenterWrapTextStyle.push(cell);
+          rowsFixedHeight.push(row);
         }
       }
       const excelValueType =
@@ -176,8 +189,14 @@ const cellFormulaValues = new Map();
       excelValueType && cellValues.set(`A${row}`, excelValueType);
       cellValues.set(`B${row}`, title);
       centerStyle.push(`B${row}`);
-      cellValues.set(`C${row}`, description);
-      centerStyle.push(`C${row}`);
+      if (description.length > 0) {
+        cellValues.set(`C${row}`, description);
+        centerStyle.push(`C${row}`);
+      }
+      if (target !== null) {
+        cellValues.set(`D${row}`, target);
+        centerStyle.push(`D${row}`);
+      }
       row += 1;
     }
     return row;
@@ -199,6 +218,7 @@ const cellFormulaValues = new Map();
   },
 
   async createExcelFile(clientId) {
+    const DESCRIPTION_COLUMN = 5;
     let LATEST_COLUMN = 7;
 
     const wb = new common.ExcelJS.Workbook();
@@ -211,7 +231,6 @@ const cellFormulaValues = new Map();
     const exportValues = body && body.exportValues;
     const cellsToCenterStyle = [];
     const cellsToBoldCenterStyle = [];
-
     if (exportValues.length === 0) {
       const today = new Date();
       const yesterday = new Date(new Date().setDate(new Date().getDate() - 1));
@@ -251,12 +270,12 @@ const cellFormulaValues = new Map();
       const days = Array.from(setOfAllDays).sort(
         (a, b) => new Date(b) - new Date(a),
       );
-      LATEST_COLUMN = days.length + 6;
+      LATEST_COLUMN = days.length + DESCRIPTION_COLUMN;
 
       let rowNumber = 2;
       const dayLetterColumnMap = new Map();
       for (let i = 0; i < days.length; i++) {
-        const columnLetter = this.getExcelAlpha(7 + i);
+        const columnLetter = this.getExcelAlpha(DESCRIPTION_COLUMN + 1 + i);
         cellsToCenterStyle.push(`${columnLetter}2`);
         dayLetterColumnMap.set(days[i], columnLetter);
         cellValues.set(`${columnLetter}${rowNumber}`, days[i]);
@@ -291,6 +310,7 @@ const cellFormulaValues = new Map();
     const centerStyleCells = this.findCellsByStyle(cellStyles, CENTER_STYLE);
     this.removeCellStylesElement(cellStyles, centerStyleCells);
     cellStyles.set([...centerStyleCells, ...cellsToCenterStyle], CENTER_STYLE);
+
     const centerBoldStyleCells = this.findCellsByStyle(
       cellStyles,
       BOLD_CENTER_STYLE,
@@ -300,12 +320,20 @@ const cellFormulaValues = new Map();
       [...centerBoldStyleCells, ...cellsToBoldCenterStyle],
       BOLD_CENTER_STYLE,
     );
+
+    cellStyles.set(cellsToCenterWrapTextStyle, CENTER_WRAPTEXT_STYLE);
+
     this.fillCells(cellValues, sheet);
     this.fillFormulas(cellFormulaValues, sheet);
     this.applyCellsStyle(cellStyles, sheet);
 
-    for (let i = 1; i <= LATEST_COLUMN; i++)
-      this.autoWidthFormat(sheet.getColumn(i));
+    for (let i = 0; i <= LATEST_COLUMN; i++) {
+      this.autoWidthFormat(sheet.getColumn(i + 1));
+    }
+
+    [...new Set(rowsFixedHeight)].map(
+      (rowNumber) => (sheet.getRow(rowNumber).height = 15),
+    );
 
     const buffer = await wb.xlsx.writeBuffer();
     return buffer;
