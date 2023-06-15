@@ -10,22 +10,22 @@ const CENTER_WRAPTEXT_STYLE = {
 const MY_ACTIVITY = 'MyActivity';
 const cellStyles = new Map([
   [
-    ['B1'],
+    ['C1'],
     {
       alignment: { horizontal: 'center' },
       font: { bold: true, color: { argb: 'FFBEBEBE' } },
     },
   ],
-  [['F2', 'G2'], CENTER_STYLE],
-  [['B2', 'C2', 'D2', 'E2'], BOLD_CENTER_STYLE],
+  [['G2', 'H2'], CENTER_STYLE],
+  [['C2', 'D2', 'E2', 'F2'], BOLD_CENTER_STYLE],
 ]);
 
 const cellValues = new Map([
-  ['B1', 'MyActivity'],
-  ['B2', 'Title (ABR)'],
-  ['C2', 'Description'],
-  ['D2', 'Target'],
-  ['E2', 'Data >'],
+  ['C1', 'MyActivity'],
+  ['C2', 'Title (ABR)'],
+  ['D2', 'Description'],
+  ['E2', 'Target'],
+  ['F2', 'Date >'],
 ]);
 
 const cellFormulaValues = new Map();
@@ -76,7 +76,7 @@ const rowsFixedHeight = [];
 
   getActivitySheet(wb) {
     for (const sheet of wb.worksheets) {
-      const cell = sheet.getCell('B1');
+      const cell = sheet.getCell('C1');
       if (
         cell.value &&
         cell.value.toString().toLowerCase() === MY_ACTIVITY.toLowerCase()
@@ -97,6 +97,129 @@ const rowsFixedHeight = [];
     }
 
     return columnName;
+  },
+
+  getItemFromRow(rowNumber, sheet) {
+    const ITEM_DETAILS = {
+      C: 'title',
+      D: 'description',
+      E: 'target',
+    };
+    const VALUE_TYPES = {
+      s: 'seconds',
+      m: 'minutes',
+    };
+
+    const item = {};
+    const values = [];
+    let valueType;
+    let valueVariation = true;
+
+    const row = sheet.getRow(rowNumber);
+    row.eachCell((cell) => {
+      const cellLetter = cell.address.match(/[a-zA-Z]+/)[0];
+      if (cellLetter === 'A' && cell.value) {
+        valueVariation = false;
+      } else if (cellLetter === 'B' && cell.value) {
+        valueType = VALUE_TYPES[cell.value];
+      } else if (['C', 'D', 'E', 'F'].includes(cellLetter) && cell.value) {
+        item[ITEM_DETAILS[cellLetter]] = cell.value;
+      } else {
+        const monthNames = [
+          'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct',
+          'Nov', 'Dec', ];
+        const cellDate = sheet.getCell(cellLetter + 2).value;
+        const date = new Date(cellDate);
+        const validDate = date instanceof Date && !isNaN(date);
+        let year;
+        let month;
+        let day;
+        if (!validDate) {
+          const dateParts = cellDate.split('-');
+          year = parseInt(dateParts[2]);
+          month = monthNames.indexOf(dateParts[1]);
+          day = parseInt(dateParts[0]);
+        } else {
+          year = date.getFullYear();
+          month = date.getMonth();
+          day = date.getDate();
+        }
+        const utcDate = new Date(Date.UTC(year, month, day));
+        const time = { time: new Date(utcDate) };
+        const type = cell.value.formula ? 'formula' : 'value';
+        if (type === 'formula') {
+          if (!valueType) valueType = 'number';
+          const arrayValues = cell.value.formula
+            .split('+')
+            .map((v) => v.replace('=', ''));
+          for (const value of arrayValues) {
+            if (value.includes('*')) {
+              const subValues = value.split('*');
+              if (+subValues[1] === 60) {
+                const value = subValues[0] * 60;
+                values.push({ value: +value, ...time });
+              } else {
+                for (let i = 0; i < +subValues[1]; i++) {
+                  values.push({ value: +subValues[0], ...time });
+                }
+              }
+            } else {
+              values.push({ value: +value, ...time });
+            }
+          }
+        } else {
+          if (!valueType)
+            valueType = this.validNumberValue(cell.value) ? 'number' : 'text';
+          if (valueType === 'text') {
+            cell.value
+              .replace('\n', '')
+              .split(',')
+              .map((value) => {
+                values.push({ value: value.trim(), ...time });
+              });
+          } else if (typeof cell.value === 'object') {
+            values.push({ value: +cell.result, ...time });
+          } else values.push({ value: +cell.value, ...time });
+        }
+      }
+    });
+    item.valueType = valueType;
+    item.valueVariation = valueVariation;
+    item.values = values;
+    return item;
+  },
+
+  pushItem(items, item, sectionName) {
+    if (item && item.values.length > 0) {
+      item.section = sectionName;
+      items.push(item);
+    }
+  },
+
+  getSectionName(worksheet, rowNumber) {
+    const row = worksheet.getRow(rowNumber);
+    let nonEmptyCellCount = 0;
+    let name = false;
+    for (const value of row.values) {
+      if (value !== null && value !== undefined && value !== '') {
+        name = value;
+        nonEmptyCellCount++;
+        if (nonEmptyCellCount > 1) {
+          return false;
+        }
+      }
+    }
+    if (name.toLowerCase() === MY_ACTIVITY.toLowerCase()) return false;
+    return name;
+  },
+
+  getSectionNameAndRowNumber(sheet) {
+    const list = [];
+    sheet.eachRow({ includeEmpty: false }, (row, rowNumber) => {
+      const name = this.getSectionName(sheet, rowNumber);
+      if (name !== false) list.push([name, rowNumber]);
+    });
+    return list;
   },
 
   setCellDateValue(sheet, cell, date) {
@@ -126,27 +249,22 @@ const rowsFixedHeight = [];
 
   fillCellValuesFromItem(items, row, letters, centerStyle) {
     for (const item in items) {
-      let description;
-      let target;
-      let title;
-      let valueType;
-      for (const day in items[item]) {
-        const valueObj = items[item][day];
-        const values = valueObj.values;
-        if (!title && !description && !target) {
-          title = valueObj.title;
-          description = valueObj.description;
-          target = valueObj.target;
-        }
-        if (!valueType) {
-          valueType = valueObj.valueType;
-        }
+      const itemValues = {
+        description: undefined,
+        target: undefined,
+        title: undefined,
+        valueType: undefined,
+        valueVariation: undefined,
+      };
+
+      for (const [day, valueObj] of Object.entries(items[item])) {
+        Object.assign(itemValues, valueObj);
         const letter = letters.get(day);
         const cell = `${letter}${row}`;
-        if (valueType !== 'text') {
+        if (itemValues.valueType !== 'text') {
           centerStyle.push(cell);
-          if (values.length > 1) {
-            const resultString = values.reduce(
+          if (itemValues.values.length > 1) {
+            const resultString = itemValues.values.reduce(
               (obj, val, index) => {
                 const num = Number(val);
                 obj.formula += `${index === 0 ? '=' : '+'}${num}`;
@@ -157,24 +275,27 @@ const rowsFixedHeight = [];
             );
             cellFormulaValues.set(cell, resultString);
           } else {
-            cellValues.set(cell, Number(values[0]));
+            cellValues.set(cell, Number(itemValues.values[0]));
           }
-        } else if (values.length > 0) {
-          let resultString = values[0];
-          if (values.length !== 1) {
-            const combinedValues = values.reduce((res, str, index) => {
-              const separator = ', \n';
-              if (index === 0) {
-                const lines = str.split(' ');
-                res +=
-                  lines.length > 1 ?
-                    `${lines[0]}\n${lines[1]}${separator}` :
-                    `${lines[0]}${separator}`;
-              } else {
-                res += `${str}${separator}`;
-              }
-              return res;
-            }, '');
+        } else if (itemValues.values.length > 0) {
+          let resultString = itemValues.values[0];
+          if (itemValues.values.length !== 1) {
+            const combinedValues = itemValues.values.reduce(
+              (res, str, index) => {
+                const separator = ', \n';
+                if (index === 0) {
+                  const lines = str.split(' ');
+                  res +=
+                    lines.length > 1 ?
+                      `${lines[0]}\n${lines[1]}${separator}` :
+                      `${lines[0]}${separator}`;
+                } else {
+                  res += `${str}${separator}`;
+                }
+                return res;
+              },
+              '',
+            );
             resultString = combinedValues.slice(0, -4);
           }
           cellValues.set(cell, resultString);
@@ -182,21 +303,23 @@ const rowsFixedHeight = [];
           rowsFixedHeight.push(row);
         }
       }
+
+      for (let i = 0; i < 5; i++) {
+        // Char codes for A, B, C, D, E
+        centerStyle.push(`${String.fromCharCode(65 + i)}${row}`);
+      }
+
+      if (!itemValues.valueVariation) cellValues.set(`A${row}`, '-');
       const excelValueType =
-        valueType !== 'number' && valueType !== 'text' ?
-          valueType[0] :
+        itemValues.valueType !== 'number' && itemValues.valueType !== 'text' ?
+          itemValues.valueType[0] :
           undefined;
-      excelValueType && cellValues.set(`A${row}`, excelValueType);
-      cellValues.set(`B${row}`, title);
-      centerStyle.push(`B${row}`);
-      if (description.length > 0) {
-        cellValues.set(`C${row}`, description);
-        centerStyle.push(`C${row}`);
-      }
-      if (target !== null) {
-        cellValues.set(`D${row}`, target);
-        centerStyle.push(`D${row}`);
-      }
+      excelValueType && cellValues.set(`B${row}`, excelValueType);
+      cellValues.set(`C${row}`, itemValues.title);
+      if (itemValues.description.length > 0)
+        cellValues.set(`D${row}`, itemValues.description);
+      if (itemValues.target !== null)
+        cellValues.set(`E${row}`, itemValues.target);
       row += 1;
     }
     return row;
@@ -217,9 +340,16 @@ const rowsFixedHeight = [];
     }
   },
 
+  validNumberValue(target) {
+    return (typeof target === 'string' || typeof target === 'number') &&
+      !isNaN(Number(target)) ?
+      Number(target) :
+      undefined;
+  },
+
   async createExcelFile(clientId) {
-    const DESCRIPTION_COLUMN = 5;
-    let LATEST_COLUMN = 7;
+    const DESCRIPTION_COLUMN = 6;
+    let LATEST_COLUMN = 8;
 
     const wb = new common.ExcelJS.Workbook();
     wb.properties.date1904 = false;
@@ -234,8 +364,8 @@ const rowsFixedHeight = [];
     if (exportValues.length === 0) {
       const today = new Date();
       const yesterday = new Date(new Date().setDate(new Date().getDate() - 1));
-      cellValues.set('F2', today);
-      cellValues.set('G2', yesterday);
+      cellValues.set('G2', today);
+      cellValues.set('H2', yesterday);
     } else {
       const groupedValues = exportValues.reduce((result, rec) => {
         const { section, itemId, value, createdAt } = rec;
@@ -247,13 +377,14 @@ const rowsFixedHeight = [];
         }
         const day = this.formatToDay(createdAt);
         if (!result[section][itemId][day]) {
-          const { target, title, description, valueType } = rec;
+          const { target, title, description, valueType, valueVariation } = rec;
 
           result[section][itemId][day] = {
-            valueType,
-            title,
             description,
             target,
+            title,
+            valueType,
+            valueVariation,
             values: [],
           };
         }
@@ -293,7 +424,7 @@ const rowsFixedHeight = [];
         rowNumber += 1;
       }
       for (const section in groupedValues) {
-        const sectionCell = `C${rowNumber}`;
+        const sectionCell = `D${rowNumber}`;
         cellValues.set(sectionCell, section);
         cellsToBoldCenterStyle.push(sectionCell);
         rowNumber += 1;
@@ -327,7 +458,9 @@ const rowsFixedHeight = [];
     this.fillFormulas(cellFormulaValues, sheet);
     this.applyCellsStyle(cellStyles, sheet);
 
-    for (let i = 0; i <= LATEST_COLUMN; i++) {
+    sheet.getColumn(1).width = 1.5;
+    sheet.getColumn(2).width = 1.75;
+    for (let i = 2; i <= LATEST_COLUMN; i++) {
       this.autoWidthFormat(sheet.getColumn(i + 1));
     }
 
@@ -339,7 +472,7 @@ const rowsFixedHeight = [];
     return buffer;
   },
 
-  async getDataFromExcel(clientId, file) {
+  async getDataFromExcel(file) {
     const wb = new common.ExcelJS.Workbook();
     wb.properties.date1904 = false;
     wb.locale = 'en-US';
@@ -348,6 +481,35 @@ const rowsFixedHeight = [];
     const sheet = this.getActivitySheet(wb);
     if (!sheet) return;
 
-    return true;
+    const TITLE_ROW_NUMBER = 2;
+    const items = [];
+    const list = this.getSectionNameAndRowNumber(sheet);
+
+    const [, startFirstSectionRowNumber] = list[0];
+    const lastRowNumber = sheet.lastRow.number;
+
+    for (
+      let i = TITLE_ROW_NUMBER + 1;
+      i < startFirstSectionRowNumber - 1;
+      i++
+    ) {
+      this.pushItem(items, this.getItemFromRow(i, sheet));
+    }
+
+    for (let i = 0; i < list.length; i++) {
+      const [name, startRowNumber] = list[i];
+      if (i < list.length - 1) {
+        const [, endRowNumber] = list[i + 1];
+        for (let j = startRowNumber + 1; j < endRowNumber; j++) {
+          this.pushItem(items, this.getItemFromRow(j, sheet), name);
+        }
+      } else {
+        for (let j = startRowNumber + 1; j < lastRowNumber + 1; j++) {
+          this.pushItem(items, this.getItemFromRow(j, sheet), name);
+        }
+      }
+    }
+
+    return items;
   },
 });

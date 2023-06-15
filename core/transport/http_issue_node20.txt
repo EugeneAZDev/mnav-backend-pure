@@ -1,6 +1,6 @@
 'use strict';
 
-const http = require('http');
+const http = require('node:http');
 
 const TRY_LIMITATIONS = 10000;
 const TRY_LIMIT = 3;
@@ -24,6 +24,7 @@ const INITIAL_HEADERS = {
 };
 
 const ipRequestCountMap = new Map();
+
 const Client = require('../src/client.js');
 
 const receiveArgs = async (req) => {
@@ -47,27 +48,19 @@ module.exports = (routing, port, console) => {
     .createServer(async (req, res) => {
       let HEADERS = INITIAL_HEADERS;
       const client = await Client.getInstance(req, res);
-      if (req.method !== 'POST') {
-        res.writeHead(200, HEADERS);
-        return res.end('"Method not found"');
-      }
+      res.writeHead(200, HEADERS);
+
+      if (req.method !== 'POST') return res.end('"Method not found"');
       const { url, socket } = req;
       const [place, name, method] = url.substring(1).split('/');
       console.log(`${socket.remoteAddress} ${method} ${url}`);
-      if (place !== 'api') {
-        res.writeHead(200, HEADERS);
-        return res.end('"API not found"');
-      }
+      if (place !== 'api') return res.end('"API not found"');
       const entity = routing[name.toLowerCase()];
-      if (!entity) {
-        res.writeHead(200, HEADERS);
-        return res.end('"Entity not found"');
-      }
+      if (!entity) return res.end('"Entity not found"');
+
       const handler = entity[method];
-      if (!handler) {
-        res.writeHead(200, HEADERS);
-        return res.end('"Handler not found"');
-      }
+      if (!handler) return res.end('"Handler not found"');
+
       if (!handler().access || handler().access !== 'public') {
         if (!client.id) {
           res.writeHead(401, HEADERS);
@@ -78,11 +71,13 @@ module.exports = (routing, port, console) => {
       if (name.toLowerCase() === 'user' && method.toLowerCase() === 'find') {
         const now = Date.now();
         const ip = req.socket.remoteAddress;
+
         let ipRequestCount = ipRequestCountMap.get(ip);
         if (!ipRequestCount) {
           ipRequestCount = [];
           ipRequestCountMap.set(ip, ipRequestCount);
         }
+
         let requestLimit;
         for (let i = REQUEST_LIMITS.length - 1; i >= 0; i--) {
           if (
@@ -94,6 +89,7 @@ module.exports = (routing, port, console) => {
             break;
           }
         }
+        // =======================
         if (requestLimit) {
           const remainingTime =
             requestLimit.delay -
@@ -105,31 +101,33 @@ module.exports = (routing, port, console) => {
             )} minutes.`,
           );
         }
+
         ipRequestCount.push(now);
         if (ipRequestCount.length > TRY_LIMITATIONS) {
           ipRequestCount.shift();
         }
       }
-      // ---------------------------------------
 
       const { args, file } = await receiveArgs(req);
+
       const records = {
         ...args,
         clientId: client.id
       };
-
       if (file) records.file = file;
       const result = await handler().method(records);
       if (result.extraHeaders) {
         HEADERS = { ...HEADERS, ...result.extraHeaders };
       }
-      if (result.error) { console.log(result.error); }
+      if (result.error) {
+        console.log(result.error);
+      }
       res.writeHead(result.code, HEADERS);
       if (result.buffer) {
         return res.end(result.buffer);
+      } else {
+        return res.end(JSON.stringify(result.body));
       }
-
-      return res.end(JSON.stringify(result.body));
     })
     .listen(port);
 

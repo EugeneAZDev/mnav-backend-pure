@@ -2,29 +2,9 @@
 const pg = require('pg');
 const deletedAtWhere = '"deletedAt" IS NULL';
 const crud = (pool) => (table) => ({
-  query(sql, args) {
-    return pool.query(sql, args);
-  },
-
-  async create({ ...record }) {
-    const keys = Object.keys(record);
-    const nums = new Array(keys.length);
-    const data = new Array(keys.length);
-    let i = 0;
-    for (const key of keys) {
-      data[i] = record[key];
-      nums[i] = `$${++i}`;
-    }
-    const fields = '"' + keys.join('", "') + '"';
-    const params = nums.join(', ');
-    const sql = `INSERT INTO "${table}" (${fields}) VALUES (${params})`;
-    return pool.query(sql + ' RETURNING *', data);
-  },
-
   async count(column, values) {
     const valueList = values.map((value) => `'${value}'`).join(', ');
-    const sql =
-      `SELECT COUNT(id) FROM "${table}"
+    const sql = `SELECT COUNT(id) FROM "${table}"
        WHERE "${column}" IN (${valueList}) AND ${deletedAtWhere}`;
     const result = await pool.query(sql);
     if (result.rows.length > 0) {
@@ -33,16 +13,40 @@ const crud = (pool) => (table) => ({
     return 0;
   },
 
-  async delete(id) {
-    const sql = `UPDATE "${table}" SET "deletedAt" = NOW() WHERE id = $1`;
-    return pool.query(sql, [id]);
+  async create(records) {
+    const keys = Object.keys(
+      records.reduce((acc, record) => ({ ...acc, ...record }), {}),
+    );
+    const nums = new Array(keys.length * records.length);
+    const data = new Array(keys.length * records.length);
+    let i = 0;
+    records.forEach((record) => {
+      keys.forEach((key) => {
+        data[i] = record[key];
+        nums[i] = `$${++i}`;
+      });
+    });
+    const fields = '"' + keys.join('", "') + '"';
+    const params = nums.join(', ');
+    const placeholders = Array.from({ length: records.length },
+      () => `(${params})`,
+    ).join(', ');
+    const sql = `INSERT INTO "${table}" (${fields}) VALUES ${placeholders}`;
+    return pool.query(sql + ' RETURNING *', data);
+  },
+
+  async delete(ids) {
+    const idsList = ids.map((id) => `'${id}'`).join(', ');
+    const sql = `UPDATE "${table}" 
+        SET "deletedAt" = NOW() 
+        WHERE id IN (${idsList}) AND ${deletedAtWhere}`;
+    return pool.query(sql);
   },
 
   async find(column, values, fields = ['*']) {
     const names = fields.join(', ');
     const valueList = values.map((value) => `'${value}'`).join(', ');
-    const sql =
-      `SELECT ${names} FROM "${table}"
+    const sql = `SELECT ${names} FROM "${table}"
        WHERE "${column}" IN (${valueList}) AND ${deletedAtWhere}`;
     return pool.query(sql);
   },
@@ -67,6 +71,10 @@ const crud = (pool) => (table) => ({
     const sql = `UPDATE "${table}" SET ${delta} WHERE id = $${++i}`;
     data.push(id);
     return pool.query(sql, data);
+  },
+
+  query(sql, args, client = pool) {
+    return client.query(sql, args);
   },
 });
 

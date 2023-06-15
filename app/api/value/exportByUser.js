@@ -2,7 +2,8 @@
   method: async ({ clientId }) => {
     try {
       const sql = `
-        SELECT  i.id AS "itemId", its.title AS "section", i."valueType", 
+        SELECT  i.id AS "itemId", its.id AS "sectionId", iv.id AS "valueId",
+                its.title AS "section", i."valueType", i."valueVariation",
                 i.title, i.description, i.target, iv.value, iv."createdAt"
         FROM"ItemValue" iv
         JOIN "Item" i ON iv."itemId" = i.id

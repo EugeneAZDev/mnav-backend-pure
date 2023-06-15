@@ -8,7 +8,7 @@
           body: { message: 'Unable to delete Item with associated values' },
         };
       }
-      await db('Item').delete(id);
+      await db('Item').delete([id]);
       return responseType.deleted();
     } catch (error) {
       return { ...responseType.error(), error };

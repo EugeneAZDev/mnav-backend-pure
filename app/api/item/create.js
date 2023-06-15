@@ -3,11 +3,11 @@
     try {
       const { clientId, target, ...args } = records;
       const validTarget = common.validNumberValue(target);
-      const result = await db('Item').create({
+      const result = await db('Item').create([{
         userId: clientId,
         target: validTarget || null,
         ...args,
-      });
+      }]);
       const [item] = result.rows;
       return responseType.modifiedBodyTemplate(responseType.created, {
         itemId: item.id,
