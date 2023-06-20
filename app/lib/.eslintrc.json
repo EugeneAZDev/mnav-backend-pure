@@ -5,7 +5,9 @@
   "globals": {
     "api": "readonly",
     "common": "readonly",
+    "crud": "readonly",
     "db": "readonly",
+    "domain": "readonly",
     "excel": "readonly",
     "responseType": "readonly",
     "lib": "readonly"
@@ -17,7 +19,9 @@
       "api",
       "common",
       "console",
+      "crud",
       "db",
+      "domain",
       "excel",
       "responseType",
       "lib"

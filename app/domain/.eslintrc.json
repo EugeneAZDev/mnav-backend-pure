@@ -1,0 +1,17 @@
+{
+  "parserOptions": {
+    "sourceType": "module"
+  },
+  "globals": {
+    "api": "readonly",
+    "crud": "readonly"
+  },
+  "rules": {
+    "strict": ["error", "never"],
+    "id-denylist": [
+      2,
+      "api",
+      "crud"
+    ]
+  }
+}

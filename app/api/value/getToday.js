@@ -10,7 +10,7 @@
         AND DATE(iv."createdAt") = CURRENT_DATE
         AND iv."deletedAt" IS NULL;
       `;
-      const result = await db().query(sql);
+      const result = await crud().query(sql);
       if (result.rows.length > 0) {
         const values = result.rows;
         return responseType.modifiedBodyTemplate(responseType.success, {

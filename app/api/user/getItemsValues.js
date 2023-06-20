@@ -1,10 +1,10 @@
 ({
   method: async ({ userId }) => {
     try {
-      const result = await db('Item').find('userId', [userId]);
+      const result = await crud('Item').find('userId', [userId]);
       if (result.rows.length > 0) {
         const items = result.rows;
-        const rawValues = await db('ItemValue').find('itemId', [
+        const rawValues = await crud('ItemValue').find('itemId', [
           ...items.map((r) => r.id),
         ]);
         if (result.rows.length > 0) {

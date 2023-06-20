@@ -3,7 +3,7 @@
   // eslint-disable-next-line no-unused-vars
   method: async ({ clientId, email }) => {
     try {
-      const result = await db('User').find('email', [ email.toLowerCase() ], [
+      const result = await crud('User').find('email', [ email.toLowerCase() ], [
         'id', 'email',
       ]);
       if (result.rows.length === 1) {

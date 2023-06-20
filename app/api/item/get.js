@@ -1,7 +1,7 @@
 ({
   method: async ({ id }) => {
     try {
-      const result = await db('Item').read(id);
+      const result = await crud('Item').read(id);
       if (result.rows.length === 1) {
         const [item] = result.rows;
         return responseType.modifiedBodyTemplate(responseType.success, {

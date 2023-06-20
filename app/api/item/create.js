@@ -3,7 +3,7 @@
     try {
       const { clientId, target, ...args } = records;
       const validTarget = common.validNumberValue(target);
-      const result = await db('Item').create([{
+      const result = await crud('Item').create([{
         userId: clientId,
         target: validTarget || null,
         ...args,

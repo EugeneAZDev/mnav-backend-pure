@@ -7,7 +7,7 @@
           SELECT oid FROM pg_type 
           WHERE typname = 'ValueType'
         );`;
-      const result = await db().query(sql);
+      const result = await crud().query(sql);
       if (result.rows.length > 0) {
         const types = result.rows.map((row) => row.enumlabel);
         return responseType.modifiedBodyTemplate(responseType.success, {

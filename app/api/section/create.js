@@ -2,7 +2,7 @@
   method: async ({ ...records }) => {
     try {
       const { clientId, ...args } = records;
-      const result = await db('ItemSection').create([{
+      const result = await crud('ItemSection').create([{
         userId: clientId,
         ...args,
       }]);

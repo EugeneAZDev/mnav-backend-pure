@@ -3,9 +3,9 @@
   method: async ({ id, password }) => {
     try {
       const hash = await common.hashPassword(password);
-      const result = await db('User').read(id);
+      const result = await crud('User').read(id);
       if (result.rows.length === 1) {
-        await db('User').update(id, { password: hash });
+        await crud('User').update(id, { password: hash });
         return responseType.success();
       }
       return responseType.notFound();

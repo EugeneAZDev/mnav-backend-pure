@@ -2,7 +2,7 @@
   access: 'public',
   method: async ({ email, password }) => {
     try {
-      const result = await db('User').find('email', [email.toLowerCase()]);
+      const result = await crud('User').find('email', [email.toLowerCase()]);
       if (result.rows.length === 1) {
         const [user] = result.rows;
         const valid = await common.validatePassword(password, user.password);

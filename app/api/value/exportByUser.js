@@ -11,7 +11,7 @@
         WHERE	i."userId" = ${clientId} AND iv."deletedAt" IS NULL
         ORDER BY 1, iv."createdAt";
       `;
-      const result = await db().query(sql);
+      const result = await crud().query(sql);
       if (result.rows.length > 0) {
         const exportValues = result.rows;
         return responseType.modifiedBodyTemplate(responseType.success, {

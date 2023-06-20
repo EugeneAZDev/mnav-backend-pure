@@ -3,7 +3,7 @@
   method: async ({ id, clientId, ...records }) => {
     try {
       const { ...data } = records;
-      await db('ItemSection').update(id, { ...data });
+      await crud('ItemSection').update(id, { ...data });
       return responseType.updated();
     } catch (error) {
       return { ...responseType.error(), error };

@@ -5,7 +5,7 @@
         SELECT value FROM "ItemValue" iv 
         WHERE "itemId" = ${id} AND "deletedAt" IS NULL 
         ORDER BY "createdAt" DESC LIMIT 1;`;
-      const result = await db().query(sql);
+      const result = await crud().query(sql);
       if (result.rows.length > 0) {
         return responseType.modifiedBodyTemplate(responseType.success, {
           lastValue: result.rows[0].value,
