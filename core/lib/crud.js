@@ -13,24 +13,27 @@ const crud = (pool) => (table) => ({
     return 0;
   },
 
-  async create(client = pool, records) {
+  async create(records, client = pool) {
     const keys = Object.keys(
       records.reduce((acc, record) => ({ ...acc, ...record }), {}),
     );
-    const nums = new Array(keys.length * records.length);
-    const data = new Array(keys.length * records.length);
-    let i = 0;
-    records.forEach((record) => {
+    const nums = new Array(records.length);
+    const data = [];
+    let i = 1;
+
+    records.forEach((record, index) => {
+      const rowData = [];
+
       keys.forEach((key) => {
-        data[i] = record[key];
-        nums[i] = `$${++i}`;
+        rowData.push(`$${i++}`);
+        data.push(record[key]);
       });
+
+      nums[index] = `(${rowData.join(', ')})`;
     });
+
     const fields = '"' + keys.join('", "') + '"';
-    const params = nums.join(', ');
-    const placeholders = Array.from({ length: records.length },
-      () => `(${params})`,
-    ).join(', ');
+    const placeholders = nums.join(', ');
     const sql = `INSERT INTO "${table}" (${fields}) VALUES ${placeholders}`;
     return client.query(sql + ' RETURNING *', data);
   },
@@ -76,10 +79,6 @@ const crud = (pool) => (table) => ({
   async query(sql, args, client = pool) {
     return client.query(sql, args);
   },
-
-  async getClient() {
-    return pool;
-  }
 });
 
 module.exports = (options) => crud(new pg.Pool(options));

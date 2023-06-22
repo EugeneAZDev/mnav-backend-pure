@@ -4,10 +4,13 @@
   method: async ({ clientId, email }) => {
     try {
       const result = await crud('User').find('email', [ email.toLowerCase() ], [
-        'id', 'email',
+        'id', 'email', 'password'
       ]);
       if (result.rows.length === 1) {
         const [ user ] = result.rows;
+        if (user.password !== null) {
+          user.password = undefined;
+        }
         return responseType.modifiedBodyTemplate(responseType.success, {
           user
         });

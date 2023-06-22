@@ -3,7 +3,7 @@
 const http = require('node:http');
 
 const TRY_LIMITATIONS = 10000;
-const TRY_LIMIT = 3;
+const TRY_LIMIT = 7;
 const MINUTE = 60 * 1000;
 const HOUR = 60 * MINUTE;
 const REQUEST_LIMITS = [
@@ -25,9 +25,8 @@ const INITIAL_HEADERS = {
 const ipRequestCountMap = new Map();
 const Client = require('../src/client.js');
 
-const limitRequests = (headers, req, res) => {
+const limitRequests = (ip) => {
   const now = Date.now();
-  const ip = req.socket.remoteAddress;
   let requestLimit;
   let ipRequestCount = ipRequestCountMap.get(ip);
   if (!ipRequestCount) {
@@ -48,18 +47,16 @@ const limitRequests = (headers, req, res) => {
     const remainingTime =
       requestLimit.delay -
       (now - ipRequestCount[ipRequestCount.length - requestLimit.limit]);
-    res.writeHead(429, headers);
-    res.end(
-      `Too Many Requests. Please try again in ${Math.ceil(
-        (remainingTime / MINUTE) % 60,
-      )} minutes.`,
-    );
-    return;
+    return `Too Many Requests. Please try again in ${Math.ceil(
+      (remainingTime / MINUTE) % 60,
+    )} minutes.`;
   }
   ipRequestCount.push(now);
   if (ipRequestCount.length > TRY_LIMITATIONS) {
     ipRequestCount.shift();
   }
+
+  return false;
 };
 
 const receiveArgs = async (req) => {
@@ -124,9 +121,18 @@ module.exports = (routing, port, console) => {
           return;
         }
       }
-      if (name.toLowerCase() === 'user' && method.toLowerCase() === 'find') {
-        limitRequests(headers, req, res);
+      if (
+        (name.toLowerCase() === 'user' && method.toLowerCase() === 'find') ||
+        (name.toLowerCase() === 'auth' && method.toLowerCase() === 'login')
+      ) {
+        const ip = req.socket.remoteAddress;
+        const message = limitRequests(ip);
+        if (message) {
+          resEnd(res, 429, headers)(message);
+          return;
+        }
       }
+
       const { args, file } = await receiveArgs(req);
       const records = { ...args, clientId: client.id };
       if (file) records.file = file;

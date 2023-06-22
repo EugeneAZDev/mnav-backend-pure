@@ -147,6 +147,9 @@ const rowsFixedHeight = [];
         const utcDate = new Date(Date.UTC(year, month, day));
         const time = { time: new Date(utcDate) };
         const type = cell.value.formula ? 'formula' : 'value';
+        if (cell.value.toString() === 'NaN') {
+          throw Error(`NaN value for ${utcDate}`);
+        }
         if (type === 'formula') {
           if (!valueType) valueType = 'number';
           const arrayValues = cell.value.formula
@@ -316,7 +319,7 @@ const rowsFixedHeight = [];
           undefined;
       excelValueType && cellValues.set(`B${row}`, excelValueType);
       cellValues.set(`C${row}`, itemValues.title);
-      if (itemValues.description.length > 0)
+      if (itemValues.description && itemValues.description.length > 0)
         cellValues.set(`D${row}`, itemValues.description);
       if (itemValues.target !== null)
         cellValues.set(`E${row}`, itemValues.target);
@@ -359,6 +362,7 @@ const rowsFixedHeight = [];
 
     const { body } = await api.value.exportByUser().method({ clientId });
     const exportValues = body && body.exportValues;
+
     const cellsToCenterStyle = [];
     const cellsToBoldCenterStyle = [];
     if (exportValues.length === 0) {
@@ -479,7 +483,8 @@ const rowsFixedHeight = [];
 
     await wb.xlsx.load(file);
     const sheet = this.getActivitySheet(wb);
-    if (!sheet) return;
+    if (!sheet)
+      throw Error('File doesn\'t contain special identifier to Import');
 
     const TITLE_ROW_NUMBER = 2;
     const items = [];

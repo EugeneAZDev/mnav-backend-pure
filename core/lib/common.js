@@ -2,7 +2,9 @@
 
 const crypto = require('node:crypto');
 const ExcelJS = require('exceljs');
+const nodemailer = require('nodemailer');
 const fs = require('node:fs');
+
 const SALT_LEN = 32;
 const KEY_LEN = 64;
 
@@ -115,7 +117,7 @@ const validatePassword = (password, serHash) => {
 
 const validNumberValue = (target) =>
   ((typeof target === 'string' || typeof target === 'number') &&
-    !isNaN(Number(target)) ?
+  !isNaN(Number(target)) ?
     Number(target) :
     undefined);
 
@@ -137,15 +139,51 @@ const validateToken = (token) => {
   }
 };
 
+const sendEmail = async (target, url) => {
+  const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: process.env.SOURCE_USER,
+      pass: process.env.SOURCE_PASSWORD,
+    }
+  });
+
+  const text = `
+    <h1>Welcome to My Activity Navigator!</h1>
+    <p>You have received this email because your account has been created.</p>
+    <p>To complete the password setup, please follow the link below:</p>
+    <a href="${url}">Setup Password</a>
+    <p>If you didn't request that, you can safely ignore this email.</p>
+    <p>Kind regards,</p>
+    <p>Golden Tech Development Team</p>`;
+
+  const mailOptions = {
+    from: process.env.SOURCE_EMAIL,
+    to: target,
+    subject: 'Password Setup',
+    text,
+    html: text,
+  };
+
+  transporter.sendMail(mailOptions, (error, info) => {
+    if (error) {
+      return Error(error);
+    } else {
+      return info.response;
+    }
+  });
+};
+
 module.exports = {
   ExcelJS,
+  fs,
   extractArguments,
   generateToken,
   hashPassword,
   jsonParse,
   receiveBody,
+  sendEmail,
   validatePassword,
   validateToken,
   validNumberValue,
-  fs
 };

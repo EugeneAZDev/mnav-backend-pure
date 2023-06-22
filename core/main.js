@@ -44,7 +44,6 @@ const context = vm.createContext(sandbox);
   context.api = Object.freeze(api);
   context.domain = Object.freeze(domain);
   context.lib = Object.freeze(lib);
-
   const routing = await load(apiPath, context, true);
   transport(routing, config.api.port, logger);
 })();
