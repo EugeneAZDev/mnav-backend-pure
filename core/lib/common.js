@@ -1,9 +1,21 @@
+/* eslint-disable max-len */
 'use strict';
 
 const crypto = require('node:crypto');
 const ExcelJS = require('exceljs');
-const nodemailer = require('nodemailer');
 const fs = require('node:fs');
+
+// Brevo Mailer
+const BrevoSDK = require('sib-api-v3-sdk');
+const BrevoMailer = BrevoSDK.ApiClient.instance;
+BrevoMailer.authentications['api-key'].apiKey = process.env.BREVO_API_KEY;
+const transactionEmailApi = new BrevoSDK.TransactionalEmailsApi();
+const smtpMailData = new BrevoSDK.SendSmtpEmail();
+const sender = {
+  email: process.env.SOURCE_EMAIL,
+  name: process.env.FIRM,
+};
+
 
 const SALT_LEN = 32;
 const KEY_LEN = 64;
@@ -139,39 +151,66 @@ const validateToken = (token) => {
   }
 };
 
-const sendEmail = async (target, url) => {
-  const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-      user: process.env.SOURCE_USER,
-      pass: process.env.SOURCE_PASSWORD,
-    }
-  });
+const sendEmail = async (email, url) => {
+  try {
+    smtpMailData.sender = sender;
 
-  const text = `
-    <h1>Welcome to My Activity Navigator!</h1>
-    <p>You have received this email because your account has been created.</p>
-    <p>To complete the password setup, please follow the link below:</p>
-    <a href="${url}">Setup Password</a>
-    <p>If you didn't request that, you can safely ignore this email.</p>
-    <p>Kind regards,</p>
-    <p>Golden Tech Development Team</p>`;
+    smtpMailData.to = [{ email }];
+    smtpMailData.subject = 'Password Setup';
 
-  const mailOptions = {
-    from: process.env.SOURCE_EMAIL,
-    to: target,
-    subject: 'Password Setup',
-    text,
-    html: text,
-  };
+    smtpMailData.htmlContent = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="UTF-8">
+        <title>Password Setup</title>
+        <style>
+          body {
+            background-color: #eaeaea;
+            font-family: Arial, sans-serif;
+          }
+          .container {
+            width: 70%;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #ffffff;
+          }
+          h1 {
+            text-align: center;
+            color: #333333;
+          }
+          p {
+            text-align: center;
+            color: #555555;
+          }
+          .team-name {
+            font-size: 12px;
+            font-weight: bold;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <h1>Welcome to My Activity Navigator!</h1><br>
+          <p>To complete the process, please follow the link below:</p>
+          <p><a href="${url}">PASSWORD SETUP</a></p>
+          <p>We kindly request that you <b>do not reply</b> to this <b>automated email</b></p>.
+          <p>If you didn't request any actions from My Activity Navigator product, you can <b>safely ignore</b> the email.</p><br>
+          <p class="team-name">© 2023 Golden Tech Development</p>
+        </div>
+      </body>
+    </html>
+    `;
 
-  transporter.sendMail(mailOptions, (error, info) => {
-    if (error) {
-      return Error(error);
-    } else {
-      return info.response;
-    }
-  });
+    await transactionEmailApi
+      .sendTransacEmail(smtpMailData)
+      .then((data) => data.messageId)
+      .catch((error) => {
+        throw new Error(error);
+      });
+  } catch (error) {
+    throw new Error(error);
+  }
 };
 
 module.exports = {

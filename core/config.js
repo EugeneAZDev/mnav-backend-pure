@@ -2,18 +2,18 @@
 
 module.exports = {
   api: {
-    port: 8001,
+    port: parseInt(process.env.API_PORT),
     transport: 'http',
   },
   sandbox: {
-    timeout: 5000,
+    timeout: parseInt(process.env.SANDBOX_TIMEOUT),
     displayErrors: false,
   },
   db: {
-    host: '127.0.0.1',
-    port: 7000,
-    database: 'mnav',
-    user: 'admin',
-    password: 'admin',
+    host: process.env.POSTGRES_HOST,
+    port: parseInt(process.env.POSTGRES_PORT),
+    database: process.env.POSTGRES_DB,
+    user: process.env.POSTGRES_USER,
+    password: process.env.POSTGRES_PASSWORD
   }
 };

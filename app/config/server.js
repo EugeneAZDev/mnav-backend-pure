@@ -1,4 +1,4 @@
 ({
-  ports: [8001],
+  ports: [process.env.API_PORT],
   protocol: 'http'
 });

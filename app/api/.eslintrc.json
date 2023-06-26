@@ -9,6 +9,7 @@
     "db": "readonly",
     "domain": "readonly",
     "excel": "readonly",
+    "mode": "readonly",
     "responseType": "readonly",
     "lib": "readonly"
   },
@@ -23,6 +24,7 @@
       "db",
       "domain",
       "excel",
+      "mode",
       "responseType",
       "lib"
     ]

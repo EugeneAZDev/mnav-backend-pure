@@ -173,9 +173,10 @@ const rowsFixedHeight = [];
         } else {
           if (!valueType)
             valueType = this.validNumberValue(cell.value) ? 'number' : 'text';
-          if (valueType === 'text') {
-            cell.value
-              .replace('\n', '')
+          if (valueType === 'text' && cell.value.length > 1) {
+            console.log(utcDate);
+            console.log(cell.value);
+            cell.value.replace('\n', '')
               .split(',')
               .map((value) => {
                 values.push({ value: value.trim(), ...time });
