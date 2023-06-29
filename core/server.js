@@ -6,7 +6,7 @@ const db = require('./lib/db.js');
 const load = require('./src/loader.js')(config.sandbox);
 const logger = require('./lib/logger.js');
 const responseType = require('./lib/responseType.js');
-const transport = require(`./transport/${config.api.transport}.js`);
+const transport = require('./transport.js');
 const vm = require('node:vm');
 
 const path = require('node:path');

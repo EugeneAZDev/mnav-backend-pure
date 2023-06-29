@@ -3,7 +3,6 @@
 module.exports = {
   api: {
     port: parseInt(process.env.API_PORT),
-    transport: 'http',
   },
   sandbox: {
     timeout: parseInt(process.env.SANDBOX_TIMEOUT),

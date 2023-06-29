@@ -23,7 +23,7 @@ const INITIAL_HEADERS = {
 };
 
 const ipRequestCountMap = new Map();
-const Client = require('../src/client.js');
+const Client = require('./src/client.js');
 
 const limitRequests = (ip) => {
   const now = Date.now();
@@ -82,8 +82,8 @@ const resEnd = (res, code, headers) => (message) => {
 };
 
 module.exports = (routing, port, console) => {
-  http
-    .createServer(async (req, res) => {
+  try {
+    http.createServer(async (req, res) => {
       const headers = { ...INITIAL_HEADERS };
       const client = await Client.getInstance(req, res);
       const resEnd400 = resEnd(res, 400, headers);
@@ -151,8 +151,11 @@ module.exports = (routing, port, console) => {
         res.end(JSON.stringify(result.body));
         return;
       }
-    })
-    .listen(port);
+    }).listen(port);
 
-  console.log(`Http API on port ${port}`);
+    console.log(`Http API on port ${port}`);
+  } catch (error) {
+    console.log(error);
+  }
+
 };
