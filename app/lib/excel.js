@@ -1,38 +1,6 @@
-const CENTER_STYLE = { alignment: { horizontal: 'center' } };
-const BOLD_CENTER_STYLE = {
-  font: { bold: true },
-  alignment: { horizontal: 'center' },
-};
-const CENTER_WRAPTEXT_STYLE = {
-  alignment: { horizontal: 'center', wrapText: true },
-};
+const MY_ACTIVITY = 'MyActivity'
 
-const MY_ACTIVITY = 'MyActivity';
-const cellStyles = new Map([
-  [
-    ['C1'],
-    {
-      alignment: { horizontal: 'center' },
-      font: { bold: true, color: { argb: 'FFBEBEBE' } },
-    },
-  ],
-  [['G2', 'H2'], CENTER_STYLE],
-  [['C2', 'D2', 'E2', 'F2'], BOLD_CENTER_STYLE],
-]);
-
-const cellValues = new Map([
-  ['C1', 'MyActivity'],
-  ['C2', 'Title (ABR)'],
-  ['D2', 'Description'],
-  ['E2', 'Target'],
-  ['F2', 'Date >'],
-]);
-
-const cellFormulaValues = new Map();
-const cellsToCenterWrapTextStyle = [];
-const rowsFixedHeight = [];
-
-({
+;({
   applyCellsStyle(data, sheet) {
     for (const [key, value] of data) {
       for (const cellName of key) {
@@ -126,8 +94,19 @@ const rowsFixedHeight = [];
         item[ITEM_DETAILS[cellLetter]] = cell.value;
       } else {
         const monthNames = [
-          'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct',
-          'Nov', 'Dec', ];
+          'Jan',
+          'Feb',
+          'Mar',
+          'Apr',
+          'May',
+          'Jun',
+          'Jul',
+          'Aug',
+          'Sep',
+          'Oct',
+          'Nov',
+          'Dec',
+        ];
         const cellDate = sheet.getCell(cellLetter + 2).value;
         const date = new Date(cellDate);
         const validDate = date instanceof Date && !isNaN(date);
@@ -176,7 +155,8 @@ const rowsFixedHeight = [];
           if (valueType === 'text' && cell.value.length > 1) {
             console.log(utcDate);
             console.log(cell.value);
-            cell.value.replace('\n', '')
+            cell.value
+              .replace('\n', '')
               .split(',')
               .map((value) => {
                 values.push({ value: value.trim(), ...time });
@@ -251,7 +231,16 @@ const rowsFixedHeight = [];
       .flat();
   },
 
-  fillCellValuesFromItem(items, row, letters, centerStyle) {
+  fillCellValuesFromItem(
+    items,
+    row,
+    letters,
+    centerStyle,
+    cellValues,
+    cellFormulaValues,
+    rowsFixedHeight,
+    cellsToCenterWrapTextStyle
+  ) {
     for (const item in items) {
       const itemValues = {
         description: undefined,
@@ -352,6 +341,39 @@ const rowsFixedHeight = [];
   },
 
   async createExcelFile(clientId) {
+    const CENTER_STYLE = { alignment: { horizontal: 'center' } };
+    const BOLD_CENTER_STYLE = {
+      font: { bold: true },
+      alignment: { horizontal: 'center' },
+    };
+    const CENTER_WRAPTEXT_STYLE = {
+      alignment: { horizontal: 'center', wrapText: true },
+    };
+
+    const cellStyles = new Map([
+      [
+        ['C1'],
+        {
+          alignment: { horizontal: 'center' },
+          font: { bold: true, color: { argb: 'FFBEBEBE' } },
+        },
+      ],
+      [['G2', 'H2'], CENTER_STYLE],
+      [['C2', 'D2', 'E2', 'F2'], BOLD_CENTER_STYLE],
+    ]);
+
+    const cellValues = new Map([
+      ['C1', 'MyActivity'],
+      ['C2', 'Title (ABR)'],
+      ['D2', 'Description'],
+      ['E2', 'Target'],
+      ['F2', 'Date >'],
+    ]);
+
+    const cellFormulaValues = new Map();
+    const cellsToCenterWrapTextStyle = [];
+    const rowsFixedHeight = [];
+
     const DESCRIPTION_COLUMN = 6;
     let LATEST_COLUMN = 8;
 
@@ -425,6 +447,10 @@ const rowsFixedHeight = [];
           rowNumber,
           dayLetterColumnMap,
           cellsToCenterStyle,
+          cellValues,
+          cellFormulaValues,
+          rowsFixedHeight,
+          cellsToCenterWrapTextStyle
         );
         rowNumber += 1;
       }
@@ -438,6 +464,10 @@ const rowsFixedHeight = [];
           rowNumber,
           dayLetterColumnMap,
           cellsToCenterStyle,
+          cellValues,
+          cellFormulaValues,
+          rowsFixedHeight,
+          cellsToCenterWrapTextStyle
         );
         rowNumber += 1;
       }

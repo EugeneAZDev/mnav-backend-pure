@@ -16,7 +16,6 @@ const sender = {
   name: process.env.FIRM,
 };
 
-
 const SALT_LEN = 32;
 const KEY_LEN = 64;
 
@@ -74,6 +73,8 @@ const generateToken = (id) => {
 
   return `${base64Header}.${base64Payload}.${base64Signature}`;
 };
+
+const generateTempToken = () => crypto.randomBytes(16).toString('hex');
 
 const serializeHash = (hash, salt) => {
   const saltString = salt.toString('base64').split('=')[0];
@@ -217,6 +218,7 @@ module.exports = {
   ExcelJS,
   fs,
   extractArguments,
+  generateTempToken,
   generateToken,
   hashPassword,
   jsonParse,

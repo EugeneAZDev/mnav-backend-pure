@@ -7,6 +7,7 @@ CREATE TYPE "ValueType" AS ENUM ('text', 'number', 'seconds', 'minutes');
 CREATE TABLE "User" (
   id bigint GENERATED ALWAYS AS IDENTITY,
   email varchar(64) NOT NULL,
+	token varchar(255),
   password varchar(255),
 	"createdAt" timestamp WITHOUT time ZONE DEFAULT now(),
 	"updatedAt" timestamp WITHOUT time ZONE,
