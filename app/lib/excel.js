@@ -90,22 +90,12 @@ const MY_ACTIVITY = 'MyActivity'
         valueVariation = false;
       } else if (cellLetter === 'B' && cell.value) {
         valueType = VALUE_TYPES[cell.value];
-      } else if (['C', 'D', 'E', 'F'].includes(cellLetter) && cell.value) {
-        item[ITEM_DETAILS[cellLetter]] = cell.value;
+      } else if (['C', 'D', 'E', 'F'].includes(cellLetter)) {
+        if (cell.value) item[ITEM_DETAILS[cellLetter]] = cell.value;
       } else {
         const monthNames = [
-          'Jan',
-          'Feb',
-          'Mar',
-          'Apr',
-          'May',
-          'Jun',
-          'Jul',
-          'Aug',
-          'Sep',
-          'Oct',
-          'Nov',
-          'Dec',
+          'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+          'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
         ];
         const cellDate = sheet.getCell(cellLetter + 2).value;
         const date = new Date(cellDate);
@@ -153,8 +143,6 @@ const MY_ACTIVITY = 'MyActivity'
           if (!valueType)
             valueType = this.validNumberValue(cell.value) ? 'number' : 'text';
           if (valueType === 'text' && cell.value.length > 1) {
-            console.log(utcDate);
-            console.log(cell.value);
             cell.value
               .replace('\n', '')
               .split(',')
