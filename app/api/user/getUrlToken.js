@@ -1,4 +1,5 @@
 ({
+  access: 'public',
   method: async () => {
     try {
       const token = common.generateTempToken();

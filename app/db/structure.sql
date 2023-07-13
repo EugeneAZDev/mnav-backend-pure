@@ -34,7 +34,7 @@ CREATE TABLE "Item" (
 	target smallint,
 	"sectionId" bigint,
 	"valueType" "ValueType" NOT NULL,
-	"valueVariation" boolean,
+	"valueAssessment" boolean,
 	"userId" bigint NOT NULL,
 	"createdAt" timestamp WITHOUT time ZONE DEFAULT now(),
 	"updatedAt" timestamp WITHOUT time ZONE,

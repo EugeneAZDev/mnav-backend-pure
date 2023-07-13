@@ -33,7 +33,7 @@ async (pool, clientId, excelData) => {
       target: item.target,
       title: item.title,
       valueType: item.valueType,
-      valueVariation: item.valueVariation,
+      valueAssessment: item.valueAssessment,
       sectionId,
       userId: clientId,
     };

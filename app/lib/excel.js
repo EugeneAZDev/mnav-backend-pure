@@ -81,13 +81,13 @@ const MY_ACTIVITY = 'MyActivity'
     const item = {};
     const values = [];
     let valueType;
-    let valueVariation = true;
+    let valueAssessment = true;
 
     const row = sheet.getRow(rowNumber);
     row.eachCell((cell) => {
       const cellLetter = cell.address.match(/[a-zA-Z]+/)[0];
       if (cellLetter === 'A' && cell.value) {
-        valueVariation = false;
+        valueAssessment = false;
       } else if (cellLetter === 'B' && cell.value) {
         valueType = VALUE_TYPES[cell.value];
       } else if (['C', 'D', 'E', 'F'].includes(cellLetter)) {
@@ -156,7 +156,7 @@ const MY_ACTIVITY = 'MyActivity'
       }
     });
     item.valueType = valueType;
-    item.valueVariation = valueVariation;
+    item.valueAssessment = valueAssessment;
     item.values = values;
     return item;
   },
@@ -235,7 +235,7 @@ const MY_ACTIVITY = 'MyActivity'
         target: undefined,
         title: undefined,
         valueType: undefined,
-        valueVariation: undefined,
+        valueAssessment: undefined,
       };
 
       for (const [day, valueObj] of Object.entries(items[item])) {
@@ -290,7 +290,7 @@ const MY_ACTIVITY = 'MyActivity'
         centerStyle.push(`${String.fromCharCode(65 + i)}${row}`);
       }
 
-      if (!itemValues.valueVariation) cellValues.set(`A${row}`, '-');
+      if (!itemValues.valueAssessment) cellValues.set(`A${row}`, '-');
       const excelValueType =
         itemValues.valueType !== 'number' && itemValues.valueType !== 'text' ?
           itemValues.valueType[0] :
@@ -392,14 +392,14 @@ const MY_ACTIVITY = 'MyActivity'
         }
         const day = this.formatToDay(createdAt);
         if (!result[section][itemId][day]) {
-          const { target, title, description, valueType, valueVariation } = rec;
+          const { target, title, description, valueType, valueAssessment } = rec;
 
           result[section][itemId][day] = {
             description,
             target,
             title,
             valueType,
-            valueVariation,
+            valueAssessment,
             values: [],
           };
         }

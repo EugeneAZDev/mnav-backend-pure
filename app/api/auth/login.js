@@ -16,11 +16,8 @@
             token,
           });
         }
-      } else if (result.rows.length === 0) {
-        return responseType.modifiedBodyTemplate(responseType.unauthorized, {
-          message: 'User not found',
-        });
       }
+
       return responseType.unauthorized();
     } catch (error) {
       return { ...responseType.error(), error };
