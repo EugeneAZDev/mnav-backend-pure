@@ -188,13 +188,25 @@ const sendEmail = async (email, url) => {
             font-size: 12px;
             font-weight: bold;
           }
+          .button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+          }
+          .button:hover {
+            background-color: #45a049;
+          }
         </style>
       </head>
       <body>
         <div class="container">
           <h1>Welcome to My Activity Navigator!</h1><br>
-          <p>To complete the process, please follow the link below:</p>
-          <p><a href="${url}">PASSWORD SETUP</a></p>
+          <p>To complete the process, please click the button below:</p>
+          <p><a href="${url}" class="button">PASSWORD RESET</a></p>
           <p>We kindly request that you <b>do not reply</b> to this <b>automated email</b></p>.
           <p>If you didn't request any actions from My Activity Navigator product, you can <b>safely ignore</b> the email.</p><br>
           <p class="team-name">© 2023 Golden Tech Development</p>

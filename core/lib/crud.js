@@ -62,12 +62,17 @@ const crud = (pool) => (table) => ({
   },
 
   async update(id, { ...record }) {
-    const keys = Object.keys(record);
+    const fields = {
+      ...record,
+      updatedAt: new Date().toISOString()
+    };
+
+    const keys = Object.keys(fields);
     const updates = new Array(keys.length);
     const data = new Array(keys.length);
     let i = 0;
     for (const key of keys) {
-      data[i] = record[key];
+      data[i] = fields[key];
       updates[i] = `"${key}" = $${++i}`;
     }
     const delta = updates.join(', ');

@@ -1,7 +1,12 @@
 ({
   method: async ({ clientId }) => {
     try {
-      const result = await crud('Item').find('userId', [clientId]);
+      const sql = `
+        SELECT * FROM "Item" i
+        WHERE i."userId" = '${clientId}' AND i."deletedAt" IS NULL
+        ORDER BY i."sectionId" DESC, 1
+      `;
+      const result = await crud().query(sql);
       if (result.rows.length > 0) {
         const items = result.rows;
         return responseType.modifiedBodyTemplate(responseType.success, {
