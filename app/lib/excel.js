@@ -1,12 +1,15 @@
-const MY_ACTIVITY = 'MyActivity'
+const MY_ACTIVITY = 'MyActivity';
 
-;({
+({
   applyCellsStyle(data, sheet) {
+    const font = { name: 'Calibri', size: 9 };
     for (const [key, value] of data) {
-      for (const cellName of key) {
+      for (const cellName of key) {        
         const cell = sheet.getCell(cellName);
         cell.style = { ...cell.style, ...value };
+        cell.style = { ...cell.style, font }
       }
+      console.log()
     }
   },
 

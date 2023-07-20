@@ -4,7 +4,7 @@
   method: async ({ clientId, email, url }) => {
     try {
       const result =
-        mode === 'PROD' ?
+        setting.mode === 'PROD' ?
           await common.sendEmail(email, url) :
           `<MOCK.RESULT.EMAIL@uriToReset:${url}>`;
       console.log(`messageId: ${result}`);

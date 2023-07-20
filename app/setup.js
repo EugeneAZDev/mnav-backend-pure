@@ -5,7 +5,7 @@ const path = require('node:path');
 const pg = require('pg');
 
 const DB = path.join(__dirname, './db');
-console.log(process.env.API_PORT);
+
 const CONNECTION = {
   host: '127.0.0.1',
   port: 7000,
