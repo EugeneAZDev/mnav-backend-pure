@@ -20,8 +20,8 @@ const sandbox = {
   common: Object.freeze(common),
   crud: Object.freeze(crud),
   db: Object.freeze(db),
-  mode: Object.freeze(process.env.MODE),
   responseType: Object.freeze(responseType),
+  setting: Object.freeze({ mode: process.env.MODE }),
 };
 const context = vm.createContext(sandbox);
 
