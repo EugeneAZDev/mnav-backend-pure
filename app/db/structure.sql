@@ -55,3 +55,12 @@ CREATE TABLE "ItemValue" (
 );
 ALTER TABLE "ItemValue" ADD CONSTRAINT "pkItemValue" PRIMARY KEY (id);
 ALTER TABLE "ItemValue" ADD CONSTRAINT "fkItemValueItem" FOREIGN KEY ("itemId") REFERENCES "Item" (id);
+
+CREATE TABLE "ValueDetail" (
+  id bigint GENERATED ALWAYS AS IDENTITY,
+	"itemId" bigint,
+  "latestValueAt" timestamp WITHOUT time ZONE, 
+	"createdAt" timestamp WITHOUT time ZONE DEFAULT now(),
+	"updatedAt" timestamp WITHOUT time ZONE,
+	"deletedAt" timestamp WITHOUT time ZONE
+);
