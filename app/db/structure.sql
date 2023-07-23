@@ -64,3 +64,9 @@ CREATE TABLE "ValueDetail" (
 	"updatedAt" timestamp WITHOUT time ZONE,
 	"deletedAt" timestamp WITHOUT time ZONE
 );
+
+CREATE TABLE IF NOT EXISTS "Migration" (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  executed_at TIMESTAMPTZ DEFAULT NOW()
+);

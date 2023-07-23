@@ -1,11 +1,13 @@
 ({
-  method: async ({ clientId, itemIds }) => {
+  method: async ({ itemIds }) => {
     try {
-      const result = await crud('ValueDetail').find('itemId', itemIds);      
-      if (result.rows.length > 0) {
-        return responseType.modifiedBodyTemplate(responseType.success, {
-          details: result.rows
-        });
+      if (itemIds && itemIds.length > 0) {
+        const result = await crud('ValueDetail').find('itemId', itemIds);
+        if (result.rows.length > 0) {
+          return responseType.modifiedBodyTemplate(responseType.success, {
+            details: result.rows,
+          });
+        }
       }
       return responseType.modifiedBodyTemplate(responseType.success, {
         lastValue: undefined,
