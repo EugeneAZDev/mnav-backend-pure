@@ -1,13 +1,13 @@
 'use strict';
 
-const fsp = require('node:fs').promises;
+const fs = require('node:fs');
 const path = require('node:path');
 
 const envPath = path.join(process.cwd(), '../../.env');
-const read = () => fsp.readFile(envPath, 'utf8');
+const read = () => fs.readFileSync(envPath, 'utf8');
 
-module.exports = async () => {
-  const data = await read();
+module.exports = (() => {
+  const data = read();
   const lines = data
     .split('\n')
     .filter((line) => line && !line.startsWith('#'));
@@ -15,4 +15,4 @@ module.exports = async () => {
     const [key, value] = line.split('=');
     process.env[key] = value.trim();
   });
-};
+})();
