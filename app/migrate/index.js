@@ -33,10 +33,10 @@ async function createMigrationsTable(pool) {
   await pool.query(query);
 }
 
-async function getAvailableMigrations() {
+async function getAvailableMigrations(desc = false) {
   const files = await fsp.readdir(dir);
 
-  return files
+  const result = files
     .filter(file => file.endsWith('.js'))
     .map(file => {
       const migration = require(path.join(dir, file));
@@ -47,10 +47,14 @@ async function getAvailableMigrations() {
       };
     })
     .sort((a, b) => a.name.localeCompare(b.name));
+
+  if (desc) { return result.reverse(); }
+  return result
 }
 
-async function getExecutedMigrations(pool) {
-  const query = `SELECT name FROM "${MIGRATION_TABLE}" ORDER BY id ASC;`;
+async function getExecutedMigrations(pool, desc = false) {
+  const direction = desc ? 'DESC' : 'ASC'
+  const query = `SELECT name FROM "${MIGRATION_TABLE}" ORDER BY id ${direction};`;
   const result = await pool.query(query);
   return result.rows.map(row => row.name);
 }
@@ -69,7 +73,7 @@ async function deleteMigrationRecord(pool, migrationName) {
   await pool.query(query, [migrationName]);
 }
 
-async function applyMigrations(pool) {
+async function migrate(pool, up = false) {
   const migrationTableExists = await checkMigrationsTable(pool);
   if (!migrationTableExists) await createMigrationsTable(pool);
   const availableMigrations = await getAvailableMigrations();
@@ -79,54 +83,38 @@ async function applyMigrations(pool) {
       console.log(`Executing migration: ${migration.name}`);
       await migration.up(pool);
       await addMigrationRecord(pool, migration.name);
+      if (up) {
+        console.log('Migration executed successfully.');
+        return
+      }
     }
   }
   console.log('All migrations have been executed successfully.');
 }
 
-async function up(pool) {
-  const migrationTableExists = await checkMigrationsTable(pool);
-  if (!migrationTableExists) await createMigrationsTable(pool);
-  const availableMigrations = await getAvailableMigrations();
-  const executedMigrations = await getExecutedMigrations(pool);
-  for await (const migration of availableMigrations) {
-    if (!executedMigrations.includes(migration.name)) {
-      console.log(`Executing migration: ${migration.name}`);
-      await migration.up(pool);
-      await addMigrationRecord(pool, migration.name);
-      console.log('Migration executed successfully.');
-      return
-    }
-  }
-}
-
-async function down(pool) {
-  const availableMigrations = await getAvailableMigrations();
-  const executedMigrations = await getExecutedMigrations(pool);
+async function revert(pool, down = false) {
+  const availableMigrations = await getAvailableMigrations(true);
+  console.log(availableMigrations);
+  const executedMigrations = await getExecutedMigrations(pool, true);
   for (const migration of availableMigrations) {
     if (executedMigrations.includes(migration.name)) {
       console.log(`Rolling back migration: ${migration.name}`);
       await migration.down(pool);
       await deleteMigrationRecord(pool, migration.name);
-      console.log('Migration rolled back successfully.');
-      return
-    }
-  }
-}
-
-async function rollbackMigrations(pool) {
-  const availableMigrations = await getAvailableMigrations();
-  const executedMigrations = await getExecutedMigrations(pool);
-  for (const migration of availableMigrations) {
-    if (executedMigrations.includes(migration.name)) {
-      console.log(`Rolling back migration: ${migration.name}`);
-      await migration.down(pool);
-      await deleteMigrationRecord(pool, migration.name);
+      if (down) {
+        console.log('Migration rolled back successfully.');
+        return
+      }
     }
   }
   console.log('All migrations have been rolled back.');
 }
 
+async function applyMigrations(pool) { await migrate(pool) }
+async function up(pool) { await migrate(pool, true) }
+async function rollbackMigrations(pool) { await revert(pool) }
+async function down(pool) { await revert(pool, true) }
+
 module.exports = {
-  applyMigrations, rollbackMigrations, up, down
+  applyMigrations, up, rollbackMigrations, down
 }
