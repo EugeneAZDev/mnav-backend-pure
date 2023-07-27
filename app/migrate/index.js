@@ -62,11 +62,9 @@ async function addMigrationRecord(pool, migrationName) {
   await pool.query(insertQuery, [migrationName]);
 }
 
-async function updateMigrationRecord(pool, migrationName) {
+async function deleteMigrationRecord(pool, migrationName) {
   const query = `
-    UPDATE "${MIGRATION_TABLE}"
-    SET rolled_back_at = NOW()
-    WHERE name = $1;
+    DELETE FROM "${MIGRATION_TABLE}" WHERE name = $1;
   `;
   await pool.query(query, [migrationName]);
 }
@@ -81,7 +79,37 @@ async function applyMigrations(pool) {
       console.log(`Executing migration: ${migration.name}`);
       await migration.up(pool);
       await addMigrationRecord(pool, migration.name);
+    }
+  }
+  console.log('All migrations have been executed successfully.');
+}
+
+async function up(pool) {
+  const migrationTableExists = await checkMigrationsTable(pool);
+  if (!migrationTableExists) await createMigrationsTable(pool);
+  const availableMigrations = await getAvailableMigrations();
+  const executedMigrations = await getExecutedMigrations(pool);
+  for await (const migration of availableMigrations) {
+    if (!executedMigrations.includes(migration.name)) {
+      console.log(`Executing migration: ${migration.name}`);
+      await migration.up(pool);
+      await addMigrationRecord(pool, migration.name);
       console.log('Migration executed successfully.');
+      return
+    }
+  }
+}
+
+async function down(pool) {
+  const availableMigrations = await getAvailableMigrations();
+  const executedMigrations = await getExecutedMigrations(pool);
+  for (const migration of availableMigrations) {
+    if (executedMigrations.includes(migration.name)) {
+      console.log(`Rolling back migration: ${migration.name}`);
+      await migration.down(pool);
+      await deleteMigrationRecord(pool, migration.name);
+      console.log('Migration rolled back successfully.');
+      return
     }
   }
 }
@@ -93,13 +121,12 @@ async function rollbackMigrations(pool) {
     if (executedMigrations.includes(migration.name)) {
       console.log(`Rolling back migration: ${migration.name}`);
       await migration.down(pool);
-      await updateMigrationRecord(pool, migration.name);
-      console.log('Migration rolled back successfully.');
+      await deleteMigrationRecord(pool, migration.name);
     }
   }
   console.log('All migrations have been rolled back.');
 }
 
 module.exports = {
-  applyMigrations, rollbackMigrations
+  applyMigrations, rollbackMigrations, up, down
 }

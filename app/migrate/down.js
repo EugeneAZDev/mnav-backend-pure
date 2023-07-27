@@ -1,11 +1,11 @@
 'use strict';
 
-const { applyMigrations } = require('./');
+const { down } = require('./');
 const { processTransaction } = require('../../core/lib/db.js');
 
 (async () => {
   try {
-    await processTransaction(applyMigrations);
+    await processTransaction(down);
   } catch (e) {
     console.log(e);
   }
