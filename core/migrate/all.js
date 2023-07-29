@@ -1,7 +1,7 @@
 'use strict';
 
-const { applyMigrations } = require('./');
-const { processTransaction } = require('../../core/lib/db.js');
+const { applyMigrations } = require('.');
+const { processTransaction } = require('../lib/db.js');
 
 (async () => {
   try {

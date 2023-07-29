@@ -1,12 +1,12 @@
 'use strict';
 
-require('../../core/src/getEnv.js')
+require('../src/getEnv.js')
 
 const fsp = require('node:fs').promises;
 const path = require('node:path');
 
-const dir = path.join(__dirname, '../db/migrations');
-
+const dir = path.join(__dirname, '../../app/db/migrations');
+console.log(dir);
 const MIGRATION_TABLE = 'Migration'
 
 async function checkMigrationsTable(pool) {
@@ -26,8 +26,7 @@ async function createMigrationsTable(pool) {
     CREATE TABLE "${MIGRATION_TABLE}" (
       id SERIAL PRIMARY KEY,
       name VARCHAR(255) NOT NULL,
-      executed_at timestamp WITHOUT time ZONE DEFAULT now(),
-      rolled_back_at timestamp WITHOUT time ZONE
+      executed_at timestamp WITHOUT time ZONE DEFAULT now()
     );
   `;
   await pool.query(query);
@@ -94,7 +93,6 @@ async function migrate(pool, up = false) {
 
 async function revert(pool, down = false) {
   const availableMigrations = await getAvailableMigrations(true);
-  console.log(availableMigrations);
   const executedMigrations = await getExecutedMigrations(pool, true);
   for (const migration of availableMigrations) {
     if (executedMigrations.includes(migration.name)) {

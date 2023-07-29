@@ -1,0 +1,2 @@
+- Fix IP address issue when only localhost in the log file
+- Add forgot password functionality

@@ -38,30 +38,31 @@ const crud = (pool) => (table) => ({
     return client.query(sql + ' RETURNING *', data);
   },
 
-  async delete(ids) {
-    const idsList = ids.map((id) => `'${id}'`).join(', ');
+  async delete(ids, client = pool) {    
+    const idsList = ids && ids.length > 0 && ids.map((id) => `'${id}'`).join(', ');
+    const whereIn = idsList ? `id IN (${idsList}) AND ` : ''
     const sql = `UPDATE "${table}" 
         SET "deletedAt" = NOW() 
-        WHERE id IN (${idsList}) AND ${deletedAtWhere}`;
-    return pool.query(sql);
+        WHERE ${whereIn}${deletedAtWhere}`;
+    return client.query(sql);
   },
 
-  async find(column, values, fields = ['*']) {
+  async find(column, values, fields = ['*'], client = pool) {
     const names = fields.join(', ');
     const valueList = values.map((value) => `'${value}'`).join(', ');
     const sql = `SELECT ${names} FROM "${table}"
        WHERE "${column}" IN (${valueList}) AND ${deletedAtWhere}`;
-    return pool.query(sql);
+    return client.query(sql);
   },
 
-  async read(id, fields = ['*']) {
+  async read(id, fields = ['*'], client = pool) {
     const names = fields.join(', ');
     const sql = `SELECT ${names} FROM "${table}" WHERE ${deletedAtWhere}`;
-    if (!id) return pool.query(sql);
-    return pool.query(`${sql} AND id = $1`, [id]);
+    if (!id) return client.query(sql);
+    return client.query(`${sql} AND id = $1`, [id]);
   },
 
-  async update(id, { ...record }) {
+  async update(id, { ...record }, client = pool) {
     const fields = {
       ...record,
       updatedAt: new Date().toISOString()
@@ -78,7 +79,7 @@ const crud = (pool) => (table) => ({
     const delta = updates.join(', ');
     const sql = `UPDATE "${table}" SET ${delta} WHERE id = $${++i}`;
     data.push(id);
-    return pool.query(sql, data);
+    return client.query(sql, data);
   },
 
   async query(sql, args, client = pool) {

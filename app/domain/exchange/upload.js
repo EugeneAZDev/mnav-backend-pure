@@ -51,4 +51,5 @@ async (pool, clientId, excelData) => {
   });
 
   await crud('ItemValue').create(values.flat(), pool);
+  await crud('ValueDetail').delete(pool);
 };

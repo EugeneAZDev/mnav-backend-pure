@@ -1,6 +1,6 @@
 {
   "name": "mnav-app",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "Framework agnostic NodeJS application structure",
   "license": "MIT",
   "private": true,

@@ -1,6 +1,6 @@
 {
   "name": "mnav-core",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Pure NodeJS application runtime",
   "license": "MIT",
   "private": true,

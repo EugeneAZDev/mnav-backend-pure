@@ -1,7 +1,7 @@
 'use strict';
 
 const { up } = require('./');
-const { processTransaction } = require('../../core/lib/db.js');
+const { processTransaction } = require('../lib/db.js');
 
 (async () => {
   try {

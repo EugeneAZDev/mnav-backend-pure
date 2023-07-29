@@ -8,8 +8,9 @@ const processTransaction = async (fn, ...args) => {
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
-    await fn(client, ...args);
+    const result = await fn(client, ...args);
     await client.query('COMMIT');
+    return result;
   } catch (error) {
     await client.query('ROLLBACK');
     throw error;
