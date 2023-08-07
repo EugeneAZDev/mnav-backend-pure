@@ -114,6 +114,25 @@ const receiveBody = async (req) => {
   return Buffer.concat(buffers).toString();
 };
 
+const splitObjectIntoArraysByField = (object, value) => {
+  return object.reduce((acc, rec) => {
+    const field = rec[value]
+    if (!acc[field]) {
+      acc[field] = []
+    }
+
+    const recWithoutValue = {}
+    for (const field of Object.keys(rec)) {
+      if (field !== value) {
+        recWithoutValue[field] = rec[field]
+      } 
+    }
+    
+    acc[field].push(recWithoutValue)
+    return acc
+  }, {})
+}
+
 const validatePassword = (password, serHash) => {
   const { params, salt, hash } = deserializeHash(serHash);
   return new Promise((resolve, reject) => {
@@ -236,6 +255,7 @@ module.exports = {
   jsonParse,
   receiveBody,
   sendEmail,
+  splitObjectIntoArraysByField,
   validatePassword,
   validateToken,
   validNumberValue,

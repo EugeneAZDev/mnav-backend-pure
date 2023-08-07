@@ -1,26 +1,48 @@
 -- admin@local.loc/123456
 INSERT INTO "User" ("email", "password") VALUES
-  ('admin@l.com', '$scrypt$N=32768,r=8,p=1,maxmem=67108864$p7DBp3v1Zx+69RVx34h5Ag7cD3afRPCzVRVnEjsHyJw$68t4RJhzu/jlU0LBQ1WcOT11/DF8Ycn3h6CqBOsC1HNKkQDYoTyzcd2G1AWxGM0h4rX/JeykrycI1FDMYM8psQ');   
+  ('admin@local.loc', '$scrypt$N=32768,r=8,p=1,maxmem=67108864$p7DBp3v1Zx+69RVx34h5Ag7cD3afRPCzVRVnEjsHyJw$68t4RJhzu/jlU0LBQ1WcOT11/DF8Ycn3h6CqBOsC1HNKkQDYoTyzcd2G1AWxGM0h4rX/JeykrycI1FDMYM8psQ');   
 
-INSERT INTO "ItemSection" (title, "userId", "createdAt")
+INSERT INTO "ItemSection"
+  (title, "userId", "createdAt")
 VALUES
-  ('Activity', 1, now()),
-  ('Other', 1, now());
+  ('Activity', 1,    '2020-01-01 15:55:55'),
+  ('Other', 1,       '2020-01-01 15:57:05');
 
-INSERT INTO "Item" (title, description, target, "sectionId", "valueType", "valueAssessment", "userId", "createdAt")
+INSERT INTO "Item" 
+  (title, description, target, "sectionId", "valueType", "valueAssessment", "userId", "createdAt")
 VALUES
-	('EYES', 'Exercises', 10, 1, 'number', TRUE, 1, now()),
-	('LEGS', 'Squats',    20, 1, 'number', TRUE, 1, '2023-04-20 11:45:00'),
-	('ARMS', 'Push-ups',  15, 1, 'number', TRUE, 1, '2023-04-20 14:00:00'),
-	('BACK', 'Deadlifts', 30, 1, 'number', TRUE, 1, now()),
-	('CORE', 'Planks',    5,  2, 'number', TRUE, 1, '2023-04-21 18:15:00');
+  ('MIGRATION', 'Migration number type check', 5, 1, 'number', TRUE, 1, '2020-04-20 18:15:00'),
+  ('MIGRATION2', 'Migration text type check', NULL, 2, 'text', TRUE, 1, '2020-04-21 18:15:00');
 
-INSERT INTO public."ItemValue" ("itemId", value, "createdAt")
-VALUES (1, 8, '2023-04-19 08:00:00'), (1, 12, '2023-04-19 09:30:00'), (4, 16, '2023-04-20 11:00:00'),
-  (4, 21, '2023-04-20 13:45:00'), (1, 9, '2023-04-21 15:00:00'), (1, 12, '2023-04-22 08:30:00'),
-  (4, 15, '2023-04-22 10:15:00'), (5, 19, '2023-04-23 12:30:00'), (4, 24, '2023-04-23 14:00:00'),
-  (3, 10, '2023-04-24 16:00:00'), (1, 10, '2023-04-25 08:45:00'), (2, 11, '2023-04-25 09:00:00'),
-  (1, 17, '2023-04-26 11:30:00'), (1, 22, '2023-04-26 14:15:00'), (2, 12, '2023-04-27 16:30:00'),
-  (2, 9, '2023-04-28 08:15:00'), (2, 14, '2023-04-28 10:30:00'), (3, 18, '2023-04-29 12:15:00'),
-  (3, 23, '2023-04-29 14:45:00'), (3, 11, '2023-04-30 16:15:00'), (3, 8, now()),
-  (2, 13, now()), (2, 15, now()), (1, 20, now()), (1, 8, now());
+INSERT INTO public."ItemValue"
+  ("itemId", value, "createdAt")
+VALUES
+  (1,        1,     '2023-04-19 08:00:00')
+
+
+-- "latestAt": '2023-04-19 08:00:00'
+-- "titleValue": 
+-- "startedAt":'2023-04-19 08:00:00'
+-- "daysDone"
+-- "daysMissed"
+-- "daysMinStrike"
+-- "dateDaysMinStrike"
+-- "daysMaxStrike"
+-- "dateDaysMaxStrike"
+-- "daysLatestStrike"
+-- "dateDaysLatestStrike"
+-- "daysMinDelay"
+-- "dateDaysMinDelay"
+-- "daysMaxDelay"
+-- "dateDaysMaxDelay"
+-- "daysLatestDelay"
+-- "dateDaysLatestDelay"
+-- "min"
+-- "dateMin"
+-- "max"
+-- "dateMax"
+-- "minPerDay"
+-- "dateMinPerDay"
+-- "maxPerDay"
+-- "dateMaxPerDay"
+-- "total"

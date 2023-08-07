@@ -48,7 +48,13 @@ const crud = (pool) => (table) => ({
   },
 
   async find(column, values, fields = ['*'], client = pool) {
-    const names = fields.join(', ');
+    const names = fields.map(field => {
+      if (field === '*') {
+        return field
+      } else {
+        return `"${field}"`
+      }
+    }).join(', ');
     const valueList = values.map((value) => `'${value}'`).join(', ');
     const sql = `SELECT ${names} FROM "${table}"
        WHERE "${column}" IN (${valueList}) AND ${deletedAtWhere}`;
