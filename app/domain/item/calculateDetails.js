@@ -1,48 +1,52 @@
 async (clientId, itemId) => {
-  try {
-    const { body } = await api.value.getByItem().method({ clientId, itemId });
-    const values = body && body.values;
-    const valueType = body && body.valueType
+  const { body } = await api.value.getByItem().method({ clientId, itemId });
+  const values = body && body.values;
+  const valueType = body && body.valueType;
 
-    if (valueType !== 'text') {
-      const sortedValues = [...values]
-      sortedValues.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
-
-      const startedAt = sortedValues[0]
-      const latestAt = sortedValues[sortedValues.length - 1]
-
-      const calculated = sortedValues.reduce((acc, item, index) => {
-        const createdAt = new Date(item.createdAt);
+  if (valueType !== 'text') {
+    const sortedValues = [...values];
+    sortedValues.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+    const startedAt = sortedValues[0].createdAt;
+    const latestAt = sortedValues[sortedValues.length - 1].createdAt;
+    const calculated = sortedValues.reduce(
+      (acc, item) => {
         const currentValue = item.value;
-
         if (currentValue !== null) acc.total++;
         if (currentValue > acc.max) acc.max = currentValue;
-
         if (currentValue !== null) acc.daysDone++;
-          else acc.daysMissed++;
-
+        else acc.daysMissed++;
         return acc;
       },
-        {
-          daysDone: 0,
-          daysMissed: 0,
-          total: 0,
-        }
-      );
+      {
+        daysDone: 0,
+        daysMissed: 0,
+        total: 0,
+      },
+    );
 
-      const details = {
-        latestAt,
-        startedAt,
-        ...calculated
-      }
-      console.log(details);
-    } else {
-      const valueTitleList = common.splitObjectIntoArraysByField(values, 'value')
+    for (const key in calculated)
+      if (calculated[key] === 0) delete calculated[key];
+
+    const details = {
+      latestAt,
+      startedAt,
+      ...calculated,
+    };
+
+    return details;
+  } else {
+    const valueTitleList = common.splitObjectIntoArraysByField(values, 'value');
+    const detailsList = [];
+    for (const title in valueTitleList) {
+      const sortedValues = [...valueTitleList[title]];
+      sortedValues.sort((a, b) =>
+        new Date(a.createdAt) - new Date(b.createdAt));
+      const startedAt = sortedValues[0].createdAt;
+      const latestAt = sortedValues[sortedValues.length - 1].createdAt;
+      const details = { latestAt, startedAt, title };
+      detailsList.push(details);
     }
 
-
-
-  } catch (error) {
-    throw error;
+    return detailsList;
   }
-}
+};

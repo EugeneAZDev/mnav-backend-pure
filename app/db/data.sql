@@ -11,38 +11,28 @@ VALUES
 INSERT INTO "Item" 
   (title, description, target, "sectionId", "valueType", "valueAssessment", "userId", "createdAt")
 VALUES
-  ('MIGRATION', 'Migration number type check', 5, 1, 'number', TRUE, 1, '2020-04-20 18:15:00'),
-  ('MIGRATION2', 'Migration text type check', NULL, 2, 'text', TRUE, 1, '2020-04-21 18:15:00');
+  ('Steps', 'Migration number type check', 5, 1, 'number', TRUE, 1, '2020-04-20 18:15:00'),
+  ('Movies', 'Migration text type check', NULL, 2, 'text', TRUE, 1, '2020-04-21 18:15:00');
 
 INSERT INTO public."ItemValue"
   ("itemId", value, "createdAt")
 VALUES
-  (1,        1,     '2023-04-19 08:00:00')
+  -- Value Type Number
+  (1, 1, '2023-04-22 00:00:00'),
+  (1, 1, '2023-04-23 00:00:00'),
+  -- Value Type Text '24 hours'
+  (2, '24 hours', '2023-04-22 15:00:00'),
+  (2, '24 hours', '2023-04-25 15:00:00'),
+  -- Value Type Text 'Knight Rider'
+  (2, 'Knight Rider', '2023-04-23 17:30:00'),
+  (2, 'Knight Rider', '2023-04-25 17:30:00')
+  ;
 
+-- Value Type Number
+-- "latestAt": '2023-04-22 08:00:00'
+-- "startedAt":'2023-04-22 08:00:00'
+-- "daysDone": 1
+-- "daysMissed": 0
 
--- "latestAt": '2023-04-19 08:00:00'
--- "titleValue": 
--- "startedAt":'2023-04-19 08:00:00'
--- "daysDone"
--- "daysMissed"
--- "daysMinStrike"
--- "dateDaysMinStrike"
--- "daysMaxStrike"
--- "dateDaysMaxStrike"
--- "daysLatestStrike"
--- "dateDaysLatestStrike"
--- "daysMinDelay"
--- "dateDaysMinDelay"
--- "daysMaxDelay"
--- "dateDaysMaxDelay"
--- "daysLatestDelay"
--- "dateDaysLatestDelay"
--- "min"
--- "dateMin"
--- "max"
--- "dateMax"
--- "minPerDay"
--- "dateMinPerDay"
--- "maxPerDay"
--- "dateMaxPerDay"
--- "total"
+-- Value Type Text Title '24 hours'
+-- Value Type Text Title 'Knight Rider'

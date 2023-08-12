@@ -1,5 +1,5 @@
 'use strict';
-require('./src/getEnv.js')
+require('./src/getEnv.js');
 const config = require('./config.js');
 const common = require('./lib/common.js');
 const crud = require('./lib/crud.js')(config.db);

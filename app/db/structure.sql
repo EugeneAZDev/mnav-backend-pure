@@ -6,10 +6,11 @@ CREATE TYPE "ValueType" AS ENUM ('text', 'number', 'seconds', 'minutes');
 -- TABLES
 CREATE TABLE "User" (
   id bigint GENERATED ALWAYS AS IDENTITY,
-  email varchar(64) NOT NULL,
+  email varchar(100) NOT NULL,
 	token varchar(255),
   password varchar(255),
-	"createdAt" timestamp WITHOUT time ZONE DEFAULT now(),
+  "timeZone" smallint,
+	"createdAt" timestamp WITHOUT time ZONE DEFAULT NOW(),
 	"updatedAt" timestamp WITHOUT time ZONE,
 	"deletedAt" timestamp WITHOUT time ZONE
 );
@@ -20,7 +21,7 @@ CREATE TABLE "ItemSection" (
 	id bigint GENERATED ALWAYS AS IDENTITY,
 	title varchar(50) NOT NULL,
 	"userId" bigint NOT NULL,
-	"createdAt" timestamp WITHOUT time ZONE DEFAULT now(),
+	"createdAt" timestamp WITHOUT time ZONE DEFAULT NOW(),
 	"updatedAt" timestamp WITHOUT time ZONE,
 	"deletedAt" timestamp WITHOUT time ZONE
 );
@@ -37,7 +38,7 @@ CREATE TABLE "Item" (
 	"valueAssessment" boolean,
 	visible boolean DEFAULT TRUE,
 	"userId" bigint NOT NULL,
-	"createdAt" timestamp WITHOUT time ZONE DEFAULT now(),
+	"createdAt" timestamp WITHOUT time ZONE DEFAULT NOW(),
 	"updatedAt" timestamp WITHOUT time ZONE,
 	"deletedAt" timestamp WITHOUT time ZONE
 );
@@ -49,7 +50,7 @@ CREATE TABLE "ItemValue" (
 	id bigint GENERATED ALWAYS AS IDENTITY,
 	"itemId" bigint,
 	value varchar(255),
-	"createdAt" timestamp WITHOUT time ZONE DEFAULT now(),
+	"createdAt" timestamp WITHOUT time ZONE DEFAULT NOW(),
 	"updatedAt" timestamp WITHOUT time ZONE,
 	"deletedAt" timestamp WITHOUT time ZONE
 );
@@ -59,8 +60,41 @@ ALTER TABLE "ItemValue" ADD CONSTRAINT "fkItemValueItem" FOREIGN KEY ("itemId") 
 CREATE TABLE "ValueDetail" (
   id bigint GENERATED ALWAYS AS IDENTITY,
 	"itemId" bigint,
-  "latestValueAt" timestamp WITHOUT time ZONE, 
-	"createdAt" timestamp WITHOUT time ZONE DEFAULT now(),
+  "latestAt" timestamp WITHOUT time ZONE,
+	"title" varchar(255),
+	"startedAt" timestamp WITHOUT time ZONE,
+	"daysDone" integer,
+	"daysMissed" integer,
+	"daysMinStrike" integer,
+	"dateDaysMinStrike" timestamp WITHOUT time ZONE,
+	"daysMaxStrike" integer,
+	"dateDaysMaxStrike" timestamp WITHOUT time ZONE,
+	"daysLatestStrike" integer,
+	"dateDaysLatestStrike" timestamp WITHOUT time ZONE,
+	"daysMinDelay" integer,
+	"dateDaysMinDelay" timestamp WITHOUT time ZONE,
+	"daysMaxDelay" integer,
+	"dateDaysMaxDelay" timestamp WITHOUT time ZONE,
+	"daysLatestDelay" integer,
+	"dateDaysLatestDelay" timestamp WITHOUT time ZONE,
+	"min" integer,
+	"dateMin" timestamp WITHOUT time ZONE,
+	"max" integer,
+	"dateMax" timestamp WITHOUT time ZONE,
+	"minPerDay" integer,
+	"dateMinPerDay" timestamp WITHOUT time ZONE,
+	"maxPerDay" integer,
+	"dateMaxPerDay" timestamp WITHOUT time ZONE,
+	"total" integer,
+	"daysTargetDone" integer,
+	"daysTargetMissed" integer,
+	"daysMinTargetStrike" integer,
+	"dateDaysMinTargetStrike" timestamp WITHOUT time ZONE,
+	"daysMaxTargetStrike" integer,
+	"dateDaysMaxTargetStrike" timestamp WITHOUT time ZONE,
+	"daysLatestTargetStrike" integer,
+	"dateDaysLatestTargetStrike" timestamp WITHOUT time ZONE,
+	"createdAt" timestamp WITHOUT time ZONE DEFAULT NOW(),
 	"updatedAt" timestamp WITHOUT time ZONE,
 	"deletedAt" timestamp WITHOUT time ZONE
 );

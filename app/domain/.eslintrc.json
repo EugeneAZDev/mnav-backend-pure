@@ -4,14 +4,18 @@
   },
   "globals": {
     "api": "readonly",
-    "crud": "readonly"
+    "common": "readonly",
+    "crud": "readonly",
+    "domain": "readonly"
   },
   "rules": {
     "strict": ["error", "never"],
     "id-denylist": [
       2,
       "api",
-      "crud"
+      "common",
+      "crud",
+      "domain"
     ]
   }
 }

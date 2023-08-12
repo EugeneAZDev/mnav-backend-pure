@@ -3,7 +3,9 @@
     try {
       const sql = `
         SELECT * FROM "Item" i
-        WHERE i."userId" = '${clientId}' AND i."deletedAt" IS NULL AND i.visible IS ${visible}
+          WHERE i."userId" = '${clientId}'
+          AND i."deletedAt" IS NULL
+          AND i.visible IS ${visible}
         ORDER BY i."sectionId" DESC, 1
       `;
       const result = await crud().query(sql);

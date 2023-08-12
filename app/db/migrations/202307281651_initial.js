@@ -1,9 +1,10 @@
+/* eslint-disable max-len */
 'use strict';
 
 const up = async (client) => {
   await client.query(`
     ALTER TABLE "ValueDetail" RENAME COLUMN "latestValueAt" TO "latestAt";
-    ALTER TABLE "ValueDetail" ADD COLUMN "titleValue" varchar(255);    
+    ALTER TABLE "ValueDetail" ADD COLUMN "title" varchar(255);    
     ALTER TABLE "ValueDetail" ADD COLUMN "startedAt" timestamp WITHOUT time ZONE;
     ALTER TABLE "ValueDetail" ADD COLUMN "daysDone" integer;
     ALTER TABLE "ValueDetail" ADD COLUMN "daysMissed" integer;
@@ -28,13 +29,21 @@ const up = async (client) => {
     ALTER TABLE "ValueDetail" ADD COLUMN "maxPerDay" integer;
     ALTER TABLE "ValueDetail" ADD COLUMN "dateMaxPerDay" timestamp WITHOUT time ZONE;
     ALTER TABLE "ValueDetail" ADD COLUMN "total" integer;
+    ALTER TABLE "ValueDetail" ADD COLUMN "daysTargetDone" integer;
+    ALTER TABLE "ValueDetail" ADD COLUMN "daysTargetMissed" integer;
+    ALTER TABLE "ValueDetail" ADD COLUMN "daysMinTargetStrike" integer;
+    ALTER TABLE "ValueDetail" ADD COLUMN "dateDaysMinTargetStrike" timestamp WITHOUT time ZONE;
+    ALTER TABLE "ValueDetail" ADD COLUMN "daysMaxTargetStrike" integer;
+    ALTER TABLE "ValueDetail" ADD COLUMN "dateDaysMaxTargetStrike" timestamp WITHOUT time ZONE;
+    ALTER TABLE "ValueDetail" ADD COLUMN "daysLatestTargetStrike" integer;
+    ALTER TABLE "ValueDetail" ADD COLUMN "dateDaysLatestTargetStrike" timestamp WITHOUT time ZONE;
   `);
 };
 
 const down = async (client) => {
   await client.query(`
     ALTER TABLE "ValueDetail" RENAME COLUMN "latestAt" TO "latestValueAt";
-    ALTER TABLE "ValueDetail" DROP COLUMN "titleValue";
+    ALTER TABLE "ValueDetail" DROP COLUMN "title";
     ALTER TABLE "ValueDetail" DROP COLUMN "startedAt";
     ALTER TABLE "ValueDetail" DROP COLUMN "daysDone";
     ALTER TABLE "ValueDetail" DROP COLUMN "daysMissed";
@@ -59,6 +68,14 @@ const down = async (client) => {
     ALTER TABLE "ValueDetail" DROP COLUMN "maxPerDay";
     ALTER TABLE "ValueDetail" DROP COLUMN "dateMaxPerDay";
     ALTER TABLE "ValueDetail" DROP COLUMN "total";
+    ALTER TABLE "ValueDetail" DROP COLUMN "daysTargetDone";
+    ALTER TABLE "ValueDetail" DROP COLUMN "daysTargetMissed";
+    ALTER TABLE "ValueDetail" DROP COLUMN "daysMinTargetStrike";
+    ALTER TABLE "ValueDetail" DROP COLUMN "dateDaysMinTargetStrike";
+    ALTER TABLE "ValueDetail" DROP COLUMN "daysMaxTargetStrike";
+    ALTER TABLE "ValueDetail" DROP COLUMN "dateDaysMaxTargetStrike";
+    ALTER TABLE "ValueDetail" DROP COLUMN "daysLatestTargetStrike";
+    ALTER TABLE "ValueDetail" DROP COLUMN "dateDaysLatestTargetStrike";
   `);
 };
 

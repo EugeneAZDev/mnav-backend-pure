@@ -1,7 +1,10 @@
 ({
   method: async ({ id }) => {
     try {
-      const valuesCount = await crud('ItemValue').count('itemId', [id]);
+      const valuesCount = await crud('ItemValue').select({
+        count: 'id',
+        where: { itemId: id },
+      });
       if (valuesCount > 0) {
         return {
           ...responseType.error(),

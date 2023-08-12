@@ -2,12 +2,16 @@
   method: async ({ ...records }) => {
     try {
       const { clientId, target, ...args } = records;
+      const createdAt = await domain.getLocalTime(clientId);
       const validTarget = common.validNumberValue(target);
-      const result = await crud('Item').create([{
-        userId: clientId,
-        target: validTarget || null,
-        ...args,
-      }]);
+      const result = await crud('Item').create([
+        {
+          userId: clientId,
+          target: validTarget || null,
+          createdAt,
+          ...args,
+        },
+      ]);
       const [item] = result.rows;
       return responseType.modifiedBodyTemplate(responseType.created, {
         itemId: item.id,

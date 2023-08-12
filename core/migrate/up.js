@@ -1,5 +1,6 @@
 'use strict';
 
+// readfilesync <file name>.up
 const { up } = require('./');
 const { processTransaction } = require('../lib/db.js');
 

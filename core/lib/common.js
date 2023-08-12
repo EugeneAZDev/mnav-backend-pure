@@ -22,6 +22,8 @@ const KEY_LEN = 64;
 const SCRYPT_PARAMS = { N: 32768, r: 8, p: 1, maxmem: 64 * 1024 * 1024 };
 const SCRYPT_PREFIX = '$scrypt$N=32768,r=8,p=1,maxmem=67108864$';
 
+const userTimeZoneMap = new Map();
+
 const parseOptions = (options) => {
   const values = [];
   const items = options.split(',');
@@ -114,24 +116,22 @@ const receiveBody = async (req) => {
   return Buffer.concat(buffers).toString();
 };
 
-const splitObjectIntoArraysByField = (object, value) => {
-  return object.reduce((acc, rec) => {
-    const field = rec[value]
-    if (!acc[field]) {
-      acc[field] = []
-    }
+const splitObjectIntoArraysByField = (object, value) => object.reduce((acc, rec) => {
+  const field = rec[value];
+  if (!acc[field]) {
+    acc[field] = [];
+  }
 
-    const recWithoutValue = {}
-    for (const field of Object.keys(rec)) {
-      if (field !== value) {
-        recWithoutValue[field] = rec[field]
-      } 
+  const recWithoutValue = {};
+  for (const field of Object.keys(rec)) {
+    if (field !== value) {
+      recWithoutValue[field] = rec[field];
     }
-    
-    acc[field].push(recWithoutValue)
-    return acc
-  }, {})
-}
+  }
+
+  acc[field].push(recWithoutValue);
+  return acc;
+}, {});
 
 const validatePassword = (password, serHash) => {
   const { params, salt, hash } = deserializeHash(serHash);
@@ -259,4 +259,5 @@ module.exports = {
   validatePassword,
   validateToken,
   validNumberValue,
+  userTimeZoneMap
 };
