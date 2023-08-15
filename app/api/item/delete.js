@@ -1,5 +1,5 @@
 ({
-  method: async ({ id }) => {
+  method: async ({ clientId, id }) => {
     try {
       const valuesCount = await crud('ItemValue').select({
         count: 'id',
@@ -11,7 +11,11 @@
           body: { message: 'Unable to delete Item with associated values' },
         };
       }
-      await crud('Item').delete([id]);
+      const deletedAt = await domain.getLocalTime(clientId);
+      await crud('Item').update({
+        id,
+        fields: { deletedAt }
+      });
       return responseType.deleted();
     } catch (error) {
       return { ...responseType.error(), error };

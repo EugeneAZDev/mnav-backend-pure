@@ -26,7 +26,7 @@ const crud = (pool) => (table) => ({
     console.log(sql);
     console.log(data);
 
-    return transaction.query(sql + ' RETURNING *', data, transaction);
+    return this.query(sql + ' RETURNING *', data, transaction);
   },
 
   async select({
@@ -86,9 +86,10 @@ const crud = (pool) => (table) => ({
     let sql;
     let i = 0;
 
-    if (fields && fields.length > 0) {
+    if (fields && Reflect.ownKeys(fields).length > 0) {
+      console.log(Reflect.ownKeys(fields).length > 0);
       const setKeys = Object.keys(fields);
-      const updates = new Array(setKeys.length);
+      const updates = [];
       for (const key of setKeys) {
         args[i] = fields[key];
         updates[i] = `"${key}" = $${++i}`;

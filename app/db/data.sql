@@ -18,21 +18,32 @@ INSERT INTO public."ItemValue"
   ("itemId", value, "createdAt")
 VALUES
   -- Value Type Number
-  (1, 1, '2023-04-22 00:00:00'),
-  (1, 1, '2023-04-23 00:00:00'),
+  (1, 1, '2023-08-01 08:00:00'),
+  (1, 1, '2023-08-01 13:15:00'),
+  (1, 3, '2023-08-05 09:15:00');
   -- Value Type Text '24 hours'
-  (2, '24 hours', '2023-04-22 15:00:00'),
-  (2, '24 hours', '2023-04-25 15:00:00'),
+  -- (2, '24 hours', '2023-08-22 15:00:00'),
+  -- (2, '24 hours', '2023-08-25 15:25:17'),
   -- Value Type Text 'Knight Rider'
-  (2, 'Knight Rider', '2023-04-23 17:30:00'),
-  (2, 'Knight Rider', '2023-04-25 17:30:00')
-  ;
+  -- (2, 'Knight Rider', '2023-08-23 17:30:00'),
+  -- (2, 'Knight Rider', '2023-08-25 17:30:00')
+;
 
 -- Value Type Number
+-- "latestAt": '2023-08-01 08:00:00'
+-- "startedAt":'2023-08-05 09:15:00'
+-- "daysDone": 2
+-- "daysMissed": 0
+-- "total": 2,
+
+-- Value Type Text Title '24 hours'
 -- "latestAt": '2023-04-22 08:00:00'
 -- "startedAt":'2023-04-22 08:00:00'
 -- "daysDone": 1
 -- "daysMissed": 0
 
--- Value Type Text Title '24 hours'
 -- Value Type Text Title 'Knight Rider'
+-- "latestAt": '2023-04-22 08:00:00'
+-- "startedAt":'2023-04-22 08:00:00'
+-- "daysDone": 1
+-- "daysMissed": 0

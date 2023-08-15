@@ -64,6 +64,19 @@ const extractArguments = (input) => {
   return Object.keys(props);
 };
 
+const getDaysByDates = (from, to) => {
+  const fromDate = new Date(from);
+  const toDate = new Date(to);
+
+  fromDate.setHours(0, 0, 0, 0);
+  toDate.setHours(0, 0, 0, 0);
+
+  const diffTime = toDate - fromDate;
+  const millisecondsPerDay = 1000 * 60 * 60 * 24;
+
+  return Math.floor(diffTime / millisecondsPerDay);
+};
+
 const generateToken = (id) => {
   const header = { alg: 'HS256', typ: 'JWT' };
   const payload = { userId: id };
@@ -249,6 +262,7 @@ module.exports = {
   ExcelJS,
   fs,
   extractArguments,
+  getDaysByDates,
   generateTempToken,
   generateToken,
   hashPassword,

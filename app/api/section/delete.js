@@ -8,8 +8,13 @@
           body: 'Unable to delete: being used by Items',
         };
       }
-      const date = await domain.getLocalTime(clientId);
-      await crud('ItemSection').delete([id], date);
+
+      const deletedAt = await domain.getLocalTime(clientId);
+      await crud('ItemSection').update({
+        id,
+        fields: { deletedAt }
+      });
+
       return responseType.deleted();
     } catch (error) {
       return { ...responseType.error(), error };
