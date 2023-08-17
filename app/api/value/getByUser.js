@@ -5,7 +5,7 @@
         SELECT  i.id AS "itemId", its.id AS "sectionId", iv.id AS "valueId",
                 its.title AS "section", i."valueType", i."valueAssessment",
                 i.title, i.description, i.target, iv.value, iv."createdAt"
-        FROM"ItemValue" iv
+        FROM "ItemValue" iv
         JOIN "Item" i ON iv."itemId" = i.id
         LEFT JOIN "ItemSection" its ON its.id = i."sectionId" 
         WHERE	i."userId" = ${clientId} AND iv."deletedAt" IS NULL
@@ -13,13 +13,13 @@
       `;
       const result = await crud().query(sql);
       if (result.rows.length > 0) {
-        const exportValues = result.rows;
+        const values = result.rows;
         return responseType.modifiedBodyTemplate(responseType.success, {
-          exportValues
+          values
         });
       }
       return responseType.modifiedBodyTemplate(responseType.success, {
-        exportValues: []
+        values: []
       });
     } catch (error) {
       return { ...responseType.error(), error };

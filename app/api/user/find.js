@@ -8,20 +8,21 @@
     const value = email || token;
 
     try {
-      const result = await crud('User').find(field, [ value.toLowerCase() ], [
-        'id', 'email', 'password'
-      ]);
+      const result = await crud('User').select({
+        fields: ['id', 'email', 'password'],
+        where: { [field]: value.toLowerCase() },
+      });
       if (result.rows.length === 1) {
-        const [ user ] = result.rows;
+        const [user] = result.rows;
         if (user.password !== null) {
           user.password = undefined;
         }
         return responseType.modifiedBodyTemplate(responseType.success, {
-          user
+          user,
         });
       }
       return responseType.modifiedBodyTemplate(responseType.success, {
-        user: undefined
+        user: undefined,
       });
     } catch (error) {
       return { ...responseType.error(), error };

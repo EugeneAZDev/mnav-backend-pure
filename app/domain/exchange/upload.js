@@ -50,5 +50,10 @@ async (pool, clientId, excelData) => {
     }));
   });
 
+  // const deletedAt = await domain.getLocalTime(clientId);
   await crud('ItemValue').create(values.flat(), pool);
+  await crud('ValueDetail').update({
+    fields: { deletedAt: new Date() },
+    transaction: pool
+  });
 };

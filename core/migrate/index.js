@@ -1,13 +1,12 @@
 'use strict';
 
-require('../../core/src/getEnv.js')
+require('../src/getEnv.js');
 
 const fsp = require('node:fs').promises;
 const path = require('node:path');
 
-const dir = path.join(__dirname, '../db/migrations');
-
-const MIGRATION_TABLE = 'Migration'
+const dir = path.join(__dirname, '../../app/db/migrations');
+const MIGRATION_TABLE = 'Migration';
 
 async function checkMigrationsTable(pool) {
   const query = `
@@ -26,8 +25,7 @@ async function createMigrationsTable(pool) {
     CREATE TABLE "${MIGRATION_TABLE}" (
       id SERIAL PRIMARY KEY,
       name VARCHAR(255) NOT NULL,
-      executed_at timestamp WITHOUT time ZONE DEFAULT now(),
-      rolled_back_at timestamp WITHOUT time ZONE
+      executed_at timestamp WITHOUT time ZONE DEFAULT now()
     );
   `;
   await pool.query(query);
@@ -37,8 +35,8 @@ async function getAvailableMigrations(desc = false) {
   const files = await fsp.readdir(dir);
 
   const result = files
-    .filter(file => file.endsWith('.js'))
-    .map(file => {
+    .filter((file) => file.endsWith('.js'))
+    .map((file) => {
       const migration = require(path.join(dir, file));
       return {
         name: file.replace('.js', ''),
@@ -49,14 +47,15 @@ async function getAvailableMigrations(desc = false) {
     .sort((a, b) => a.name.localeCompare(b.name));
 
   if (desc) { return result.reverse(); }
-  return result
+  return result;
 }
 
 async function getExecutedMigrations(pool, desc = false) {
-  const direction = desc ? 'DESC' : 'ASC'
-  const query = `SELECT name FROM "${MIGRATION_TABLE}" ORDER BY id ${direction};`;
+  const direction = desc ? 'DESC' : 'ASC';
+  const query =
+    `SELECT name FROM "${MIGRATION_TABLE}" ORDER BY id ${direction};`;
   const result = await pool.query(query);
-  return result.rows.map(row => row.name);
+  return result.rows.map((row) => row.name);
 }
 
 async function addMigrationRecord(pool, migrationName) {
@@ -85,7 +84,7 @@ async function migrate(pool, up = false) {
       await addMigrationRecord(pool, migration.name);
       if (up) {
         console.log('Migration executed successfully.');
-        return
+        return;
       }
     }
   }
@@ -94,7 +93,6 @@ async function migrate(pool, up = false) {
 
 async function revert(pool, down = false) {
   const availableMigrations = await getAvailableMigrations(true);
-  console.log(availableMigrations);
   const executedMigrations = await getExecutedMigrations(pool, true);
   for (const migration of availableMigrations) {
     if (executedMigrations.includes(migration.name)) {
@@ -103,18 +101,18 @@ async function revert(pool, down = false) {
       await deleteMigrationRecord(pool, migration.name);
       if (down) {
         console.log('Migration rolled back successfully.');
-        return
+        return;
       }
     }
   }
   console.log('All migrations have been rolled back.');
 }
 
-async function applyMigrations(pool) { await migrate(pool) }
-async function up(pool) { await migrate(pool, true) }
-async function rollbackMigrations(pool) { await revert(pool) }
-async function down(pool) { await revert(pool, true) }
+async function applyMigrations(pool) { await migrate(pool); }
+async function up(pool) { await migrate(pool, true); }
+async function rollbackMigrations(pool) { await revert(pool); }
+async function down(pool) { await revert(pool, true); }
 
 module.exports = {
   applyMigrations, up, rollbackMigrations, down
-}
+};

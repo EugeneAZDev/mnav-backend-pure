@@ -2,7 +2,8 @@
 
 const fs = require('node:fs');
 const path = require('node:path');
-const envPath = path.join(process.cwd(), '../../../.env');
+
+const envPath = path.join(__dirname, '../../../.env');
 const read = () => fs.readFileSync(envPath, 'utf8');
 
 module.exports = (() => {

@@ -22,6 +22,8 @@ const KEY_LEN = 64;
 const SCRYPT_PARAMS = { N: 32768, r: 8, p: 1, maxmem: 64 * 1024 * 1024 };
 const SCRYPT_PREFIX = '$scrypt$N=32768,r=8,p=1,maxmem=67108864$';
 
+const userTimeZoneMap = new Map();
+
 const parseOptions = (options) => {
   const values = [];
   const items = options.split(',');
@@ -60,6 +62,19 @@ const extractArguments = (input) => {
     props[propName] = true;
   }
   return Object.keys(props);
+};
+
+const getDaysByDates = (from, to) => {
+  const fromDate = new Date(from);
+  const toDate = new Date(to);
+
+  fromDate.setHours(0, 0, 0, 0);
+  toDate.setHours(0, 0, 0, 0);
+
+  const diffTime = toDate - fromDate;
+  const millisecondsPerDay = 1000 * 60 * 60 * 24;
+
+  return Math.floor(diffTime / millisecondsPerDay);
 };
 
 const generateToken = (id) => {
@@ -113,6 +128,23 @@ const receiveBody = async (req) => {
   for await (const chunk of req) buffers.push(chunk);
   return Buffer.concat(buffers).toString();
 };
+
+const splitObjectIntoArraysByField = (object, value) => object.reduce((acc, rec) => {
+  const field = rec[value];
+  if (!acc[field]) {
+    acc[field] = [];
+  }
+
+  const recWithoutValue = {};
+  for (const field of Object.keys(rec)) {
+    if (field !== value) {
+      recWithoutValue[field] = rec[field];
+    }
+  }
+
+  acc[field].push(recWithoutValue);
+  return acc;
+}, {});
 
 const validatePassword = (password, serHash) => {
   const { params, salt, hash } = deserializeHash(serHash);
@@ -230,13 +262,16 @@ module.exports = {
   ExcelJS,
   fs,
   extractArguments,
+  getDaysByDates,
   generateTempToken,
   generateToken,
   hashPassword,
   jsonParse,
   receiveBody,
   sendEmail,
+  splitObjectIntoArraysByField,
   validatePassword,
   validateToken,
   validNumberValue,
+  userTimeZoneMap
 };

@@ -1,8 +1,14 @@
+/**
+ * node setup useData - fill test data
+ */
 'use strict';
 
 const fsp = require('node:fs').promises;
 const path = require('node:path');
 const pg = require('pg');
+
+const { applyMigrations } = require('../core/migrate');
+const { processTransaction } = require('../core/lib/db.js');
 
 const DB = path.join(__dirname, './db');
 
@@ -36,11 +42,14 @@ const executeFile = async (client, name) => {
 };
 
 (async () => {
+  const argsList = process.argv.slice(2);
+  const useData = argsList.find((arg) => arg === 'useData');
   const db = new pg.Client(CONNECTION);
   await db.connect();
   await executeFile(db, 'reset.sql');
   await executeFile(db, 'structure.sql');
-  // await executeFile(db, 'data.sql');
+  await processTransaction(applyMigrations);
+  if (useData) await executeFile(db, 'data.sql');
   await db.end();
   console.log('Environment is ready');
 })().catch((err) => {

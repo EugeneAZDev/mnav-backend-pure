@@ -2,8 +2,10 @@
   method: async ({ ...records }) => {
     try {
       const { clientId, ...args } = records;
+      const createdAt = await domain.getLocalTime(clientId);
       const result = await crud('ItemSection').create([{
         userId: clientId,
+        createdAt,
         ...args,
       }]);
       const [section] = result.rows;

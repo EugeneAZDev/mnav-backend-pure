@@ -374,8 +374,8 @@ const MY_ACTIVITY = 'MyActivity';
 
     const sheet = wb.addWorksheet(MY_ACTIVITY);
 
-    const { body } = await api.value.exportByUser().method({ clientId });
-    const exportValues = body && body.exportValues;
+    const { body } = await api.value.getByUser().method({ clientId });
+    const exportValues = body && body.values;
 
     const cellsToCenterStyle = [];
     const cellsToBoldCenterStyle = [];
