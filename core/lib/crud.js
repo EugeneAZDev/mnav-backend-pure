@@ -22,9 +22,9 @@ const crud = (pool) => (table) => ({
 
     // TODO Modify to convenient naming and rename function to insert
     // CRUD INSERT DEBUG
-    console.log('CRUD INSERT');
-    console.log(sql);
-    console.log(data);
+    // console.log('CRUD INSERT');
+    // console.log(sql);
+    // console.log(data);
 
     return this.query(sql + ' RETURNING *', data, transaction);
   },
@@ -65,9 +65,9 @@ const crud = (pool) => (table) => ({
     }
 
     // CRUD SELECT DEBUG
-    console.log('CRUD SELECT');
-    console.log(sql);
-    console.log(args);
+    // console.log('CRUD SELECT');
+    // console.log(sql);
+    // console.log(args);
 
     if (count) {
       const result = await this.query(sql, args, transaction);
@@ -111,9 +111,9 @@ const crud = (pool) => (table) => ({
     sql += ` WHERE ${whereClause}`;
     args.push(...whereArgs);
     // CRUD UPDATE DEBUG
-    console.log('CRUD UPDATE');
-    console.log(sql);
-    console.log(args);
+    // console.log('CRUD UPDATE');
+    // console.log(sql);
+    // console.log(args);
     return this.query(sql, args, transaction);
   },
 

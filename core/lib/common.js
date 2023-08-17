@@ -146,6 +146,12 @@ const splitObjectIntoArraysByField = (object, value) => object.reduce((acc, rec)
   return acc;
 }, {});
 
+const transformToPureDate = values => values.map(item => {
+  const date = new Date(item.createdAt);
+  const formattedDate = date.toISOString().split('T')[0];
+  return { ...item, createdAt: formattedDate };
+});
+
 const validatePassword = (password, serHash) => {
   const { params, salt, hash } = deserializeHash(serHash);
   return new Promise((resolve, reject) => {
@@ -270,6 +276,7 @@ module.exports = {
   receiveBody,
   sendEmail,
   splitObjectIntoArraysByField,
+  transformToPureDate,
   validatePassword,
   validateToken,
   validNumberValue,
