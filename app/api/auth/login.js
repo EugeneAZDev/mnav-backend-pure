@@ -4,8 +4,7 @@
     try {
       const result = await crud('User').select({
         where: { email: email.toLowerCase() },
-      });
-      console.log(result.rows);
+      });      
       if (result.rows.length === 1) {
         const [user] = result.rows;
         if (user.password === null)

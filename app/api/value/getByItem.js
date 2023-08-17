@@ -1,5 +1,5 @@
 ({
-  method: async ({ clientId, itemId }) => {
+  method: async ({ clientId, itemId, pool }) => {
     try {
       const sql = `
         SELECT iv.value, iv."createdAt", i."valueType"
@@ -11,7 +11,7 @@
           AND  iv."deletedAt" IS NULL
         ORDER BY iv."createdAt";
       `;
-      const result = await crud().query(sql);
+      const result = await crud().query(sql, [], pool);
       if (result.rows.length > 0) {
         return responseType.modifiedBodyTemplate(responseType.success, {
           valueType: result.rows[0].valueType,

@@ -13,7 +13,7 @@
         `;
       const result = await crud().query(sql);
       if (result.rows.length > 0) {
-        const values = result.rows;
+        const values = result.rows;        
         return responseType.modifiedBodyTemplate(responseType.success, {
           values
         });

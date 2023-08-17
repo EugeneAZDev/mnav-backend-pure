@@ -2,10 +2,11 @@
   // eslint-disable-next-line no-unused-vars
   method: async ({ clientId, ...records }) => {
     try {
-      const valueId =
-        await db.processTransaction(domain.value.create, clientId, records);
+      const createdAt = await domain.getLocalTime(clientId);    
+      const result = await crud('ItemValue').create([{ ...records, createdAt }]);
+      const [ value ] = result.rows;
       return responseType.modifiedBodyTemplate(responseType.created, {
-        valueId
+        valueId: value.id
       });
     } catch (error) {
       return { ...responseType.error(), error };

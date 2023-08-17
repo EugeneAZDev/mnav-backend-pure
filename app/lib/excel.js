@@ -8,8 +8,7 @@ const MY_ACTIVITY = 'MyActivity';
         const cell = sheet.getCell(cellName);
         cell.style = { ...cell.style, ...value };
         cell.style = { ...cell.style, font }
-      }
-      console.log()
+      }      
     }
   },
 
