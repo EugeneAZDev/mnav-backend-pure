@@ -6,7 +6,7 @@
       const result = await crud('ItemValue').create([{ ...records, createdAt }]);
       const [ value ] = result.rows;
       return responseType.modifiedBodyTemplate(responseType.created, {
-        valueId: value.id
+        valueId
       });
     } catch (error) {
       return { ...responseType.error(), error };
