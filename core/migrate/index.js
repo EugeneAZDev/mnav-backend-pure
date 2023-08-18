@@ -88,7 +88,6 @@ async function migrate(pool, up = false) {
   const migrationTableExists = await checkMigrationsTable(pool);
   if (!migrationTableExists) await createMigrationsTable(pool);
   const availableMigrations = await getAvailableMigrations();
-  console.log(availableMigrations);  
   const executedMigrations = await getExecutedMigrations(pool);
   for await (const migration of availableMigrations) {
     if (!executedMigrations.includes(migration.name)) {

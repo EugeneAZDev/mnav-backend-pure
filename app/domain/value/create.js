@@ -39,8 +39,7 @@ async (pool, clientId, inputData) => {
       itemId,
     );
     if (item.valueType !== 'text') {
-      const details = { ...detail, ...calculatedDetails/*, createdAt*/ };
-      console.log(details);
+      const details = { ...detail, ...calculatedDetails/*, createdAt*/ };      
       await crud('ValueDetail').create([details], pool);
     } else {
       await Promise.all(
