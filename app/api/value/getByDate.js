@@ -1,6 +1,7 @@
 ({
   method: async ({ clientId, id, date }) => {
     try {
+      const localDate = new Date(date).toLocaleDateString()      
       const idCondition = id ? `AND i.id = ${id}` : '';
       const sql = `
         SELECT iv.id, value, iv."itemId"
@@ -8,7 +9,7 @@
           JOIN "Item" i ON	iv."itemId" = i.id
         WHERE	i."userId" = ${clientId}
           ${idCondition}
-          AND DATE(iv."createdAt") = '${date}'
+          AND DATE(iv."createdAt") = '${localDate}'
           AND iv."deletedAt" IS NULL;
         `;
       const result = await crud().query(sql);
