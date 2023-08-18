@@ -1,4 +1,4 @@
-async (clientId) => {
+async (clientId, time) => {
   let tz = common.userTimeZoneMap.get(clientId);
   if (!tz) {
     tz = (await crud('User').select({
@@ -9,8 +9,9 @@ async (clientId) => {
     common.userTimeZoneMap.set(clientId, tz);
   }
 
+  const date = time && new Date(time) || new Date()  
   const adjustedTimestamp =
-    new Date(new Date().getTime() + tz * 60 * 60 * 1000);
+    new Date(date.getTime() + tz * 60 * 60 * 1000);
 
   return adjustedTimestamp;
 };
