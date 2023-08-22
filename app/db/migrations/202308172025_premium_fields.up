@@ -1,3 +1,4 @@
 CREATE TYPE "Period" AS ENUM ('none', 'month', 'year', 'lifetime');
-ALTER TABLE "User" ADD COLUMN "premiumAt" timestamp;
+ALTER TABLE "User" ADD COLUMN "premiumAt" timestamp WITHOUT time ZONE;
 ALTER TABLE "User" ADD COLUMN "premiumPeriod" "Period";
+ALTER TABLE "User" ADD COLUMN "updatedDetailsAt" timestamp WITHOUT time ZONE;

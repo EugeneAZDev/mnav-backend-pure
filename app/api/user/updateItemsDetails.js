@@ -1,7 +1,7 @@
 ({
   method: async ({ clientId }) => {
-    try {
-      // TODO Implement logic
+    try {      
+      await db.processTransaction(domain.user.updateDetails, clientId);
       return responseType.success();
     } catch (error) {
       return { ...responseType.error(), error };
