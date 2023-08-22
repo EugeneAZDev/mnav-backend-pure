@@ -129,28 +129,30 @@ const receiveBody = async (req) => {
   return Buffer.concat(buffers).toString();
 };
 
-const splitObjectIntoArraysByField = (object, value) => object.reduce((acc, rec) => {
-  const field = rec[value];
-  if (!acc[field]) {
-    acc[field] = [];
-  }
-
-  const recWithoutValue = {};
-  for (const field of Object.keys(rec)) {
-    if (field !== value) {
-      recWithoutValue[field] = rec[field];
+const splitObjectIntoArraysByField = (object, value) =>
+  object.reduce((acc, rec) => {
+    const field = rec[value];
+    if (!acc[field]) {
+      acc[field] = [];
     }
-  }
 
-  acc[field].push(recWithoutValue);
-  return acc;
-}, {});
+    const recWithoutValue = {};
+    for (const field of Object.keys(rec)) {
+      if (field !== value) {
+        recWithoutValue[field] = rec[field];
+      }
+    }
 
-const transformToPureDate = values => values.map(item => {
-  const date = new Date(item.createdAt);
-  const formattedDate = date.toISOString().split('T')[0];
-  return { ...item, createdAt: formattedDate };
-});
+    acc[field].push(recWithoutValue);
+    return acc;
+  }, {});
+
+const transformToPureDate = (values) =>
+  values.map((item) => {
+    const date = new Date(item.createdAt);
+    const formattedDate = date.toISOString().split('T')[0];
+    return { ...item, createdAt: formattedDate };
+  });
 
 const validatePassword = (password, serHash) => {
   const { params, salt, hash } = deserializeHash(serHash);
@@ -280,5 +282,5 @@ module.exports = {
   validatePassword,
   validateToken,
   validNumberValue,
-  userTimeZoneMap
+  userTimeZoneMap,
 };

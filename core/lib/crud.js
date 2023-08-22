@@ -1,5 +1,14 @@
 'use strict';
 const pg = require('pg');
+
+const TIMESTAMP_OID = 1114;
+pg.types.setTypeParser(
+  TIMESTAMP_OID,
+  (timestamp) => new Date(`${timestamp.slice(0, 19)}Z`),
+);
+const TYPE_TIMESTAMPTZ = 1184;
+pg.types.setTypeParser(TYPE_TIMESTAMPTZ, (timestamp) => timestamp);
+
 const crud = (pool) => (table) => ({
   async create(records, transaction = pool) {
     const keys = Object.keys(

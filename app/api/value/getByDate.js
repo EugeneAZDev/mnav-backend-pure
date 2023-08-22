@@ -1,7 +1,11 @@
 ({
   method: async ({ clientId, id, date }) => {
     try {
-      const localDate = new Date(date).toLocaleDateString()      
+      console.log('value get by date', new Date(date));
+      const localTime = await domain.getLocalTime(clientId, date);
+      console.log(localTime);
+      const localDate = new Date(localTime).toLocaleDateString();
+      console.log(localDate);
       const idCondition = id ? `AND i.id = ${id}` : '';
       const sql = `
         SELECT iv.id, value, iv."itemId"
@@ -14,16 +18,16 @@
         `;
       const result = await crud().query(sql);
       if (result.rows.length > 0) {
-        const values = result.rows;        
+        const values = result.rows;
         return responseType.modifiedBodyTemplate(responseType.success, {
-          values
+          values,
         });
       }
       return responseType.modifiedBodyTemplate(responseType.success, {
-        values: []
+        values: [],
       });
     } catch (error) {
       return { ...responseType.error(), error };
     }
-  }
+  },
 });
