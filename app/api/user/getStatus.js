@@ -3,12 +3,19 @@
     try {
       const result = await crud('User').select({
         id: clientId,
-        fields: ['id', 'premiumAt', 'premiumPeriod', 'updatedDetailsAt'],
+        fields: [
+          'id',
+          'premiumAt',
+          'premiumPeriod',
+          'updatedDetailsAt',
+          'autoDetailsUpdate',
+        ],
       });
       if (result.rows.length === 1) {
         const [user] = result.rows;
         const dateNow = new Date().toISOString().split('T')[0];
         const initialStatus = {
+          autoDetailsUpdate: user.autoDetailsUpdate,
           expiredAt: null,
           premium: false,
           lifetime: false,
@@ -44,7 +51,7 @@
             lifetime: true,
           }),
         };
-        const status = SUBSCRIPTION_TYPE[user.premiumPeriod]();
+        const status = SUBSCRIPTION_TYPE[user.premiumPeriod || 'none']();
         return responseType.modifiedBodyTemplate(responseType.success, {
           status,
         });
