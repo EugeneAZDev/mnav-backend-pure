@@ -96,7 +96,6 @@ const crud = (pool) => (table) => ({
     let i = 0;
 
     if (fields && Reflect.ownKeys(fields).length > 0) {
-      console.log(Reflect.ownKeys(fields).length > 0);
       const setKeys = Object.keys(fields);
       const updates = [];
       for (const key of setKeys) {

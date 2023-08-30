@@ -23,6 +23,7 @@ const SCRYPT_PARAMS = { N: 32768, r: 8, p: 1, maxmem: 64 * 1024 * 1024 };
 const SCRYPT_PREFIX = '$scrypt$N=32768,r=8,p=1,maxmem=67108864$';
 
 const userTimeZoneMap = new Map();
+const userSettingsMap = new Map();
 
 const parseOptions = (options) => {
   const values = [];
@@ -282,5 +283,6 @@ module.exports = {
   validatePassword,
   validateToken,
   validNumberValue,
+  userSettingsMap,
   userTimeZoneMap,
 };

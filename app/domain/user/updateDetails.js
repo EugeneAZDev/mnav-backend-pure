@@ -1,4 +1,45 @@
 async (pool, clientId) => {
+  const initial = {
+    dateDaysLatestStrike: null,
+    dateDaysLatestTargetDelay: null,
+    dateDaysLatestTargetStrike: null,
+    dateDaysMaxDelay: null,
+    dateDaysMaxStrike: null,
+    dateDaysMaxTargetDelay: null,
+    dateDaysMaxTargetStrike: null,
+    dateDaysMinDelay: null,
+    dateDaysMinStrike: null,
+    dateDaysMinTargetDelay: null,
+    dateDaysMinTargetStrike: null,
+    daysDone: 0,
+    daysLatestDelay: 0,
+    daysLatestStrike: 0,
+    daysLatestTargetDelay: 0,
+    daysLatestTargetStrike: 0,
+    daysMaxDelay: 0,
+    daysMaxStrike: 0,
+    daysMaxTargetDelay: 0,
+    daysMaxTargetStrike: 0,
+    daysMinDelay: 0,
+    daysMinStrike: 0,
+    daysMinTargetDelay: 0,
+    daysMinTargetStrike: 0,
+    daysMissed: 0,
+    daysTargetDone: 0,
+    daysTargetMissed: 0,
+    max: 0,
+    maxPerDay: 0,
+    min: 0,
+    minPerDay: 0,
+    startedAt: null,
+    total: 0,
+    latestAt: null,
+    dateMax: null,
+    dateMaxPerDay: null,
+    dateMin: null,
+    dateMinPerDay: null,
+  };
+
   const result = await crud('Item').select({
     where: { userId: clientId },
     transaction: pool,
@@ -20,10 +61,15 @@ async (pool, clientId) => {
 
     for await (const iv of itemsValuesSet) {
       if (iv.values.length > 0) {
+        const target =
+          iv.target === null || iv.target <= 0 ?
+            (iv.target = undefined) :
+            iv.target;
+
         const calculatedDetails = await domain.item.calculateDetails(
           clientId,
           iv.values,
-          iv.target,
+          target,
           iv.valueType,
         );
 
@@ -35,7 +81,7 @@ async (pool, clientId) => {
 
           if (detailsByItem.rows.length === 0) {
             await crud('ValueDetail').create(
-              [{ ...calculatedDetails, itemId: iv.id }],
+              [{ ...initial, ...calculatedDetails, itemId: iv.id }],
               pool,
             );
           } else {
@@ -75,7 +121,11 @@ async (pool, clientId) => {
             if (neededUpdate) {
               await crud('ValueDetail').update({
                 id: existingRec.id,
-                fields: { updatedAt: new Date(), ...calculatedDetails },
+                fields: {
+                  ...initial,
+                  updatedAt: new Date(),
+                  ...calculatedDetails,
+                },
                 transaction: pool,
               });
             }
@@ -91,7 +141,7 @@ async (pool, clientId) => {
 
             if (detailsBySubItem.rows.length === 0) {
               await crud('ValueDetail').create(
-                [{ ...calculatedDetails, itemId: iv.id, title }],
+                [{ ...initial, ...calculatedDetails, itemId: iv.id, title }],
                 pool,
               );
             } else {
@@ -130,7 +180,11 @@ async (pool, clientId) => {
               if (neededUpdate) {
                 await crud('ValueDetail').update({
                   id: existingRec.id,
-                  fields: { updatedAt: new Date(), ...calculatedDetails },
+                  fields: {
+                    ...initial,
+                    updatedAt: new Date(),
+                    ...calculatedDetails,
+                  },
                   transaction: pool,
                 });
               }
@@ -146,4 +200,5 @@ async (pool, clientId) => {
     fields: { updatedAt: new Date(), updatedDetailsAt },
     transaction: pool,
   });
+  return updatedDetailsAt;
 };

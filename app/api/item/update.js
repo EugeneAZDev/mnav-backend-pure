@@ -3,7 +3,7 @@
     try {
       const { clientId, id, target, ...data } = records;
       const updatedAt = await domain.getLocalTime(clientId);
-      const validTarget = common.validNumberValue(target);
+      const validTarget = target ? common.validNumberValue(target) : undefined;
       await crud('Item').update({
         id,
         fields: {

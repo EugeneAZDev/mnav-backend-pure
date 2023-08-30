@@ -1,11 +1,8 @@
 ({
   method: async ({ clientId, id, date }) => {
     try {
-      console.log('value get by date', new Date(date));
       const localTime = await domain.getLocalTime(clientId, date);
-      console.log(localTime);
-      const localDate = new Date(localTime).toLocaleDateString();
-      console.log(localDate);
+      const localDate = new Date(localTime).toISOString().split('T')[0];
       const idCondition = id ? `AND i.id = ${id}` : '';
       const sql = `
         SELECT iv.id, value, iv."itemId"
