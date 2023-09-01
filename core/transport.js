@@ -83,79 +83,81 @@ const resEnd = (res, code, headers) => (message) => {
 
 module.exports = (routing, port, console) => {
   try {
-    http.createServer(async (req, res) => {
-      const headers = { ...INITIAL_HEADERS };
-      const client = await Client.getInstance(req, res);
-      const resEnd400 = resEnd(res, 400, headers);
+    http
+      .createServer(async (req, res) => {
+        const headers = { ...INITIAL_HEADERS };
+        const client = await Client.getInstance(req, res);
+        const resEnd400 = resEnd(res, 400, headers);
 
-      if (req.method === 'OPTIONS') {
-        resEnd(res, 200, headers)();
-        return;
-      }
-
-      if (req.method !== 'POST') {
-        resEnd400('"Method not found"');
-        return;
-      }
-      const { url, socket } = req;
-      const [place, name, method] = url.substring(1).split('/');
-      console.log(`${socket.remoteAddress} ${method} ${url}`);
-      if (place !== 'api') {
-        resEnd400('"API not found"');
-        return;
-      }
-      const entity = routing[name.toLowerCase()];
-      if (!entity) {
-        resEnd400('"Entity not found"');
-        return;
-      }
-      const handler = entity[method];
-      if (!handler) {
-        resEnd400('"Handler not found"');
-        return;
-      }
-      if (!handler().access || handler().access !== 'public') {
-        if (!client.id) {
-          const message = JSON.stringify({ message: 'Unauthorized' });
-          resEnd(res, 401, headers)(message);
+        if (req.method === 'OPTIONS') {
+          resEnd(res, 200, headers)();
           return;
         }
-      }
-      if (
-        (name.toLowerCase() === 'user' && method.toLowerCase() === 'find') ||
-        (name.toLowerCase() === 'auth' && method.toLowerCase() === 'login')
-      ) {
-        const ip = req.socket.remoteAddress;
-        const message = limitRequests(ip);
-        if (message) {
-          resEnd(res, 429, headers)(message);
+
+        if (req.method !== 'POST') {
+          resEnd400('"Method not found"');
           return;
         }
-      }
+        const { url } = req;
+        const [place, name, method] = url.substring(1).split('/');
+        const ip = req.headers['x-real-ip'] || req.headers['x-forwarded-for'];
+        console.log(`${ip} ${method} ${url}`);
 
-      const { args, file } = await receiveArgs(req);
-      const records = { ...args, clientId: client.id };
-      if (file) records.file = file;
-      const result = await handler().method(records);
-      if (result.extraHeaders) {
-        Object.assign(headers, result.extraHeaders);
-      }
-      if (result.error) {
-        console.log(result.error);
-      }
-      res.writeHead(result.code, headers);
-      if (result.buffer) {
-        res.end(result.buffer);
-        return;
-      } else {
-        res.end(JSON.stringify(result.body));
-        return;
-      }
-    }).listen(port);
+        if (place !== 'api') {
+          resEnd400('"API not found"');
+          return;
+        }
+        const entity = routing[name.toLowerCase()];
+        if (!entity) {
+          resEnd400('"Entity not found"');
+          return;
+        }
+        const handler = entity[method];
+        if (!handler) {
+          resEnd400('"Handler not found"');
+          return;
+        }
+        if (!handler().access || handler().access !== 'public') {
+          if (!client.id) {
+            const message = JSON.stringify({ message: 'Unauthorized' });
+            resEnd(res, 401, headers)(message);
+            return;
+          }
+        }
+        if (
+          (name.toLowerCase() === 'user' && method.toLowerCase() === 'find') ||
+          (name.toLowerCase() === 'auth' && method.toLowerCase() === 'login')
+        ) {
+          const message = limitRequests(ip);
+          if (message) {
+            resEnd(res, 429, headers)(message);
+            return;
+          }
+        }
+
+        const { args, file } = await receiveArgs(req);
+        const records = { ...args, clientId: client.id };
+        if (file) records.file = file;
+        const result = await handler().method(records);
+        if (result.extraHeaders) {
+          Object.assign(headers, result.extraHeaders);
+        }
+        if (result.error) {
+          console.log(result.error);
+        }
+        res.writeHead(result.code, headers);
+        if (result.buffer) {
+          res.end(result.buffer);
+          return;
+        } else {
+          res.end(JSON.stringify(result.body));
+          return;
+        }
+      })
+      .listen(port);
 
     console.log(`Http API on port ${port}`);
   } catch (error) {
     console.log(error);
   }
-
 };
