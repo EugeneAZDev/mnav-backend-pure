@@ -10,7 +10,7 @@
         common.userSettingsMap.set(clientId, userStatus);
       }
       const userSettings = common.userSettingsMap.get(clientId);
-      console.log(userSettings);
+
       if (!userSettings.updatedDetailsAt) {
         updateDetails = true;
       } else {
