@@ -4,6 +4,7 @@
 const crypto = require('node:crypto');
 const ExcelJS = require('exceljs');
 const fs = require('node:fs');
+const cron = require('node-cron');
 
 // Brevo Mailer
 const BrevoSDK = require('sib-api-v3-sdk');
@@ -268,6 +269,7 @@ const sendEmail = async (email, url) => {
 };
 
 module.exports = {
+  cron,
   ExcelJS,
   fs,
   extractArguments,

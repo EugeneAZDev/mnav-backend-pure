@@ -42,6 +42,7 @@ const context = vm.createContext(sandbox);
     }
   }
 
+  await domain.tasks.cron(process.env.STORE_MONTHS);
   context.api = Object.freeze(api);
   context.domain = Object.freeze(domain);
   context.lib = Object.freeze(lib);

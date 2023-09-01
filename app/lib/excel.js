@@ -511,27 +511,31 @@ const MY_ACTIVITY = 'MyActivity';
     const items = [];
     const list = this.getSectionNameAndRowNumber(sheet);
 
-    const [, startFirstSectionRowNumber] = list[0];
     const lastRowNumber = sheet.lastRow.number;
+    let noSectionsEndLine;
+    if (list.length === 0) {
+      noSectionsEndLine = lastRowNumber;
+    } else {
+      const [, rowNumber] = list[0];
+      noSectionsEndLine = rowNumber - 2;
+    }
 
-    for (
-      let i = TITLE_ROW_NUMBER + 1;
-      i < startFirstSectionRowNumber - 1;
-      i++
-    ) {
+    for (let i = TITLE_ROW_NUMBER + 1; i <= noSectionsEndLine; i++) {
       this.pushItem(items, this.getItemFromRow(i, sheet));
     }
 
-    for (let i = 0; i < list.length; i++) {
-      const [name, startRowNumber] = list[i];
-      if (i < list.length - 1) {
-        const [, endRowNumber] = list[i + 1];
-        for (let j = startRowNumber + 1; j < endRowNumber; j++) {
-          this.pushItem(items, this.getItemFromRow(j, sheet), name);
-        }
-      } else {
-        for (let j = startRowNumber + 1; j < lastRowNumber + 1; j++) {
-          this.pushItem(items, this.getItemFromRow(j, sheet), name);
+    if (list.length > 0) {
+      for (let i = 0; i < list.length; i++) {
+        const [name, startRowNumber] = list[i];
+        if (i < list.length - 1) {
+          const [, endRowNumber] = list[i + 1];
+          for (let j = startRowNumber + 1; j < endRowNumber - 1; j++) {
+            this.pushItem(items, this.getItemFromRow(j, sheet), name);
+          }
+        } else {
+          for (let j = startRowNumber + 1; j < lastRowNumber + 1; j++) {
+            this.pushItem(items, this.getItemFromRow(j, sheet), name);
+          }
         }
       }
     }
