@@ -1,19 +1,19 @@
 ({
-  method: async ({ clientId, id, useClientId = false }) => {
+  method: async ({ clientId, id, useClientId = true }) => {
     try {
-      if (useClientId && !id) id = clientId      
-      const result = await crud('User').select({ id, fields: ['id', 'email'] });      
+      if (useClientId && !id) id = clientId;
+      const result = await crud('User').select({ id, fields: ['id', 'email'] });
       if (result.rows.length === 1) {
-        const [ user ] = result.rows;
+        const [user] = result.rows;
         return responseType.modifiedBodyTemplate(responseType.success, {
-          user
+          user,
         });
       }
       return responseType.modifiedBodyTemplate(responseType.success, {
-        user: undefined
+        user: undefined,
       });
     } catch (error) {
       return { ...responseType.error(), error };
     }
-  }
+  },
 });

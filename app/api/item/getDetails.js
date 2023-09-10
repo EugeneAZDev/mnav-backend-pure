@@ -2,14 +2,14 @@
   method: async ({ clientId, itemIds, full = false }) => {
     const updateDetailsBySchedule = async () => {
       let updateDetails = false;
-      if (!common.userSettingsMap.get(clientId)) {
+      if (!common.userStatusMap.get(clientId)) {
         const { body: statusBody } = await api.user
           .getStatus()
           .method({ clientId });
         const { status: userStatus } = statusBody;
-        common.userSettingsMap.set(clientId, userStatus);
+        common.userStatusMap.set(clientId, userStatus);
       }
-      const userSettings = common.userSettingsMap.get(clientId);
+      const userSettings = common.userStatusMap.get(clientId);
 
       if (!userSettings.updatedDetailsAt) {
         updateDetails = true;
