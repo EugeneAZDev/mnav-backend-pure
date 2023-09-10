@@ -100,7 +100,10 @@ module.exports = (routing, port, console) => {
         }
         const { url } = req;
         const [place, name, method] = url.substring(1).split('/');
-        const ip = req.headers['x-real-ip'] || req.headers['x-forwarded-for'];
+        const ip =
+          req.headers.remote_addr ||
+          req.headers['x-real-ip'] ||
+          req.headers['x-forwarded-for'];
         console.log(`${ip} ${method} ${url}`);
 
         if (place !== 'api') {

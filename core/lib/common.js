@@ -1,10 +1,24 @@
 /* eslint-disable max-len */
 'use strict';
 
-const crypto = require('node:crypto');
+const { Buffer } = require('node:buffer');
 const ExcelJS = require('exceljs');
-const fs = require('node:fs');
 const cron = require('node-cron');
+const crypto = require('node:crypto');
+const fs = require('node:fs');
+const { fetch } = require('undici');
+const path = require('node:path');
+
+// Paypal
+const paypalConfig = {
+  base:
+    process.env.MODE.toLowerCase() === 'test' ?
+      process.env.PAYPAL_API_SANDBOX :
+      process.env.PAYPAL_API,
+  mode: process.env.PAYPAL_MODE,
+  clientId: process.env.PAYPAL_CLIENT_ID,
+  clientSecret: process.env.PAYPAL_CLIENT_SECRET,
+};
 
 // Brevo Mailer
 const BrevoSDK = require('sib-api-v3-sdk');
@@ -24,7 +38,7 @@ const SCRYPT_PARAMS = { N: 32768, r: 8, p: 1, maxmem: 64 * 1024 * 1024 };
 const SCRYPT_PREFIX = '$scrypt$N=32768,r=8,p=1,maxmem=67108864$';
 
 const userTimeZoneMap = new Map();
-const userSettingsMap = new Map();
+const userStatusMap = new Map();
 
 const parseOptions = (options) => {
   const values = [];
@@ -194,69 +208,35 @@ const validateToken = (token) => {
   }
 };
 
-const sendEmail = async (email, url) => {
+const getEmailContent = (contentPath, locale, type) => {
+  const filePath = path.join(
+    contentPath,
+    `./resource/email/${locale}/${type}.html`,
+  );
+  const content = fs.readFileSync(filePath, 'utf8');
+
+  const titleMap = new Map();
+
+  titleMap.set('en-register', 'Password Setup');
+  titleMap.set('ru-register', 'Настройка пароля');
+  titleMap.set('uk-register', 'Налаштування пароля');
+
+  titleMap.set('en-premium', 'Welcome to My Activity Navigator PREMIUM!');
+  titleMap.set('ru-premium', 'My Activity Navigator PREMIUM уже доступен!');
+  titleMap.set('uk-premium', 'My Activity Navigator PREMIUM вже доступний!');
+
+  const subject =
+    titleMap.get(`${locale}-${type}`) || titleMap.get(`en-${type}`);
+
+  return { subject, content };
+};
+
+const sendEmail = async (email, subject, content) => {
   try {
     smtpMailData.sender = sender;
-
     smtpMailData.to = [{ email }];
-    smtpMailData.subject = 'Password Setup';
-
-    smtpMailData.htmlContent = `
-    <!DOCTYPE html>
-    <html>
-      <head>
-        <meta charset="UTF-8">
-        <title>Password Setup</title>
-        <style>
-          body {
-            background-color: #eaeaea;
-            font-family: Arial, sans-serif;
-          }
-          .container {
-            width: 70%;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #ffffff;
-          }
-          h1 {
-            text-align: center;
-            color: #333333;
-          }
-          p {
-            text-align: center;
-            color: #555555;
-          }
-          .team-name {
-            font-size: 12px;
-            font-weight: bold;
-          }
-          .button {
-            display: inline-block;
-            padding: 10px 20px;
-            background-color: #4CAF50;
-            color: #ffffff;
-            text-decoration: none;
-            border-radius: 4px;
-            transition: background-color 0.3s ease;
-          }
-          .button:hover {
-            background-color: #45a049;
-          }
-        </style>
-      </head>
-      <body>
-        <div class="container">
-          <h1>Welcome to My Activity Navigator!</h1><br>
-          <p>To complete the process, please click the button below:</p>
-          <p><a href="${url}" class="button">PASSWORD RESET</a></p>
-          <p>We kindly request that you <b>do not reply</b> to this <b>automated email</b></p>.
-          <p>If you didn't request any actions from My Activity Navigator product, you can <b>safely ignore</b> the email.</p><br>
-          <p class="team-name">© 2023 Golden Tech Development</p>
-        </div>
-      </body>
-    </html>
-    `;
-
+    smtpMailData.subject = subject;
+    smtpMailData.htmlContent = content;
     await transactionEmailApi
       .sendTransacEmail(smtpMailData)
       .then((data) => data.messageId)
@@ -269,22 +249,26 @@ const sendEmail = async (email, url) => {
 };
 
 module.exports = {
+  Buffer,
   cron,
   ExcelJS,
+  fetch,
   fs,
   extractArguments,
   getDaysByDates,
+  getEmailContent,
   generateTempToken,
   generateToken,
   hashPassword,
   jsonParse,
   receiveBody,
+  paypalConfig,
   sendEmail,
   splitObjectIntoArraysByField,
   transformToPureDate,
   validatePassword,
   validateToken,
   validNumberValue,
-  userSettingsMap,
+  userStatusMap,
   userTimeZoneMap,
 };

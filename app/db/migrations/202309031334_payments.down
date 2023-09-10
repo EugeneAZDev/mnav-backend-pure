@@ -1,0 +1,3 @@
+DROP TABLE "Payment";
+ALTER TABLE "User" DROP COLUMN locale;
+DROP TYPE "Locale";

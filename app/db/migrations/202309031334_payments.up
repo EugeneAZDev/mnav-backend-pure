@@ -1,0 +1,28 @@
+CREATE TABLE "Payment" (	
+	id bigint GENERATED ALWAYS AS IDENTITY,
+	address varchar(100),
+	address2 varchar(100),
+	area varchar(100),
+	area2 varchar(100),
+	code varchar(20), 
+	currency varchar(50) NOT NULL,
+	email varchar(150),
+	"fullName" varchar(200),
+	"orderId" varchar(100),
+	"payerId" varchar(100),
+	"paymentId" varchar(100),
+	postal integer,
+	source varchar(100),
+	"transactionId" varchar(100),
+	"userId" bigint NOT NULL,
+	fee double precision NOT NULL,
+	net double precision NOT NULL, -- net amount
+	"createdAt" timestamp WITHOUT time ZONE DEFAULT NOW(),
+	"updatedAt" timestamp WITHOUT time ZONE,
+	"deletedAt" timestamp WITHOUT time ZONE
+);
+ALTER TABLE "Payment" ADD CONSTRAINT "pkPayment" PRIMARY KEY (id);
+ALTER TABLE "Payment" ADD CONSTRAINT "fkPaymentUser" FOREIGN KEY ("userId") REFERENCES "User" (id);
+
+CREATE TYPE "Locale" AS ENUM ('en', 'ru', 'uk');
+ALTER TABLE "User" ADD COLUMN locale "Locale" DEFAULT 'en'
