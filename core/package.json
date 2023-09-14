@@ -15,8 +15,10 @@
   },
   "dependencies": {
     "exceljs": "^4.3.0",
+    "node-cron": "^3.0.2",
     "pg": "^8.8.0",
     "sib-api-v3-sdk": "^8.5.0",
+    "undici": "^5.23.0",
     "ws": "^8.12.0"
   },
   "devDependencies": {

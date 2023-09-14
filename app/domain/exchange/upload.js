@@ -19,14 +19,15 @@ async (pool, clientId, excelData) => {
       excelData.filter((x) => x.section !== undefined).map((x) => x.section),
     ),
   ].map((section) => ({ userId: clientId, title: section }));
-
-  const { rows: addedSections } = await crud('ItemSection').create(
-    sections,
-    pool,
-  );
+  let addedSections;
+  if (sections.length > 0) {
+    const { rows } = await crud('ItemSection').create(sections, pool);
+    addedSections = rows;
+  }
 
   const items = excelData.map((item) => {
-    const section = addedSections.find((s) => s.title === item.section)?.id;
+    const section =
+      addedSections && addedSections.find((s) => s.title === item.section)?.id;
     const sectionId = section && parseInt(section, 10);
     return {
       description: item.description,
@@ -54,6 +55,6 @@ async (pool, clientId, excelData) => {
   await crud('ItemValue').create(values.flat(), pool);
   await crud('ValueDetail').update({
     fields: { deletedAt: new Date() },
-    transaction: pool
+    transaction: pool,
   });
 };

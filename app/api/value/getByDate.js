@@ -1,6 +1,8 @@
 ({
   method: async ({ clientId, id, date }) => {
     try {
+      const localTime = await domain.getLocalTime(clientId, date);
+      const localDate = new Date(localTime).toISOString().split('T')[0];
       const idCondition = id ? `AND i.id = ${id}` : '';
       const sql = `
         SELECT iv.id, value, iv."itemId"
@@ -8,21 +10,21 @@
           JOIN "Item" i ON	iv."itemId" = i.id
         WHERE	i."userId" = ${clientId}
           ${idCondition}
-          AND DATE(iv."createdAt") = '${date}'
+          AND DATE(iv."createdAt") = '${localDate}'
           AND iv."deletedAt" IS NULL;
         `;
       const result = await crud().query(sql);
       if (result.rows.length > 0) {
-        const values = result.rows;        
+        const values = result.rows;
         return responseType.modifiedBodyTemplate(responseType.success, {
-          values
+          values,
         });
       }
       return responseType.modifiedBodyTemplate(responseType.success, {
-        values: []
+        values: [],
       });
     } catch (error) {
       return { ...responseType.error(), error };
     }
-  }
+  },
 });

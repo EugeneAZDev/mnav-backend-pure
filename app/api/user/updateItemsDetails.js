@@ -1,8 +1,13 @@
 ({
   method: async ({ clientId }) => {
     try {
-      // TODO Implement logic
-      return responseType.success();
+      const updatedAt = await db.processTransaction(
+        domain.user.updateDetails,
+        clientId,
+      );
+      return responseType.modifiedBodyTemplate(responseType.success, {
+        updatedAt,
+      });
     } catch (error) {
       return { ...responseType.error(), error };
     }

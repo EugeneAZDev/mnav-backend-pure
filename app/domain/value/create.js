@@ -1,67 +1,27 @@
-async (pool, clientId, inputData) => {
-  const createdAt = await domain.getLocalTime(clientId);
-  const valueCreated = await crud('ItemValue').create(
-    [{ ...inputData, createdAt }],
-    pool,
-  );
-  const [valueCreatedObj] = valueCreated.rows;
-  const { itemId, value } = valueCreatedObj;
-  const itemRow = await crud('Item').select({ id: itemId, transaction: pool });
-  const [item] = itemRow.rows;
-
-  const detail = {
-    itemId,
-    latestAt: createdAt,
-  };
-
-  let create = false;
-  const detailsByItem = await crud('ValueDetail').select({
-    where: { itemId: inputData.itemId },
+async (pool, clientId, records) => {
+  const valueDetails = await crud('ValueDetail').select({
+    where: { itemId: records.itemId },
     transaction: pool,
   });
 
-  if (detailsByItem.rows && detailsByItem.rows.length > 0) {
-    const existingRec =
-      item.valueType === 'text' ?
-        detailsByItem
-          .rows.find((row) => row.title === value) || (create = true) :
-        detailsByItem.rows[0];
+  const inputDate = records.createdAt && new Date(records.createdAt);
+  const localDate = await domain.getLocalTime(clientId, inputDate);
+  const createdAt = localDate || (await domain.getLocalTime(clientId));
+  const result = await crud('ItemValue').create(
+    [{ ...records, createdAt }],
+    pool,
+  );
+  const [value] = result.rows;
+  const { itemId } = value;
+  const details = { itemId, latestAt: createdAt };
+  if (valueDetails.rows.length) {
+    const existingRec = valueDetails.rows[0];
     await crud('ValueDetail').update({
       id: existingRec.id,
-      fields: { updatedAt: new Date(), ...detail },
+      fields: details,
       transaction: pool,
     });
-  } else create = true;
+  } else await crud('ValueDetail').create([details], pool);
 
-  if (create) {
-    const calculatedDetails = await domain.item.calculateDetails(
-      clientId,
-      itemId,
-    );
-    if (item.valueType !== 'text') {
-      const details = { ...detail, ...calculatedDetails/*, createdAt*/ };
-      console.log(details);
-      await crud('ValueDetail').create([details], pool);
-    } else {
-      await Promise.all(
-        calculatedDetails.map(async (d) => {
-          const details = { itemId, ...d };
-          const detailsByTitle = await crud('ValueDetail').select({
-            where: { title: d.title },
-            transaction: pool,
-          });
-          if (detailsByTitle.rows && detailsByTitle.rows.length > 0)
-            await crud('ValueDetail').update({
-              id: detailsByTitle.id,
-              fields: { updatedAt: new Date(), ...details },
-              transaction: pool,
-            });
-          await crud('ValueDetail').create([...details/*, createdAt*/], pool);
-        }),
-      );
-    }
-    // TODO: Add new value as well
-  }
-
-  return valueCreatedObj.id;
+  return value.id;
 };

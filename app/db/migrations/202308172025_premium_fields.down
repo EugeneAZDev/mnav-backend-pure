@@ -1,0 +1,4 @@
+ALTER TABLE "User" DROP COLUMN "premiumAt";
+ALTER TABLE "User" DROP COLUMN "premiumPeriod";
+ALTER TABLE "User" DROP COLUMN "updateDetailsAt";
+DROP TYPE "Period";

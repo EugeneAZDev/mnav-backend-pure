@@ -2,7 +2,7 @@
 
 require('../src/getEnv.js');
 
-const fsp = require('node:fs').promises;
+const fs = require('node:fs')
 const path = require('node:path');
 
 const dir = path.join(__dirname, '../../app/db/migrations');
@@ -32,23 +32,35 @@ async function createMigrationsTable(pool) {
 }
 
 async function getAvailableMigrations(desc = false) {
-  const files = await fsp.readdir(dir);
+  const files = await fs.promises.readdir(dir);
+  const migrationNames = files
+    .filter((file) => file.endsWith('.up') || file.endsWith('.down'))
+    .map((file) => file.replace(/\.up$|\.down$/, ''))
+    .filter((value, index, self) => self.indexOf(value) === index);
+  
+  const result = migrationNames.map((name) => {
+    const upFile = `${name}.up`;
+    const downFile = `${name}.down`;
 
-  const result = files
-    .filter((file) => file.endsWith('.js'))
-    .map((file) => {
-      const migration = require(path.join(dir, file));
-      return {
-        name: file.replace('.js', ''),
-        up: migration.up,
-        down: migration.down,
-      };
-    })
-    .sort((a, b) => a.name.localeCompare(b.name));
+    const upContent = fs.readFileSync(path.join(dir, upFile), 'utf8');
+    const downContent = fs.readFileSync(path.join(dir, downFile), 'utf8');
 
-  if (desc) { return result.reverse(); }
+    return {
+      name: name,
+      up: async (client) => { await client.query(upContent) },
+      down: async (client) => { await client.query(downContent) },
+    };    
+  });
+
+  result.sort((a, b) => a.name.localeCompare(b.name));
+
+  if (desc) {
+    return result.reverse();
+  }
+
   return result;
 }
+
 
 async function getExecutedMigrations(pool, desc = false) {
   const direction = desc ? 'DESC' : 'ASC';

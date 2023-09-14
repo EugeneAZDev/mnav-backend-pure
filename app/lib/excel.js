@@ -4,11 +4,11 @@ const MY_ACTIVITY = 'MyActivity';
   applyCellsStyle(data, sheet) {
     const font = { name: 'Calibri', size: 9 };
     for (const [key, value] of data) {
-      for (const cellName of key) {        
+      for (const cellName of key) {
         const cell = sheet.getCell(cellName);
         cell.style = { ...cell.style, ...value };
-        cell.style = { ...cell.style, font }
-      }      
+        cell.style = { ...cell.style, font };
+      }
     }
   },
 
@@ -30,7 +30,7 @@ const MY_ACTIVITY = 'MyActivity';
         (prev.length > next.length ? prev : next),
       ).length;
       column.width = maxLength + 3;
-      if (Number.isNaN(column.width)) column.width = 12;
+      if (Number.isNaN(column.width) || column.width > 12) column.width = 12;
     }
   },
 
@@ -96,8 +96,18 @@ const MY_ACTIVITY = 'MyActivity';
         if (cell.value) item[ITEM_DETAILS[cellLetter]] = cell.value;
       } else {
         const monthNames = [
-          'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-          'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+          'Jan',
+          'Feb',
+          'Mar',
+          'Apr',
+          'May',
+          'Jun',
+          'Jul',
+          'Aug',
+          'Sep',
+          'Oct',
+          'Nov',
+          'Dec',
         ];
         const cellDate = sheet.getCell(cellLetter + 2).value;
         const date = new Date(cellDate);
@@ -229,7 +239,7 @@ const MY_ACTIVITY = 'MyActivity';
     cellValues,
     cellFormulaValues,
     rowsFixedHeight,
-    cellsToCenterWrapTextStyle
+    cellsToCenterWrapTextStyle,
   ) {
     for (const item in items) {
       const itemValues = {
@@ -263,23 +273,12 @@ const MY_ACTIVITY = 'MyActivity';
         } else if (itemValues.values.length > 0) {
           let resultString = itemValues.values[0];
           if (itemValues.values.length !== 1) {
-            const combinedValues = itemValues.values.reduce(
-              (res, str, index) => {
-                const separator = ', \n';
-                if (index === 0) {
-                  const lines = str.split(' ');
-                  res +=
-                    lines.length > 1 ?
-                      `${lines[0]}\n${lines[1]}${separator}` :
-                      `${lines[0]}${separator}`;
-                } else {
-                  res += `${str}${separator}`;
-                }
-                return res;
-              },
-              '',
-            );
-            resultString = combinedValues.slice(0, -4);
+            const combinedValues = itemValues.values.reduce((res, str) => {
+              const separator = ', \n';
+              res += `${str}${separator}`;
+              return res;
+            }, '');
+            resultString = combinedValues.slice(0, -3);
           }
           cellValues.set(cell, resultString);
           cellsToCenterWrapTextStyle.push(cell);
@@ -394,7 +393,8 @@ const MY_ACTIVITY = 'MyActivity';
         }
         const day = this.formatToDay(createdAt);
         if (!result[section][itemId][day]) {
-          const { target, title, description, valueType, valueAssessment } = rec;
+          const { target, title, description, valueType, valueAssessment } =
+            rec;
 
           result[section][itemId][day] = {
             description,
@@ -440,7 +440,7 @@ const MY_ACTIVITY = 'MyActivity';
           cellValues,
           cellFormulaValues,
           rowsFixedHeight,
-          cellsToCenterWrapTextStyle
+          cellsToCenterWrapTextStyle,
         );
         rowNumber += 1;
       }
@@ -457,7 +457,7 @@ const MY_ACTIVITY = 'MyActivity';
           cellValues,
           cellFormulaValues,
           rowsFixedHeight,
-          cellsToCenterWrapTextStyle
+          cellsToCenterWrapTextStyle,
         );
         rowNumber += 1;
       }
@@ -511,27 +511,31 @@ const MY_ACTIVITY = 'MyActivity';
     const items = [];
     const list = this.getSectionNameAndRowNumber(sheet);
 
-    const [, startFirstSectionRowNumber] = list[0];
     const lastRowNumber = sheet.lastRow.number;
+    let noSectionsEndLine;
+    if (list.length === 0) {
+      noSectionsEndLine = lastRowNumber;
+    } else {
+      const [, rowNumber] = list[0];
+      noSectionsEndLine = rowNumber - 2;
+    }
 
-    for (
-      let i = TITLE_ROW_NUMBER + 1;
-      i < startFirstSectionRowNumber - 1;
-      i++
-    ) {
+    for (let i = TITLE_ROW_NUMBER + 1; i <= noSectionsEndLine; i++) {
       this.pushItem(items, this.getItemFromRow(i, sheet));
     }
 
-    for (let i = 0; i < list.length; i++) {
-      const [name, startRowNumber] = list[i];
-      if (i < list.length - 1) {
-        const [, endRowNumber] = list[i + 1];
-        for (let j = startRowNumber + 1; j < endRowNumber; j++) {
-          this.pushItem(items, this.getItemFromRow(j, sheet), name);
-        }
-      } else {
-        for (let j = startRowNumber + 1; j < lastRowNumber + 1; j++) {
-          this.pushItem(items, this.getItemFromRow(j, sheet), name);
+    if (list.length > 0) {
+      for (let i = 0; i < list.length; i++) {
+        const [name, startRowNumber] = list[i];
+        if (i < list.length - 1) {
+          const [, endRowNumber] = list[i + 1];
+          for (let j = startRowNumber + 1; j < endRowNumber - 1; j++) {
+            this.pushItem(items, this.getItemFromRow(j, sheet), name);
+          }
+        } else {
+          for (let j = startRowNumber + 1; j < lastRowNumber + 1; j++) {
+            this.pushItem(items, this.getItemFromRow(j, sheet), name);
+          }
         }
       }
     }
