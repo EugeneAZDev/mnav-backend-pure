@@ -1,5 +1,5 @@
 /**
- * node setup useData - fill test data
+ * node setup useData - fill test data.
  */
 'use strict';
 
