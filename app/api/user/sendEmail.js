@@ -12,9 +12,9 @@
 
       const modifiedContent = content.replace('${url}', url);
 
-      if (settings.mode === 'PROD')
-        await common.sendEmail(email, subject, modifiedContent);
-      else `<MOCK.RESULT.EMAIL@uriToReset:${url}>`;
+      // if (settings.mode === 'PROD')
+      await common.sendEmail(email, subject, modifiedContent);
+      // else `<MOCK.RESULT.EMAIL@uriToReset:${url}>`;
 
       return responseType.success();
     } catch (error) {

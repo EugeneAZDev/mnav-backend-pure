@@ -40,6 +40,10 @@ const SCRYPT_PREFIX = '$scrypt$N=32768,r=8,p=1,maxmem=67108864$';
 const userTimeZoneMap = new Map();
 const userStatusMap = new Map();
 
+const packageJson = fs.readFileSync('package.json', 'utf8');
+const { version } = JSON.parse(packageJson);
+const API_VERSION = version;
+
 const parseOptions = (options) => {
   const values = [];
   const items = options.split(',');
@@ -249,6 +253,7 @@ const sendEmail = async (email, subject, content) => {
 };
 
 module.exports = {
+  API_VERSION,
   Buffer,
   cron,
   ExcelJS,

@@ -9,7 +9,7 @@
 
     try {
       const result = await crud('User').select({
-        fields: ['id', 'email', 'password'],
+        fields: ['id', 'email', 'password', 'token'],
         where: { [field]: value.toLowerCase() },
       });
       if (result.rows.length === 1) {
