@@ -9,17 +9,6 @@ const fs = require('node:fs');
 const { fetch } = require('undici');
 const path = require('node:path');
 
-// Paypal
-const paypalConfig = {
-  base:
-    process.env.MODE.toLowerCase() === 'test' ?
-      process.env.PAYPAL_API_SANDBOX :
-      process.env.PAYPAL_API,
-  mode: process.env.PAYPAL_MODE,
-  clientId: process.env.PAYPAL_CLIENT_ID,
-  clientSecret: process.env.PAYPAL_CLIENT_SECRET,
-};
-
 // Brevo Mailer
 const BrevoSDK = require('sib-api-v3-sdk');
 const BrevoMailer = BrevoSDK.ApiClient.instance;
@@ -267,7 +256,6 @@ module.exports = {
   hashPassword,
   jsonParse,
   receiveBody,
-  paypalConfig,
   sendEmail,
   splitObjectIntoArraysByField,
   transformToPureDate,
