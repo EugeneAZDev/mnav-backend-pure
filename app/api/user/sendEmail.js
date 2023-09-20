@@ -2,15 +2,14 @@
 ({
   access: 'public',
   // eslint-disable-next-line no-unused-vars
-  method: async ({ clientId, email, url, type }) => {
+  method: async ({ clientId, email, url, type, inputLocale }) => {
     try {
-      const locale = await domain.user.getLocale(clientId);
+      const locale = inputLocale || (await domain.user.getLocale(clientId));
       const { subject, content } = common.getEmailContent(
         settings.appPath,
         locale,
         type,
       );
-
       const modifiedContent = content.replace('${url}', url);
 
       if (settings.mode === 'PROD')
