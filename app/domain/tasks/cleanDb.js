@@ -19,6 +19,7 @@ async (storeMonths) => {
   console.log(
     `CRON RUNNED ${
       new Date().toISOString().split('T')[0]
+      // eslint-disable-next-line max-len
     }, Removal count: { Details: ${removedDetails}, Values: ${removedValues}, Items: ${removedItems}, Sections: ${removedSections}, KeepMonths: ${storeMonths} }`,
   );
 };

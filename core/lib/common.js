@@ -9,17 +9,6 @@ const fs = require('node:fs');
 const { fetch } = require('undici');
 const path = require('node:path');
 
-// Paypal
-const paypalConfig = {
-  base:
-    process.env.MODE.toLowerCase() === 'test' ?
-      process.env.PAYPAL_API_SANDBOX :
-      process.env.PAYPAL_API,
-  mode: process.env.PAYPAL_MODE,
-  clientId: process.env.PAYPAL_CLIENT_ID,
-  clientSecret: process.env.PAYPAL_CLIENT_SECRET,
-};
-
 // Brevo Mailer
 const BrevoSDK = require('sib-api-v3-sdk');
 const BrevoMailer = BrevoSDK.ApiClient.instance;
@@ -39,6 +28,10 @@ const SCRYPT_PREFIX = '$scrypt$N=32768,r=8,p=1,maxmem=67108864$';
 
 const userTimeZoneMap = new Map();
 const userStatusMap = new Map();
+
+const packageJson = fs.readFileSync('package.json', 'utf8');
+const { version } = JSON.parse(packageJson);
+const API_VERSION = version;
 
 const parseOptions = (options) => {
   const values = [];
@@ -249,6 +242,7 @@ const sendEmail = async (email, subject, content) => {
 };
 
 module.exports = {
+  API_VERSION,
   Buffer,
   cron,
   ExcelJS,
@@ -262,7 +256,6 @@ module.exports = {
   hashPassword,
   jsonParse,
   receiveBody,
-  paypalConfig,
   sendEmail,
   splitObjectIntoArraysByField,
   transformToPureDate,
