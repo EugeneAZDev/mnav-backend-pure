@@ -20,6 +20,14 @@ const sender = {
   name: process.env.FIRM,
 };
 
+// Payment Config
+const PAYMENT_CONFIG = {
+  sellerId: process.env.PAYMENT_SELLER_ID,
+  secretKey: process.env.PAYMENT_SECRET_KEY,
+  jwtExpireTime: 20, // minutes
+  mode: 'sandbox',
+};
+
 const SALT_LEN = 32;
 const KEY_LEN = 64;
 
@@ -136,6 +144,24 @@ const receiveBody = async (req) => {
   const buffers = [];
   for await (const chunk of req) buffers.push(chunk);
   return Buffer.concat(buffers).toString();
+};
+
+const removeEmptyValues = (obj) => {
+  const modifiedObj = { ...obj };
+  for (const key in obj) {
+    if (
+      modifiedObj[key] === '' ||
+      modifiedObj[key] === undefined ||
+      modifiedObj[key] === null ||
+      modifiedObj[key] === '0' ||
+      modifiedObj[key] === '0.00' ||
+      modifiedObj[key] === '-'
+    ) {
+      delete modifiedObj[key];
+    }
+  }
+
+  return modifiedObj;
 };
 
 const splitObjectIntoArraysByField = (object, value) =>
@@ -255,7 +281,9 @@ module.exports = {
   generateToken,
   hashPassword,
   jsonParse,
+  PAYMENT_CONFIG,
   receiveBody,
+  removeEmptyValues,
   sendEmail,
   splitObjectIntoArraysByField,
   transformToPureDate,
@@ -264,4 +292,5 @@ module.exports = {
   validNumberValue,
   userStatusMap,
   userTimeZoneMap,
+  URLSearchParams,
 };

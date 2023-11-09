@@ -1,6 +1,6 @@
 {
   "name": "mnav-core",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "Pure NodeJS application runtime",
   "license": "MIT",
   "private": true,
@@ -11,14 +11,14 @@
     "fmt": "prettier --write \"**/*.js\" \"**/*.ts\""
   },
   "engines": {
-    "node": "16 || 18 || 19"
+    "node": "20"
   },
   "dependencies": {
     "exceljs": "^4.3.0",
     "node-cron": "^3.0.2",
     "pg": "^8.8.0",
     "sib-api-v3-sdk": "^8.5.0",
-    "undici": "^5.23.0",
+    "undici": "^5.23.0",    
     "ws": "^8.12.0"
   },
   "devDependencies": {
