@@ -9,14 +9,16 @@ CREATE TABLE "Payment" (
 	email varchar(150),
 	"fullName" varchar(200),
 	"orderId" varchar(100),
-	"payerId" varchar(100),
+	"payerIP" varchar(100),
 	"paymentId" varchar(100),
-	postal integer,
+	postal varchar(20),
 	source varchar(100),
+	status VARCHAR(20),
 	"transactionId" varchar(100),
 	"userId" bigint NOT NULL,
 	fee double precision NOT NULL,
 	net double precision NOT NULL, -- net amount
+	details TEXT,
 	"createdAt" timestamp WITHOUT time ZONE DEFAULT NOW(),
 	"updatedAt" timestamp WITHOUT time ZONE,
 	"deletedAt" timestamp WITHOUT time ZONE

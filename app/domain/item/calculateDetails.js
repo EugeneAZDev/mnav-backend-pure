@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 async (clientId, values, valueTarget, valueType) => {
   const boolValuesAllDays = {};
   const boolTargetReachedAllDays = {};
