@@ -15,7 +15,7 @@ async (pool, paymentData) => {
     transaction: pool,
   });
 
-  const paymentId = payment.rows.length === 1 && payment.rows[0].id;
+  const paymentId = payment.rows.length > 0 && payment.rows[0].id;
 
   if (!paymentId) {
     const paymentRecords = {
