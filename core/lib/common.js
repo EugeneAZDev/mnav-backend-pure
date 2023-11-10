@@ -25,7 +25,6 @@ const PAYMENT_CONFIG = {
   sellerId: process.env.PAYMENT_SELLER_ID,
   secretKey: process.env.PAYMENT_SECRET_KEY,
   jwtExpireTime: 20, // minutes
-  mode: 'sandbox',
 };
 
 const SALT_LEN = 32;
@@ -40,6 +39,17 @@ const userStatusMap = new Map();
 const packageJson = fs.readFileSync('package.json', 'utf8');
 const { version } = JSON.parse(packageJson);
 const API_VERSION = version;
+
+const byteLength = (str) => {
+  let s = str.length;
+  for (let i = str.length - 1; i >= 0; i--) {
+    const code = str.charCodeAt(i);
+    if (code > 0x7f && code <= 0x7ff) s++;
+    else if (code > 0x7ff && code <= 0xffff) s += 2;
+    if (code >= 0xdc00 && code <= 0xdfff) i--;
+  }
+  return s;
+};
 
 const parseOptions = (options) => {
   const values = [];
@@ -104,6 +114,12 @@ const generateToken = (id) => {
   const base64Signature = encodeBase64URL(hmac.digest('base64'));
 
   return `${base64Header}.${base64Payload}.${base64Signature}`;
+};
+
+const generateMD5Token = (secret, data) => {
+  const hmac = crypto.createHmac('md5', secret);
+  hmac.update(data);
+  return hmac.digest('hex');
 };
 
 const generateTempToken = () => crypto.randomBytes(16).toString('hex');
@@ -270,6 +286,7 @@ const sendEmail = async (email, subject, content) => {
 module.exports = {
   API_VERSION,
   Buffer,
+  byteLength,
   cron,
   ExcelJS,
   fetch,
@@ -279,6 +296,7 @@ module.exports = {
   getEmailContent,
   generateTempToken,
   generateToken,
+  generateMD5Token,
   hashPassword,
   jsonParse,
   PAYMENT_CONFIG,

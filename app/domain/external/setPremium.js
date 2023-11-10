@@ -9,6 +9,25 @@ async (pool, paymentData) => {
   const [user] = dbUserRecords.rows.length > 0 && dbUserRecords.rows;
   if (!user) throw new Error('Email not found');
 
+  let hashString = '';
+  let valueLengthInBytes;
+  const payload = {
+    IPN_PID: data['IPN_PID%5B%5D'],
+    IPN_PNAME: data['IPN_PNAME%5B%5D'].replace(/\+/g, ' '),
+    IPN_DATE: paymentData.IPN_DATE,
+    DATE: paymentData.IPN_DATE,
+  };
+  Object.keys(payload).forEach((key) => {
+    valueLengthInBytes = common.byteLength(payload[key].toString());
+    if (valueLengthInBytes > 0) {
+      hashString += valueLengthInBytes + payload[key].toString();
+    }
+  });
+  const hash = common.generateMD5Token(
+    common.PAYMENT_CONFIG.secretKey,
+    hashString,
+  );
+
   const payment = await crud('Payment').select({
     fields: ['id'],
     where: { paymentId: data.REFNO },
@@ -63,4 +82,6 @@ async (pool, paymentData) => {
     // eslint-disable-next-line max-len
     `PAYMENT INFORMATION User id: ${user.id} Status: ${data.ORDERSTATUS}`,
   );
+
+  return `<EPAYMENT>${data.IPN_DATE}|${hash}</EPAYMENT>`;
 };
