@@ -10,25 +10,28 @@ async (pool, clientId, id) => {
 
   if (valueInfo.rows.length > 0) {
     const { itemId, value } = valueInfo.rows[0];
-    const sameValueTitlesCount = await crud('ItemValue').select({
-      count: 'id',
-      where: { itemId, value },
+    const itemInfo = await crud('Item').select({
+      id: itemId,
       transaction: pool,
     });
-    if (parseInt(sameValueTitlesCount) === 0) {
-      console.log(itemId, value);
-      const detailRecordResult = await crud('ValueDetail').select({
-        where: { itemId, title: value },
+    if (itemInfo.rows[0].valueType === 'text') {
+      const sameValueTitlesCount = await crud('ItemValue').select({
+        count: 'id',
+        where: { itemId, value },
         transaction: pool,
       });
-      console.log(detailRecordResult.rows[0]);
-      const { id: detailsId } = detailRecordResult.rows[0];
-      console.log(detailsId);
-      await crud('ValueDetail').update({
-        id: parseInt(detailsId),
-        fields: { deletedAt },
-        transaction: pool,
-      });
+      if (parseInt(sameValueTitlesCount) === 0) {
+        const detailRecordResult = await crud('ValueDetail').select({
+          where: { itemId, title: value },
+          transaction: pool,
+        });
+        const { id: detailsId } = detailRecordResult.rows[0];
+        await crud('ValueDetail').update({
+          id: parseInt(detailsId),
+          fields: { deletedAt },
+          transaction: pool,
+        });
+      }
     }
   }
 };
