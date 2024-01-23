@@ -34,6 +34,10 @@
         const result = await crud('ValueDetail').select({
           fields,
           where: { itemId: itemIds },
+          orderBy: {
+            fields: ['latestAt'],
+            order: 'DESC',
+          },
         });
         if (result.rows.length > 0) {
           return responseType.modifiedBodyTemplate(responseType.success, {
