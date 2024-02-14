@@ -3,7 +3,7 @@
 const http = require('node:http');
 
 const TRY_LIMITATIONS = 10000;
-const TRY_LIMIT = 7;
+const TRY_LIMIT = 15;
 const MINUTE = 60 * 1000;
 const HOUR = 60 * MINUTE;
 const REQUEST_LIMITS = [
@@ -151,8 +151,25 @@ module.exports = (routing, port, console) => {
           resEnd400('"Handler not found"');
           return;
         }
+
+        let classicArgs;
+        // Extenal Payment Handler
+        if (
+          name.toLowerCase() === 'external' &&
+          method.toLowerCase() === 'ipn'
+        ) {
+          const args = await receiveArgs(req);
+          classicArgs = Object.keys(args).length > 0 && args;
+        }
+
+        const { args, file } = !classicArgs && (await receiveArgs(req));
+        const recordArgs = classicArgs ? classicArgs : args;
+
+        const { clientId } = recordArgs;
+        const records = { ...recordArgs, clientId: clientId || client.id };
+
         if (!handler().access || handler().access !== 'public') {
-          if (!client.id) {
+          if (!client.id && !clientId) {
             const message = JSON.stringify({ message: 'Unauthorized' });
             resEnd(res, 401, headers)(message);
             return;
@@ -168,20 +185,6 @@ module.exports = (routing, port, console) => {
             return;
           }
         }
-
-        let classicArgs;
-        // Extenal Payment Handler
-        if (
-          name.toLowerCase() === 'external' &&
-          method.toLowerCase() === 'ipn'
-        ) {
-          const args = await receiveArgs(req);
-          classicArgs = Object.keys(args).length > 0 && args;
-        }
-
-        const { args, file } = !classicArgs && (await receiveArgs(req));
-        const recordArgs = classicArgs ? classicArgs : args;
-        const records = { ...recordArgs, clientId: client.id };
 
         if (file) records.file = file;
         const result = await handler().method(records);
