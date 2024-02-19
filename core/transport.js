@@ -161,12 +161,11 @@ module.exports = (routing, port, console) => {
           const args = await receiveArgs(req);
           classicArgs = Object.keys(args).length > 0 && args;
         }
-
+        
         const { args, file } = !classicArgs && (await receiveArgs(req));
         const recordArgs = classicArgs ? classicArgs : args;
-
-        const { clientId } = recordArgs;
-        const records = { ...recordArgs, clientId: clientId || client.id };
+        
+        const records = { ...recordArgs, clientId: recordArgs && recordArgs.clientId || client.id };
 
         if (!handler().access || handler().access !== 'public') {
           if (!client.id && !clientId) {
