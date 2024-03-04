@@ -1,10 +1,8 @@
 ({
   method: async ({ clientId, id, date }) => {
-    try {
-      const localTime = await domain.getLocalTime(clientId, date);
-      const localDateArr = new Date(localTime).toLocaleDateString().split('T')[0].split('/');
-      const localDate = `${localDateArr[2]}-${localDateArr[0]}-${localDateArr[1]}`;
-      // const localDate = new Date(localTime).toISOString().split('T')[0];
+    try {      
+      const localTime = await domain.getLocalTime(clientId, date);      
+      const localDate = new Date(localTime).toISOString().split('T')[0];
       const idCondition = id ? `AND i.id = ${id}` : '';
       const sql = `
         SELECT iv.id, value, iv."itemId"
