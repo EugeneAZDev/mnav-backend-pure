@@ -2,7 +2,8 @@
   method: async ({ clientId, file }) => {
     try {
       const excelData = await lib.excel.getDataFromExcel(file);
-      await db.processTransaction(domain.exchange.upload, clientId, excelData);
+      await db.processTransaction(
+        domain.exchange.upload, clientId, excelData);
     } catch (error) {
       return responseType.modifiedBodyTemplate(responseType.error, {
         message: `Import failed: ${error.message}`
