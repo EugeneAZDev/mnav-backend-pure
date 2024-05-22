@@ -24,9 +24,30 @@ async (pool, clientId, tableName, localDates) => {
     const latest = await getLatestDates(param);
     const latestTime = new Date(latest).toISOString();
     const localTime = new Date(localDates[param]).toISOString();
-    const result = await getData(param, latestTime, localTime);
-    const ids = result.rows.map(item => item.id);
-    return { ids, result: result.rows };
+
+    const latestDate = new Date(latestTime);
+    const localDate = new Date(localTime);
+
+    // TODO REMOVE console.log('\n'); 
+    if (latestDate.getTime() !== localDate.getTime()) {
+      // TODO REMOVE
+      // console.log(param);
+      // console.log('latestDate', latestDate);
+      // console.log('localDate', localDate);
+      // console.log('latestDateTime', latestDate.getTime());
+      // console.log('localDateTime', localDate.getTime());
+
+      const result = await getData(param, latestTime, localTime);
+      const ids = result.rows.map(item => item.id);
+      return { ids, result: result.rows, latest };  
+    } else {
+      // TODO REMOVE
+      // console.log(param);
+      // console.log('latestDate', latestDate);
+      // console.log('localDate', localDate);
+      // console.log('Nothing to return\n\n');
+      return { ids: [], result: [] }
+    }
   };
 
   const getResultByIds = (resultList, idArray) => resultList.filter(item => idArray.includes(item.id));
@@ -43,9 +64,16 @@ async (pool, clientId, tableName, localDates) => {
   const created = getResultByIds(preCreated.result, createdIds);
   const deleted = preDeleted.result;
 
+  const latestDateSet = {
+    created: preCreated.latest,
+    updated: preUpdated.latest,
+    deleted: preDeleted.latest
+  }
+
   return {
     created,
     deleted,
-    updated
+    updated,
+    latestDateSet
   }
 }
