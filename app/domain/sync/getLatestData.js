@@ -13,8 +13,12 @@ async (pool, clientId, tableName, localDates) => {
       ORDER BY iv."${param}At" DESC LIMIT 1;
     `;
     const query = tableName === 'ItemValue' ? itemValueQuery : basicQuery;
-    const { [`${param}At`]: timestamp } = (await pool.query(query)).rows[0];
-    return timestamp;
+    const queryResult = await pool.query(query);
+    // TODO Left as previous for debugging, modify later
+    if (queryResult.rows.length > 0) {
+      const { [`${param}At`]: timestamp } = queryResult.rows[0];      
+      return timestamp;
+    } else return undefined;
   };
 
   const getData = async (param, latestTime, localTime) => {    
@@ -38,7 +42,7 @@ async (pool, clientId, tableName, localDates) => {
   
   const getDataFlow = async (param) => {
     const latest = await getLatestDates(param);
-    const latestTime = new Date(latest).toISOString();
+    const latestTime = !!latest && new Date(latest).toISOString();
     const localTime = new Date(localDates[param]).toISOString();
 
     const latestDate = new Date(latestTime);
@@ -77,4 +81,4 @@ async (pool, clientId, tableName, localDates) => {
     updated,
     updatedLocalDates
   }
-}
+};
