@@ -1,11 +1,12 @@
 ({
   method: async ({ clientId, id, date, daysCount }) => {
     try {
-      const localTime = await domain.getLocalTime(clientId, date);      
+      const localTime = await domain.getLocalTime(clientId, date);
       const localDate = new Date(localTime).toISOString().split('T')[0];
       const idCondition = id ? `AND i.id = ${id}` : '';
       let datesCondition = `AND DATE(iv."createdAt") = '${localDate}'`;
       let createdAt = '';
+      console.log('date', date, '\ndaysCount', daysCount, '\nlocalTime', localTime, '\nlocalDate', localDate);
       if (daysCount && daysCount > 1) {
         const secondDateTime = new Date(date);
         secondDateTime.setDate(secondDateTime.getDate() + daysCount);
