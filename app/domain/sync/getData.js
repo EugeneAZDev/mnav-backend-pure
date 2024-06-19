@@ -9,9 +9,10 @@ async (pool, clientId, tableName, localTime, latestTime, param) => {
     SELECT iv.* FROM "${tableName}" iv
       JOIN "Item" i ON iv."itemId" = i.id
       LEFT JOIN "ItemSection" its ON its.id = i."sectionId" 
-    WHERE	i."userId" = ${clientId} AND iv."deletedAt" IS NULL
+    WHERE	i."userId" = ${clientId}
     ORDER BY 1, iv."createdAt"
   `; // Getting only active values due to the large number
+  // TODO Change to get only active values if synchronization first time  AND iv."deletedAt" IS NULL
   const query = tableName === 'ItemValue' ? itemValueQuery : basicQuery;
   const result = await pool.query(query);
   return result;
