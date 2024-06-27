@@ -1,17 +1,21 @@
-async (pool, clientId, id) => {  
+async (pool, clientId, id) => {
+  await domain.sync.updateSyncToFalse(pool, clientId);
+
   const valueInfo = await crud('ItemValue').select({ id, transaction: pool });  
   const deletedAt = await domain.getLocalTime(clientId);
   await crud('ItemValue').update({
     id,
     fields: { deletedAt },
     transaction: pool,
-  });  
+  });
+  
   if (valueInfo.rows.length > 0) {
     const { itemId, value } = valueInfo.rows[0];
     const itemInfo = await crud('Item').select({
       id: itemId,
       transaction: pool,
     });
+
     if (itemInfo.rows[0].valueType === 'text') {
       const sameValueTitlesCount = await crud('ItemValue').select({
         count: 'id',
@@ -41,15 +45,16 @@ async (pool, clientId, id) => {
         limit: 1,
         transaction: pool,
       })
-
-      const { createdAt, updatedAt } = queryResult.rows[0];
-      const date = updatedAt || createdAt;
-      console.log('itemId', itemId);      
-      await crud('ValueDetail').update({        
-        fields: { latestAt: date },
-        where: { itemId },
-        transaction: pool,
-      });
+      
+      if (queryResult && queryResult.rows.length > 0) {
+        const { createdAt, updatedAt } = queryResult.rows[0];
+        const date = updatedAt || createdAt;
+        await crud('ValueDetail').update({        
+          fields: { latestAt: date },
+          where: { itemId },
+          transaction: pool,
+        });
+      }      
     }
   }
 };

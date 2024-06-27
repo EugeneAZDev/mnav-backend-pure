@@ -6,7 +6,6 @@
       const idCondition = id ? `AND i.id = ${id}` : '';
       let datesCondition = `AND DATE(iv."createdAt") = '${localDate}'`;
       let createdAt = '';
-      console.log('date', date, '\ndaysCount', daysCount, '\nlocalTime', localTime, '\nlocalDate', localDate);
       if (daysCount && daysCount > 1) {
         const secondDateTime = new Date(date);
         secondDateTime.setDate(secondDateTime.getDate() + daysCount);
@@ -23,6 +22,13 @@
           ${datesCondition}
           AND iv."deletedAt" IS NULL;
         `;
+      // console.log( // DEBUG INFO
+      //   '\n\tdate', date,
+      //   '\n\tdaysCount', daysCount,
+      //   '\n\tlocalTime', localTime,
+      //   '\n\tlocalDate', localDate,
+      //   '\n\tsql', sql,
+      // );
       const result = await crud().query(sql);
       if (result.rows.length > 0) {
         const values = result.rows;

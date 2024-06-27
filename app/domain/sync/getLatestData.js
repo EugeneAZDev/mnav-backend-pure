@@ -1,4 +1,4 @@
-async (pool, clientId, tableName, localDates) => {
+async (pool, clientId, firstTime, tableName, localDates) => {
   const getDataFlow = async (param) => {
     const latest = await domain.sync.getLatestDates(pool, clientId, tableName, param);
     const latestTime = !!latest && new Date(latest).toISOString();
@@ -6,11 +6,29 @@ async (pool, clientId, tableName, localDates) => {
 
     const latestDate = new Date(latestTime);
     const localDate = new Date(localTime);
-
-    if (latestDate.getTime() !== localDate.getTime()) {
-      const result = await domain.sync.getData(pool, clientId, tableName, localTime, latestTime, param);
-      const ids = result.rows.map(item => item.id);
-      return { ids, result: result.rows, latest };  
+    
+    if (latestDate.getTime() > localDate.getTime()) {
+      const result = await domain.sync.getData(
+        pool,
+        clientId,
+        firstTime,
+        tableName,
+        localTime,
+        latestTime,
+        param
+      );
+      const ids = result.rows.map(item => item.id);      
+      // console.log( // DEBUG INFO
+      //   'getLatestData domain function:\n',
+      //   '\n\tlatestTime', latestDate.getTime(), 
+      //   '\n\tlocalTime', localDate.getTime(), 
+      //   '\n\tboolCompareTimeResult', (latestDate.getTime() > localDate.getTime()), 
+      //   '\n\ttableName', tableName,
+      //   '\n\tlatest', latestDate,
+      //   '\n\tlocal', localDate,
+      //   '\n\n'
+      // );
+      return { ids, result: result.rows, latest };
     } else return { ids: [], result: [] }
   };
 

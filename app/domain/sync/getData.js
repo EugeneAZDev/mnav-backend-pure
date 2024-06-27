@@ -1,4 +1,4 @@
-async (pool, clientId, tableName, localTime, latestTime, param) => {
+async (pool, clientId, firstTime, tableName, localTime, latestTime, param) => {
   const basicQuery = `
     SELECT * FROM "${tableName}" s
     WHERE s."userId" = ${clientId} AND s."${param}At" IS NOT NULL
@@ -9,10 +9,9 @@ async (pool, clientId, tableName, localTime, latestTime, param) => {
     SELECT iv.* FROM "${tableName}" iv
       JOIN "Item" i ON iv."itemId" = i.id
       LEFT JOIN "ItemSection" its ON its.id = i."sectionId" 
-    WHERE	i."userId" = ${clientId}
+    WHERE	i."userId" = ${clientId}${firstTime ? ' AND iv."deletedAt" IS NULL' : ''}
     ORDER BY 1, iv."createdAt"
-  `; // Getting only active values due to the large number
-  // TODO Change to get only active values if synchronization first time  AND iv."deletedAt" IS NULL
+  `; // For the first time sync getting only active values due to possible large amount
   const query = tableName === 'ItemValue' ? itemValueQuery : basicQuery;
   const result = await pool.query(query);
   return result;

@@ -1,4 +1,6 @@
 async (pool, clientId, records) => {
+  await domain.sync.updateSyncToFalse(pool, clientId);
+  
   const { id, ...data } = records;
   const updatedAt = await domain.getLocalTime(clientId);  
 
