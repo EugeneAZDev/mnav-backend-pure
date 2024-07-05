@@ -1,4 +1,4 @@
-async (pool, clientId, firstTime, tableName, localDates) => {
+async (pool, clientId, tableName, localDates) => {
   const getDataFlow = async (param) => {
     const latest = await domain.sync.getLatestDates(pool, clientId, tableName, param);
     const latestTime = !!latest && new Date(latest).toISOString();
@@ -11,7 +11,6 @@ async (pool, clientId, firstTime, tableName, localDates) => {
       const result = await domain.sync.getData(
         pool,
         clientId,
-        firstTime,
         tableName,
         localTime,
         latestTime,
@@ -34,10 +33,10 @@ async (pool, clientId, firstTime, tableName, localDates) => {
 
   const getResultByIds = (resultList, idArray) => resultList.filter(item => idArray.includes(item.id));
 
-  const preCreated = await getDataFlow('created');
-  const preDeleted = await getDataFlow('deleted');
+  const preCreated = await getDataFlow('created');  
   const preUpdated = await getDataFlow('updated');
-
+  const preDeleted = await getDataFlow('deleted');
+  
   const updatedIds = preUpdated.ids.filter(id => !preDeleted.ids.includes(id));
   const createdWithoutDeletedIds = preCreated.ids.filter(id => !preDeleted.ids.includes(id));
   const createdIds = createdWithoutDeletedIds.filter(id => !preUpdated.ids.includes(id));
@@ -45,6 +44,17 @@ async (pool, clientId, firstTime, tableName, localDates) => {
   const updated = getResultByIds(preUpdated.result, updatedIds);
   const created = getResultByIds(preCreated.result, createdIds);
   const deleted = preDeleted.result;
+
+  if (tableName === 'ItemValue') {
+    console.log( // DEBUG INFO
+    '\n', 'preCreated', preCreated.ids.length, '\n',
+    'preUpdated', preUpdated.ids.length, '\n',
+    'preDeleted', preDeleted.ids.length, '\n',
+    '\ncreatedIds', createdIds.length, '\n',
+    '\nupdatedIds', updatedIds.length, '\n',
+    '\ndeletedIds', preDeleted.ids.length,
+    );
+  }
 
   const updatedLocalDates = {
     created: preCreated.latest,

@@ -45,8 +45,8 @@ async (pool, clientId, dataToSync, tableName) => {
       for (const updatedRec of allUpdated) {
         let mobileId;
         if (!updatedRec.serverId) { // Case when record is created and updated at once before syncing
-          console.log('Case when record is created and updated at once, updatedRec\n');
-          console.log(updatedRec);
+          // console.log('Case when record is created and updated at once, updatedRec\n');
+          // console.log(updatedRec);
           const { id, serverId } = await createRecords(updatedRec);
           resultCreatedSyncIds.push({ id, serverId: Number(serverId) });
           syncedCreatedCount += 1;
@@ -54,28 +54,26 @@ async (pool, clientId, dataToSync, tableName) => {
           mobileId = id;
         }        
         const formattedRec = convertToServerObj(updatedRec);
-        console.log('formattedRec for server updating');
-        console.log(formattedRec);
+        // console.log('formattedRec for server updating');
+        // console.log(formattedRec);
         const id = formattedRec.id;
         if (tableName === 'ItemValue') {
           const createdAt = formattedRec.createdAt;
           delete formattedRec.createdAt;
           await domain.value.update(pool, clientId, formattedRec)
           delete formattedRec.id;
-          const dbResult = await crud(tableName).update({
+          await crud(tableName).update({
             id,
             fields: {
               createdAt: createdAt,
               updatedAt: formattedRec.updatedAt },
             transaction: pool
           });
-          if (dbResult && dbResult.rowsCount > 0) syncedUpdatedCount += dbResult.rowsCount;
-          console.log(dbResult.rowsCount, 'updated');
-        } else {          
+          syncedUpdatedCount += 1;          
+        } else {
           delete formattedRec.id;
-          const dbResult = await crud(tableName).update({ id, fields: { ...formattedRec }, transaction: pool});
-          if (dbResult && dbResult.rowsCount > 0) syncedUpdatedCount += dbResult.rowsCount;
-          console.log(dbResult.rowsCount, 'updated');
+          await crud(tableName).update({ id, fields: { ...formattedRec }, transaction: pool});
+          syncedUpdatedCount += 1;          
         }
       }  
     }

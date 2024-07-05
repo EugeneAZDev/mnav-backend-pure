@@ -1,10 +1,9 @@
 ({
-  method: async ({ clientId, firstTime, tableName, localDates }) => {
+  method: async ({ clientId, tableName, localDates }) => {
     try {
       const records = await db.processTransaction(
         domain.sync.getLatestData,
         clientId,
-        firstTime,
         tableName,
         localDates);
       return responseType.modifiedBodyTemplate(responseType.success, { records });
