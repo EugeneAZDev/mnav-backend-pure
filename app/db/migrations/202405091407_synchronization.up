@@ -1,3 +1,4 @@
 ALTER TABLE "User" ADD COLUMN "syncToMob" boolean default FALSE;
 ALTER TABLE "User" ADD COLUMN "syncToServer" boolean default FALSE;
 ALTER TABLE "User" ADD COLUMN "deviceId" varchar(50);
+ALTER TABLE "User" ADD COLUMN "removedDeviceId" varchar(50);

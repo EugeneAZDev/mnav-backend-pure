@@ -1,3 +1,4 @@
 ALTER TABLE "User" DROP COLUMN "syncToMob";
 ALTER TABLE "User" DROP COLUMN "syncToServer";
 ALTER TABLE "User" DROP COLUMN "deviceId";
+ALTER TABLE "User" DROP COLUMN "removedDeviceId";

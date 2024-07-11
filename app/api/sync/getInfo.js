@@ -3,7 +3,14 @@
     try {
       const result = await crud('User').select({
         id: clientId,
-        fields: ['id', 'syncToMob', 'syncToServer', 'deviceId', 'timeZone']
+        fields: [
+          'id',
+          'deviceId',
+          'removedDeviceId',
+          'syncToMob',
+          'syncToServer',
+          'timeZone',
+        ]
       });
       if (result.rows.length === 1) {
         const [ syncInfo ] = result.rows;

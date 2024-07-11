@@ -15,7 +15,8 @@ async (pool, clientId, dataToSync, tableName) => {
     const id = rec['id']; // id for mobile side
     delete rec['id'];
     delete rec['serverId'];
-    const formattedRec = convertToServerObj(rec);
+    const convertedRec = convertToServerObj(rec);    
+    const formattedRec = { ...convertedRec, value: common.validNumberValue(convertedRec.value) }    
     let serverId;
     if (tableName === 'ItemValue') {
       serverId = await domain.value.create(pool, clientId, formattedRec);
