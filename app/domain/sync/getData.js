@@ -13,12 +13,7 @@ async (pool, clientId, tableName, localTime, latestTime, param) => {
       AND iv."${param}At" > '${localTime}' AND iv."${param}At" <= TIMESTAMP '${latestTime}' + INTERVAL '1 day'
     ORDER BY 1, iv."${param}At" DESC;
   `;
-  const query = tableName === 'ItemValue' ? itemValueQuery : basicQuery;
-  if (tableName === 'ItemValue') { // DEBUG INFO
-    console.log(
-      query
-    );
-  }  
+  const query = tableName === 'ItemValue' ? itemValueQuery : basicQuery;    
   const result = await pool.query(query);
   return result;
 }

@@ -2,10 +2,10 @@ async (pool, clientId, records) => {
   await domain.sync.updateSyncToFalse(pool, clientId);
   
   const { itemId, value } = records;
-  const itemInfo = { itemId };
-  if (typeof value === 'string') itemInfo['title'] = value;
+  const objItemId = { itemId };
+  if (typeof value === 'string') objItemId['title'] = value;
   const valueDetails = await crud('ValueDetail').select({
-    where: itemInfo,
+    where: objItemId,
     transaction: pool,
   });
 
@@ -15,7 +15,7 @@ async (pool, clientId, records) => {
   const createdValueResult = await crud('ItemValue').create([{ ...records, createdAt }], pool);
   const [createdValue] = createdValueResult && createdValueResult.rows;
   
-  const details = { ...itemInfo, latestAt: createdAt };
+  const details = { ...objItemId, latestAt: createdAt };
   if (valueDetails.rows.length) {
     const existingRec = valueDetails.rows[0];
     await crud('ValueDetail').update({

@@ -15,7 +15,7 @@ async (pool, records) => {
   await crud('User').update({
     id: clientId,
     fields: {
-      syncToServer: false,
+      syncToMob: false,
     },
     transaction: pool,
   });

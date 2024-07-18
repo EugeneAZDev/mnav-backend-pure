@@ -1,6 +1,6 @@
 async (pool, clientId, id) => {
   await domain.sync.updateSyncToFalse(pool, clientId);
-
+  await domain.user.updateDetails(pool, clientId);
   const valueInfo = await crud('ItemValue').select({ id, transaction: pool });  
   const deletedAt = await domain.getLocalTime(clientId);
   await crud('ItemValue').update({
@@ -27,12 +27,14 @@ async (pool, clientId, id) => {
           where: { itemId, title: value },
           transaction: pool,
         });
-        const { id: detailsId } = detailRecordResult.rows[0];
-        await crud('ValueDetail').update({
-          id: parseInt(detailsId),
-          fields: { deletedAt },
-          transaction: pool,
-        });
+        if (detailRecordResult.rows?.length > 0) {
+          const { id: detailsId } =  detailRecordResult.rows[0];
+          await crud('ValueDetail').update({
+            id: parseInt(detailsId),
+            fields: { deletedAt },
+            transaction: pool,
+          });
+        }        
       }
     } else {
       const queryResult = await crud('ItemValue').select({

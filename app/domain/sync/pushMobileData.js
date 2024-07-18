@@ -1,4 +1,5 @@
 async (pool, clientId, dataToSync, tableName) => {
+  console.log('pushMobileData domain call:');
   const convertToServerObj = (obj) => {
       const newObj = { ...obj };
       Object.keys(newObj).forEach(key => {
@@ -12,14 +13,22 @@ async (pool, clientId, dataToSync, tableName) => {
   };
 
   const createRecords = async (rec) => {
-    const id = rec['id']; // id for mobile side
+    let serverId;
+    const id = rec['id']; // id for mobile side    
     delete rec['id'];
     delete rec['serverId'];
-    const convertedRec = convertToServerObj(rec);    
-    const formattedRec = { ...convertedRec, value: common.validNumberValue(convertedRec.value) }    
-    let serverId;
+    const convertedRec = convertToServerObj(rec);
+    const value = common.validNumberValue(convertedRec.value) ?? convertedRec.value;
+    const formattedRec = { ...convertedRec, value }    
+    console.log('created formattedRec', formattedRec);
     if (tableName === 'ItemValue') {
       serverId = await domain.value.create(pool, clientId, formattedRec);
+      await crud(tableName).update({
+        id: serverId,
+        fields: {
+          createdAt: formattedRec.createdAt },
+        transaction: pool
+      });
     } else {
       const dbResult = await crud(tableName).create([formattedRec], pool);
       const [insertedResult] = dbResult && dbResult.rows;
@@ -46,8 +55,8 @@ async (pool, clientId, dataToSync, tableName) => {
       for (const updatedRec of allUpdated) {
         let mobileId;
         if (!updatedRec.serverId) { // Case when record is created and updated at once before syncing
-          // console.log('Case when record is created and updated at once, updatedRec\n');
-          // console.log(updatedRec);
+          console.log('Case when record is created and updated at once, updatedRec\n');
+          console.log(updatedRec);
           const { id, serverId } = await createRecords(updatedRec);
           resultCreatedSyncIds.push({ id, serverId: Number(serverId) });
           syncedCreatedCount += 1;
@@ -55,8 +64,8 @@ async (pool, clientId, dataToSync, tableName) => {
           mobileId = id;
         }        
         const formattedRec = convertToServerObj(updatedRec);
-        // console.log('formattedRec for server updating');
-        // console.log(formattedRec);
+        console.log('formattedRec for server updating');
+        console.log(formattedRec);
         const id = formattedRec.id;
         if (tableName === 'ItemValue') {
           const createdAt = formattedRec.createdAt;
