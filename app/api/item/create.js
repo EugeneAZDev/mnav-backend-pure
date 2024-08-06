@@ -13,6 +13,7 @@
         },
       ]);
       const [item] = result.rows;
+      await domain.sync.updateSyncToFalse(undefined, clientId);
       return responseType.modifiedBodyTemplate(responseType.created, {
         itemId: item.id,
       });

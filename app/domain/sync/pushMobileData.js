@@ -17,9 +17,10 @@ async (pool, clientId, dataToSync, tableName) => {
     const id = rec['id']; // id for mobile side    
     delete rec['id'];
     delete rec['serverId'];
-    const convertedRec = convertToServerObj(rec);
-    const value = common.validNumberValue(convertedRec.value) ?? convertedRec.value;
-    const formattedRec = { ...convertedRec, value }    
+    const convertedRec = convertToServerObj(rec);    
+    const value = common.validNumberValue(convertedRec.value) ?? convertedRec.value;    
+    const formattedRec = { ...convertedRec };
+    if (value) formattedRec['value'] = value;
     console.log('created formattedRec', formattedRec);
     if (tableName === 'ItemValue') {
       serverId = await domain.value.create(pool, clientId, formattedRec);
@@ -64,8 +65,6 @@ async (pool, clientId, dataToSync, tableName) => {
           mobileId = id;
         }        
         const formattedRec = convertToServerObj(updatedRec);
-        console.log('formattedRec for server updating');
-        console.log(formattedRec);
         const id = formattedRec.id;
         if (tableName === 'ItemValue') {
           const createdAt = formattedRec.createdAt;

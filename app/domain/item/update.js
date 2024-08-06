@@ -19,4 +19,5 @@ async (pool, records) => {
     },
     transaction: pool,
   });
+  await domain.sync.updateSyncToFalse(pool, clientId);
 };

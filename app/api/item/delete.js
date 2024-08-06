@@ -16,6 +16,7 @@
         id,
         fields: { deletedAt }
       });
+      await domain.sync.updateSyncToFalse(undefined, clientId);
       return responseType.deleted();
     } catch (error) {
       return { ...responseType.error(), error };
