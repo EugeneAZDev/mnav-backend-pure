@@ -9,6 +9,7 @@
           userId: clientId,
           target: validTarget || null,
           createdAt,
+          updatedAt: createdAt,
           ...args,
         },
       ]);

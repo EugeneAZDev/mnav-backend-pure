@@ -10,9 +10,10 @@ async (pool, clientId, records) => {
   });
 
   const inputDate = records.createdAt && new Date(records.createdAt);
-  const localDate = await domain.getLocalTime(clientId, inputDate);
+  const localDate = await domain.getLocalTime(clientId, inputDate);  
   const createdAt = localDate || (await domain.getLocalTime(clientId));
-  const createdValueResult = await crud('ItemValue').create([{ ...records, createdAt }], pool);
+  const updatedAt = await domain.getLocalTime(clientId);
+  const createdValueResult = await crud('ItemValue').create([{ ...records, createdAt, updatedAt }], pool);
   const [createdValue] = createdValueResult && createdValueResult.rows;
   
   const details = { ...objItemId, latestAt: createdAt };

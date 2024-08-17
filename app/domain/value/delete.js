@@ -5,7 +5,7 @@ async (pool, clientId, id) => {
   const deletedAt = await domain.getLocalTime(clientId);
   await crud('ItemValue').update({
     id,
-    fields: { deletedAt },
+    fields: { deletedAt, updatedAt: deletedAt },
     transaction: pool,
   });
   

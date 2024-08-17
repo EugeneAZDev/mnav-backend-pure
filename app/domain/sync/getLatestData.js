@@ -7,7 +7,7 @@ async (pool, clientId, tableName, localDates) => {
     const latestDate = new Date(latestTime);
     const localDate = new Date(localTime);
     
-    console.log('localDate', localDate, '\nlatestDate', latestDate);
+    // console.log('localDate', localDate, '\nlatestDate', latestDate);
 
     if (latestDate.getTime() > localDate.getTime()) {
       const result = await domain.sync.getData(
