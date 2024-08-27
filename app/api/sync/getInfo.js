@@ -10,6 +10,7 @@
           'syncToMob',
           'syncToServer',
           'timeZone',
+          'syncProcess'
         ]
       });
       if (result.rows.length === 1) {

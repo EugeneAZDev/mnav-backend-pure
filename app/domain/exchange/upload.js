@@ -57,4 +57,5 @@ async (pool, clientId, excelData) => {
     fields: { deletedAt: new Date() },
     transaction: pool,
   });
+  await domain.sync.updateSyncToFalse(pool, clientId, true);
 };

@@ -1,4 +1,9 @@
-async (pool, clientId, tableName, syncDate, recordsToUpdate) => {  
+async (pool, clientId, tableName, syncDate, recordsToUpdate) => {
+  const statistics = {
+    crossed: 0,
+    server: 0,
+    mobile: 0
+  };
   const createdMobItems = [];  
   const mobUpdateList = [];
   const serverCreateList = [];
@@ -15,6 +20,7 @@ async (pool, clientId, tableName, syncDate, recordsToUpdate) => {
       if (new Date(rec.updatedAt) > latestUpdatedAt) latestUpdatedAt = new Date(rec.updatedAt);
       const mobConvertedRec = domain.sync.convertToServerObj(rec);
       if (mobConvertedRec.id && serverRecordToUpdateIds.includes(mobConvertedRec.id)) {
+        statistics.crossed += 1;
         serverHandledIds.push(mobConvertedRec.id);
         const serverRec = serverRecordsToUpdate.find(rec => Number(rec.id) === mobConvertedRec.id);
         if (new Date(mobConvertedRec.updatedAt) > serverRec.updatedAt) {
@@ -36,12 +42,8 @@ async (pool, clientId, tableName, syncDate, recordsToUpdate) => {
           mobUpdateList.push(mobRec);
         }
       } else {
+        statistics.server += 1;
         if (!mobConvertedRec.id) {
-          if (tableName === 'ItemValue' && rec.serverItemId === null) {
-            
-          }
-          console.log(rec)
-          console.log(mobConvertedRec)
           serverCreateList.push(mobConvertedRec);
           createdMobItems.push(rec);
         } else serverUpdateList.push(mobConvertedRec);
@@ -70,6 +72,7 @@ async (pool, clientId, tableName, syncDate, recordsToUpdate) => {
           mobRec['serverItemId'] = rec.itemId;
         }
         mobUpdateList.push(mobRec);
+        statistics.mobile += 1;
       } else return;
     }),
   );  
@@ -131,6 +134,7 @@ async (pool, clientId, tableName, syncDate, recordsToUpdate) => {
 
   return {
     newSyncDate: latestUpdatedAt,
-    recordsToUpdate: mobUpdateList
+    recordsToUpdate: mobUpdateList,
+    statistics
   }
 };
