@@ -12,7 +12,7 @@ async (pool, clientId, reset) => {
           syncToMob: false,
           syncToServer: false,
           deviceId: null,
-          removeDeviceId: null
+          turnOffSync: true,
         },
         transaction: pool,
       });

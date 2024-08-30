@@ -1,1 +1,2 @@
 ALTER TABLE "User" ADD COLUMN "syncProcess" boolean;
+ALTER TABLE "User" ADD COLUMN "turnOffSync" boolean;

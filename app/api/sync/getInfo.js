@@ -10,7 +10,8 @@
           'syncToMob',
           'syncToServer',
           'timeZone',
-          'syncProcess'
+          'syncProcess',
+          'turnOffSync'
         ]
       });
       if (result.rows.length === 1) {
