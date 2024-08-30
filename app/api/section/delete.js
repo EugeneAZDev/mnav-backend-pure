@@ -12,7 +12,7 @@
       const deletedAt = await domain.getLocalTime(clientId);
       await crud('ItemSection').update({
         id,
-        fields: { deletedAt }
+        fields: { deletedAt, updatedAt: deletedAt }
       });
 
       return responseType.deleted();

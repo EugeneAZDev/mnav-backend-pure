@@ -14,8 +14,9 @@
       const deletedAt = await domain.getLocalTime(clientId);
       await crud('Item').update({
         id,
-        fields: { deletedAt }
+        fields: { deletedAt, updatedAt: deletedAt }
       });
+      await domain.sync.updateSyncToFalse(undefined, clientId);
       return responseType.deleted();
     } catch (error) {
       return { ...responseType.error(), error };

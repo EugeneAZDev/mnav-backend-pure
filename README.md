@@ -1,6 +1,5 @@
-# My Activity Navigator
-
-## Clean Installation
+# My Activity Navigator - Pure Node.js
+## Getting Started 
 
 - Create volume for the database: `docker volume create pg_example_vol`
 - Run the container from the root folder of the project: `docker-compose up -d pg && log pg`

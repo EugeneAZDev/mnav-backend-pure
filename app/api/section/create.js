@@ -6,6 +6,7 @@
       const result = await crud('ItemSection').create([{
         userId: clientId,
         createdAt,
+        updatedAt: createdAt,
         ...args,
       }]);
       const [section] = result.rows;

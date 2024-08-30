@@ -44,6 +44,7 @@ const crud = (pool) => (table) => ({
     fields,
     where,
     orderBy,
+    limit,
     transaction = pool,
   }) {
     const args = [];
@@ -73,6 +74,7 @@ const crud = (pool) => (table) => ({
       sql += ` ORDER BY ${orderClause}`;
     }
 
+    if (limit) sql += ` LIMIT ${limit}`;
     // CRUD SELECT DEBUG
     // console.log('CRUD SELECT');
     // console.log(sql);
