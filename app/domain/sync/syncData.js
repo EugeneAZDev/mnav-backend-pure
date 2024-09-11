@@ -84,7 +84,7 @@ async (pool, clientId, tableName, syncDate, recordsToUpdate) => {
     delete rec['id'];
     const value = common.validNumberValue(rec.value) ?? rec.value;      
     if (value) rec['value'] = value;
-    console.log('rec', rec);
+    // console.log('rec', rec);
     if (tableName === 'ItemValue') {      
       serverId = await domain.value.create(pool, clientId, rec);
       console.log('server create rec Id', serverId);

@@ -14,7 +14,10 @@
 
       if (settings.mode === 'PROD')
         await common.sendEmail(email, subject, modifiedContent);
-      else `<MOCK.RESULT.EMAIL@uriToReset:${url}>`;
+      else {
+        console.log('Send Email');
+        console.log(JSON.parse(modifiedContent))
+      } // `<MOCK.RESULT.EMAIL@uriToReset:${url}>`;
 
       return responseType.success();
     } catch (error) {

@@ -2,7 +2,7 @@ async (pool, clientId, records) => {
   await domain.sync.updateSyncToFalse(pool, clientId);
   
   const { id, ...data } = records;
-  const updatedAt = await domain.getLocalTime(clientId);  
+  const updatedAt = await domain.getLocalTime(clientId);
 
   const valueInfo = await crud('ItemValue').select({ id, transaction: pool });
   if (valueInfo && valueInfo.rows.length > 0) {
