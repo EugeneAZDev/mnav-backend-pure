@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Reset Password</title>
+    <style>
+      .button {
+        display: inline-block;
+        padding: 10px 20px;
+        background-color: #4CAF50;
+        color: #ffffff;
+        text-decoration: none;
+        border-radius: 4px;
+        transition: background-color 0.3s ease;
+      }
+      .button:hover {
+        background-color: #45a049;
+      }
+    </style>
+  </head>
+  <body>
+    <table
+      style="width: 100%; max-width: 600px; margin: 0 auto; font-family: Arial, sans-serif; background-color: #f4f4f4;">
+      <tr>
+        <td style="padding: 20px; text-align: center; background-color: #003366; color: #ffffff;">
+          <h1>My Activity Navigator</h1>
+        </td>
+      </tr>
+      <tr>
+        <td style="padding: 20px;">
+          <p>Шановний, ${user}</p>
+          <p>Ми отримали запит на скидання пароля вашого акаунта для сервісу</p>
+          <a href="https://mnav.gtechdev.site">https://mnav.gtechdev.site</a>
+        </td>
+      </tr>
+      <tr>
+        <td style="padding: 20px; font-weight: bold; font-size: larger;">Щоб скинути пароль, натисніть кнопку нижче</td>            
+      </tr>
+      <tr style="text-align: center;">
+        <td>
+          <a href="${url}" class="button">PASSWORD RESET</a>
+        </td>            
+      </tr>
+      <tr>
+        <td style="padding: 20px;">
+          <p>Якщо це були не Ви, просто проігноруйте це повідомлення.</p>
+          <br>
+          <p>З найкращими побажаннями,</p>
+          <p>Команда My Activity Navigator</p>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

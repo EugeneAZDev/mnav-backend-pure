@@ -255,9 +255,9 @@ const getEmailContent = (contentPath, locale, type) => {
   titleMap.set('en-code', 'Registration Code');
   titleMap.set('ru-code', 'Код для регистрации');
   titleMap.set('uk-code', 'Код для реєстрації');
-  titleMap.set('en-register', 'Password Setup');
-  titleMap.set('ru-register', 'Настройка пароля');
-  titleMap.set('uk-register', 'Налаштування пароля');  
+  titleMap.set('en-reset', 'Reset password');
+  titleMap.set('ru-reset', 'Сброс пароля');
+  titleMap.set('uk-reset', 'Скидання пароля');  
   titleMap.set('en-premium', 'Welcome to My Activity Navigator PREMIUM!');
   titleMap.set('ru-premium', 'My Activity Navigator PREMIUM уже доступен!');
   titleMap.set('uk-premium', 'My Activity Navigator PREMIUM вже доступний!');

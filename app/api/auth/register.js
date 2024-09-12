@@ -7,7 +7,11 @@
       if (result && result.rows.length === 1) {
         await crud('User').update({
           id,
-          fields: { password: hash, token: undefined, digitCode: undefined },
+          fields: {
+            password: hash,
+            token: undefined,
+            digitCode: undefined
+          },
         });
         return responseType.success();
       }
