@@ -1,11 +1,10 @@
 ({
   access: 'public',
-  method: async ({ clientId, id, email }) => {
+  method: async ({ id, email }) => {
     try {
-      const userId = clientId || id && parseInt(id);
       const boolResult = await db.processTransaction(
         domain.user.registerWithCode,
-        userId,
+        id,
         email,
       );
       if (boolResult)

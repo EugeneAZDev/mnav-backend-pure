@@ -111,7 +111,7 @@ module.exports = (routing, port, console) => {
           return;
         }
 
-        // Extenal Payment Handler
+        // External Payment Handler
         if (req.method === 'GET') {
           const { url } = req;
           const [place, name, method] = url.substring(1).split('/');
@@ -153,7 +153,7 @@ module.exports = (routing, port, console) => {
         }
 
         let classicArgs;
-        // Extenal Payment Handler
+        // External Payment Handler
         if (
           name.toLowerCase() === 'external' &&
           method.toLowerCase() === 'ipn'

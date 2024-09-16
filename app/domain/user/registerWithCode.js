@@ -1,4 +1,4 @@
-async (pool, userId, email) => {
+async (pool, id, email) => {
   let codeInText = '';
   Array.from({ length: 5 }, () => Math
     .floor(Math.random() * (9 - 1 + 1)) + 1)
@@ -6,12 +6,12 @@ async (pool, userId, email) => {
   );
   const digitCode = parseInt(codeInText);
   await crud('User').update({
-    id: userId,
+    id,
     fields: { digitCode },
     transaction: pool
   });
   
-  const locale = await domain.user.getLocale(userId);
+  const locale = await domain.user.getLocale(id);
   const { subject, content } = common.getEmailContent(
     settings.appPath,
     locale,
@@ -21,8 +21,8 @@ async (pool, userId, email) => {
   if (settings.mode === 'PROD')
     await common.sendEmail(email, subject, modifiedContent);
   else {
+    console.log(email + '\n', subject + '\n', modifiedContent + '\n');
     console.log('Send Email, code:', digitCode);
-    // console.log(email + '\n', subject + '\n', modifiedContent + '\n');
   } // `<MOCK.RESULT.EMAIL@uriToReset:${url}>`;
   return true;
 };
