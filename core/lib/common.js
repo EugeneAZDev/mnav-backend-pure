@@ -246,7 +246,7 @@ const validateToken = (token) => {
 const getEmailContent = (contentPath, locale, type) => {
   const filePath = path.join(
     contentPath,
-    `./resources/email/${locale}/${type}.html`,
+    `./resources/${locale}/${type}.html`,
   );
   const content = fs.readFileSync(filePath, 'utf8');
 
