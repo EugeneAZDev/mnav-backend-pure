@@ -5,7 +5,7 @@
       let verificationResult = false;
       const getUserQuery = await crud('User').select({
         id: clientId,
-        fields: ['id', 'email', 'token', 'digitCode'],
+        fields: [ 'id', 'email', 'token', 'digitCode' ],
       });
       if (getUserQuery.rows.length === 1) {
         const [user] = getUserQuery.rows;

@@ -111,11 +111,10 @@ module.exports = (routing, port, console) => {
           return;
         }
 
-        const { url } = req;
-        const [ place, name, method ] = url.substring(1).split('/');
-
-        // TODO POSSIBLE OUTDATED IF: External Payment Handler
+        // External Payment Handler
         if (req.method === 'GET') {
+          const { url } = req;
+          const [place, name, method] = url.substring(1).split('/');
           if (place === 'favicon.ico') {
             resEnd(res, 200, headers)();
             return;
@@ -131,30 +130,17 @@ module.exports = (routing, port, console) => {
         }
 
         if (req.method !== 'POST') {
-          if (req.method === 'GET') {
-            if (
-              place.toLowerCase() === 'api' &&
-              name.toLowerCase() === 'external' &&
-              method.toLowerCase() === 'deletion'
-            ) {
-              // DO NOTHING
-            } 
-            else {
-              resEnd400('"Method not found"');
-              return;
-            }
-          } else {
-            resEnd400('"Method not found"');
-            return;
-          }          
+          resEnd400('"Method not found"');
+          return;
         }
-        
+        const { url } = req;
+        const [place, name, method] = url.substring(1).split('/');
         const ip =
           req.headers.remote_addr ||
           req.headers['x-real-ip'] ||
-          req.headers['x-forwarded-for'];        
-        console.log(`${url}, IP ${ip ? ip : '-'};`);
-        
+          req.headers['x-forwarded-for'];
+        console.log(`${ip} ${method} ${url}`);
+
         if (place !== 'api') {
           resEnd400('"API not found"');
           return;
@@ -171,23 +157,18 @@ module.exports = (routing, port, console) => {
         }
 
         let classicArgs;
-        let deletionToken;
-        const lowerName = name.toLowerCase();
-        const lowerMethod = method.toLowerCase();
-
-        // TODO POSSIBLE OUDATED IF: External Payment Handler
-        if (lowerName === 'external' && lowerMethod === 'ipn') {
+        // External Payment Handler
+        if (
+          name.toLowerCase() === 'external' &&
+          method.toLowerCase() === 'ipn'
+        ) {
           const args = await receiveArgs(req);
           classicArgs = Object.keys(args).length > 0 && args;
         }
-
-        if (lowerName === 'external' && lowerMethod === 'deletion') {
-          const [,,,token] = url.substring(1).split('/');
-          if (token) deletionToken = token;
-        }
+        
         const { args, file } = !classicArgs && (await receiveArgs(req));
-        const recordArgs = classicArgs || args || {};
-        if (deletionToken) recordArgs.deletionToken = deletionToken;
+        const recordArgs = classicArgs ? classicArgs : args;
+        
         const records = { ...recordArgs, clientId: recordArgs && recordArgs.clientId || client.id };
 
         if (!handler().access || handler().access !== 'public') {
@@ -216,19 +197,11 @@ module.exports = (routing, port, console) => {
         if (result.error) {
           console.log(result.error);
         }
-
-        if (lowerName === 'external' && lowerMethod === 'deletion')
-          res.writeHead(200, { 'Content-Type': 'text/html' });
-        else res.writeHead(result.code, headers);
-
+        res.writeHead(result.code, headers);
         if (result.buffer) {
           res.end(result.buffer);
           return;
         } else {
-          if (lowerName === 'external' && lowerMethod === 'deletion') {
-            res.end(result.html);
-            return;
-          };
           res.end(JSON.stringify(result.body));
           return;
         }

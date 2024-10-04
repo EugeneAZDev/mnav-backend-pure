@@ -1,6 +1,6 @@
 ({
   method: async ({ ...records }) => {
-    try {      
+    try {
       await db.processTransaction(
         domain.item.update,
         records

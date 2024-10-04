@@ -244,46 +244,71 @@ const validateToken = (token) => {
 };
 
 const getEmailContent = (contentPath, locale, type) => {
+  const titleMap = new Map([
+    ['en-code', 'Registration Code'],
+    ['ru-code', 'Код для регистрации'],
+    ['uk-code', 'Код для реєстрації'],
+    ['en-reset', 'Reset password'],
+    ['ru-reset', 'Сброс пароля'],
+    ['uk-reset', 'Скидання пароля'],
+    ['en-premium', 'Welcome to My Activity Navigator PREMIUM!'],
+    ['ru-premium', 'My Activity Navigator PREMIUM уже доступен!'],
+    ['uk-premium', 'My Activity Navigator PREMIUM вже доступний!'],
+    ['en-delete', 'Deletion process'],
+    ['ru-delete', 'Процесс удаления'],
+    ['uk-delete', 'Процес видалення'],
+    ['en-deleted', 'Deletion completed'],
+    ['ru-deleted', 'Удаление завершено'],
+    ['uk-deleted', 'Видалення завершене'],
+  ]);
   const filePath = path.join(
     contentPath,
-    `./resources/${locale}/${type}.html`,
+    `./resources/emails/${locale}/${type}.html`,
   );
   const content = fs.readFileSync(filePath, 'utf8');
-
-  const titleMap = new Map();
-
-  titleMap.set('en-code', 'Registration Code');
-  titleMap.set('ru-code', 'Код для регистрации');
-  titleMap.set('uk-code', 'Код для реєстрації');
-  titleMap.set('en-reset', 'Reset password');
-  titleMap.set('ru-reset', 'Сброс пароля');
-  titleMap.set('uk-reset', 'Скидання пароля');  
-  titleMap.set('en-premium', 'Welcome to My Activity Navigator PREMIUM!');
-  titleMap.set('ru-premium', 'My Activity Navigator PREMIUM уже доступен!');
-  titleMap.set('uk-premium', 'My Activity Navigator PREMIUM вже доступний!');
-
   const subject =
     titleMap.get(`${locale}-${type}`) || titleMap.get(`en-${type}`);
-
   return { subject, content };
 };
 
-const sendEmail = async (email, subject, content) => {
+const sendEmail = async (email, subject, content, buffer) => {
   try {
     smtpMailData.sender = sender;
     smtpMailData.to = [{ email }];
     smtpMailData.subject = subject;
     smtpMailData.htmlContent = content;
+    if (buffer) {
+      smtpMailData.attachment = [{
+        name: 'MyActivity.xlsx',
+        content: buffer.toString('base64'),
+      }];
+    }
     await transactionEmailApi
       .sendTransacEmail(smtpMailData)
       .then((data) => data.messageId)
       .catch((error) => {
         throw new Error(error);
-      });
+    });
   } catch (error) {
+    console.error('Email sending', error);
     throw new Error(error);
   }
 };
+
+const getHtmlContent = (contentPath, locale, type, params) => {
+  const filePath = path.join(contentPath, `./resources/html/${locale}/${type}.html`);
+  const originContent = fs.readFileSync(filePath, 'utf8');
+  if (type === 'delete') {
+    const { details, values, items, sections } = params;
+    const modifiedDetailsContent = originContent.replace('${details}', details);
+    const modifiedValuesContent = modifiedDetailsContent.replace('${values}', values);
+    const modifiedItemsContent = modifiedValuesContent.replace('${items}', items);
+    const modifiedSectionsContent = modifiedItemsContent.replace('${sections}', sections);
+    return modifiedSectionsContent;
+  } else {    
+    return originContent;
+  };
+}
 
 module.exports = {
   API_VERSION,
@@ -296,6 +321,7 @@ module.exports = {
   extractArguments,
   getDaysByDates,
   getEmailContent,
+  getHtmlContent,
   generateTempToken,
   generateToken,
   generateMD5Token,
