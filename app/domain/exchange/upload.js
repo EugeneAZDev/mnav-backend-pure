@@ -12,8 +12,7 @@ async (pool, clientId, excelData) => {
 
     UPDATE "ItemSection" SET "deletedAt" = NOW()
     WHERE "userId" = ${clientId} AND "deletedAt" IS NULL;
-  `);
-
+  `);  
   const sections = [
     ...new Set(
       excelData.filter((x) => x.section !== undefined).map((x) => x.section),
@@ -24,7 +23,7 @@ async (pool, clientId, excelData) => {
     const { rows } = await crud('ItemSection').create(sections, pool);
     addedSections = rows;
   }
-
+  const sectionsCount = addedSections?.length || 0;  
   const items = excelData.map((item) => {
     const section =
       addedSections && addedSections.find((s) => s.title === item.section)?.id;
@@ -39,18 +38,18 @@ async (pool, clientId, excelData) => {
       userId: clientId,
     };
   });
-
   const { rows: addedItems } = await crud('Item').create(items, pool);
-
+  const itemsCount = addedItems?.length || 0;
+  let valuesCount = 0;
   const values = excelData.map((record) => {
     const item = addedItems.find((item) => item.title === record.title);
+    valuesCount = valuesCount + (record.values.length || 0);
     return record.values.map((v) => ({
       itemId: parseInt(item.id),
       value: v.value,
       createdAt: new Date(v.time),
     }));
-  });
-
+  });    
   // const deletedAt = await domain.getLocalTime(clientId);
   await crud('ItemValue').create(values.flat(), pool);
   await crud('ValueDetail').update({
@@ -58,4 +57,9 @@ async (pool, clientId, excelData) => {
     transaction: pool,
   });
   await domain.sync.updateSyncToFalse(pool, clientId, true);
+  return { 
+    sections: sectionsCount,
+    items: itemsCount,
+    values: valuesCount,
+  };
 };

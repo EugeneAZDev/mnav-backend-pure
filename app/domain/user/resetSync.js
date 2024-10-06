@@ -13,7 +13,6 @@ async (pool, clientId, email) => {
       userId = user.id;
     }
   }
-  console.debug('Rest sync for userId', userId);
   userId && await crud('User').update({
     id: userId,
     fields: {
