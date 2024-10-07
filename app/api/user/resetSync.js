@@ -1,11 +1,12 @@
 ({
   access: 'public',
-  method: async ({ clientId, email }) => {
+  method: async ({ clientId, email, fullReset = false }) => {
     try {
       const boolResult = await db.processTransaction(
         domain.user.resetSync,
         clientId,
-        email,        
+        email,
+        fullReset,  
       );
       if (boolResult)
         return responseType.success();

@@ -1,4 +1,4 @@
-async (pool, clientId, email) => {
+async (pool, clientId, email, fullReset) => {
   let userId;
   if (clientId) {
     userId = clientId;
@@ -13,16 +13,17 @@ async (pool, clientId, email) => {
       userId = user.id;
     }
   }
+  const fields = {
+    deviceId: null,
+    removedDeviceId: null,
+    syncToMob: false,
+    syncToServer: false,
+    syncProcess: false,
+  };
+  if (fullReset) fields.turnOffSync = false;
   userId && await crud('User').update({
     id: userId,
-    fields: {
-      deviceId: null,
-      removedDeviceId: null,
-      syncToMob: false,
-      syncToServer: false,
-      syncProcess: false,
-      turnOffSync: false,
-    },
+    fields,
     transaction: pool,
   });
 

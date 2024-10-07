@@ -11,8 +11,7 @@ async (pool, clientId, reset) => {
         fields: {
           syncToMob: false,
           syncToServer: false,
-          deviceId: null,
-          turnOffSync: true,
+          deviceId: null,          
         },
         transaction: pool,
       });

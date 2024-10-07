@@ -9,9 +9,8 @@
       });
       if (getUserQuery.rows.length === 1) {
         const [user] = getUserQuery.rows;
-        console.log(user);
         if (user.token !== token) {
-          console.debug(`Strange Activity for userId ${clientId}! Possible continue to register with another website/app`);
+          console.debug(`Strange Activity for userId ${clientId}! Possible continue to register with another website or mobile app`);
         }
         if (parseInt(user.digitCode) === parseInt(code)) verificationResult = true;
       }
