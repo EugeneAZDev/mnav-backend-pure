@@ -1,6 +1,5 @@
 async (pool, paymentData) => {
-  const data = common.removeEmptyValues(paymentData);
-  const email = data.CUSTOMEREMAIL || data.EMAIL_D;
+  const email = paymentData.CUSTOMEREMAIL || paymentData.EMAIL_D;
   if (!email) throw new Error('Email not found');
   const dbUserRecords = await crud('User').select({
     fields: ['id', 'email'],
@@ -8,67 +7,71 @@ async (pool, paymentData) => {
   });
   const [user] = dbUserRecords.rows.length > 0 && dbUserRecords.rows;
   if (!user) throw new Error('Email not found');
-
-  let hashString = '';
-  let valueLengthInBytes;
-  const payload = {
-    IPN_PID: data['IPN_PID%5B%5D'],
-    IPN_PNAME: data['IPN_PNAME%5B%5D'].replace(/\+/g, ' '),
-    IPN_DATE: paymentData.IPN_DATE,
-    DATE: paymentData.IPN_DATE,
-  };
-  Object.keys(payload).forEach((key) => {
-    valueLengthInBytes = common.byteLength(payload[key].toString());
-    if (valueLengthInBytes > 0) {
-      hashString += valueLengthInBytes + payload[key].toString();
-    }
-  });
-  const hash = common.generateMD5Token(
+  const signatureSha2 = paymentData.SIGNATURE_SHA2_256 || '';
+  const stringForHash = common.serializeHashArray(paymentData).replace(/\+/g, ' ').replace('GMT ', 'GMT+');
+  const computedHash = common.generateSHA256Token(
     common.PAYMENT_CONFIG.secretKey,
-    hashString,
+    stringForHash,
   );
-
+  const validHash = computedHash === signatureSha2;
+  console.debug('validHash', validHash);
+  if (!validHash) console.error(`Invalid cache for ${email}`, error);
+  const responseDate = new Date().toISOString().replace(/[-:TZ.]/g, '').slice(0, 14);
+  const IPN_PNAME = paymentData['IPN_PNAME%5B%5D'].replace(/\+/g, ' ');
+  const payload = {
+    IPN_PID: paymentData['IPN_PID%5B%5D'],
+    IPN_PNAME: IPN_PNAME,
+    IPN_DATE: paymentData.IPN_DATE,
+    DATE: responseDate, // paymentData.IPN_DATE,
+  };
+  // console.log('payload', payload);
+  const arrayForResponseHash = [
+    paymentData['IPN_PID%5B%5D'][0], IPN_PNAME, paymentData.IPN_DATE, responseDate
+  ];
+  // console.debug('arrayForResponseHash', arrayForResponseHash);
+  const stringForResponseHash = common.serializeHashArray(arrayForResponseHash);  
+  const responseHash = common.generateSHA256Token(
+    common.PAYMENT_CONFIG.secretKey,
+    stringForResponseHash,
+  );
   const payment = await crud('Payment').select({
     fields: ['id'],
-    where: { paymentId: data.REFNO },
+    where: { paymentId: paymentData.REFNO },
     transaction: pool,
   });
-
   const paymentId = payment.rows.length === 1 && payment.rows[0].id;
-
   if (!paymentId) {
     const paymentRecords = {
-      address: data.ADDRESS1 || data.ADDRESS1_D,
-      address2: data.ADDRESS2 || data.ADDRESS2_D,
-      area: data.IPCOUNTRY || data.COUNTRY || data.COUNTRY_D,
-      area2: data.STATE || data.STATE_D,
-      code: data.COUNTRY_CODE || data.COUNTRY_D_CODE,
-      currency: data.PAYOUT_CURRENCY || data.CURRENCY,
+      address: paymentData.ADDRESS1 || paymentData.ADDRESS1_D,
+      address2: paymentData.ADDRESS2 || paymentData.ADDRESS2_D,
+      area: paymentData.IPCOUNTRY || paymentData.COUNTRY || paymentData.COUNTRY_D,
+      area2: paymentData.STATE || paymentData.STATE_D,
+      code: paymentData.COUNTRY_CODE || paymentData.COUNTRY_D_CODE,
+      currency: paymentData.PAYOUT_CURRENCY || paymentData.CURRENCY,
       email,
-      fee: data.IPN_COMMISSION && parseFloat(data.IPN_COMMISSION),
+      fee: paymentData.IPN_COMMISSION && parseFloat(paymentData.IPN_COMMISSION),
       fullName:
-        data.FIRSTNAME && data.LASTNAME && `${data.FIRSTNAME} ${data.LASTNAME}`,
-      net: data.PAYABLE_AMOUNT && parseFloat(data.PAYABLE_AMOUNT),
-      orderId: data.ORDERNO,
-      payerIP: data.IPADDRESS,
-      paymentId: data.REFNO,
-      postal: data.ZIPCODE || data.ZIPCODE_D,
-      source: data.PAYMETHOD,
-      status: data.ORDERSTATUS,
-      transactionId: data.MESSAGE_ID,
+        paymentData.FIRSTNAME && paymentData.LASTNAME && `${paymentData.FIRSTNAME} ${paymentData.LASTNAME}`,
+      net: paymentData.PAYABLE_AMOUNT && parseFloat(paymentData.PAYABLE_AMOUNT),
+      orderId: paymentData.ORDERNO,
+      payerIP: paymentData.IPADDRESS,
+      paymentId: paymentData.REFNO,
+      postal: paymentData.ZIPCODE || paymentData.ZIPCODE_D,
+      source: paymentData.PAYMETHOD,
+      status: paymentData.ORDERSTATUS,
+      transactionId: paymentData.MESSAGE_ID,
       userId: user.id && parseInt(user.id),
-      details: JSON.stringify(data),
+      details: JSON.stringify(paymentData),
     };
     await crud('Payment').create([paymentRecords], pool);
   } else {
     await crud('Payment').update({
       id: paymentId,
-      fields: { status: data.ORDERSTATUS, updatedAt: new Date() },
+      fields: { status: paymentData.ORDERSTATUS, updatedAt: new Date() },
       transaction: pool,
     });
-  }
-
-  if (data.ORDERSTATUS === 'COMPLETE') {
+  };
+  if (paymentData.ORDERSTATUS === 'COMPLETE') {
     const premiumAt = await domain.getLocalTime(user.id);
     const premiumPeriod = 'month';
     await crud('User').update({
@@ -76,12 +79,20 @@ async (pool, paymentData) => {
       fields: { premiumAt, premiumPeriod, autoDetailsUpdate: true },
       transaction: pool,
     });
-  }
-
+    // TODO UNCOMMENT LINE
+    // await api.user.sendEmail().method({
+    //   clientId: user.id && parseInt(user.id),
+    //   email,
+    //   undefined,
+    //   undefined,
+    //   type: 'premium',
+    //   inputLocale: user.locale,
+    // });
+  };
   console.log(
     // eslint-disable-next-line max-len
-    `PAYMENT INFORMATION User id: ${user.id} Status: ${data.ORDERSTATUS}`,
+    `PAYMENT INFORMATION User id: ${user.id} Status: ${paymentData.ORDERSTATUS}`,
   );
-
-  return `<EPAYMENT>${data.IPN_DATE}|${hash}</EPAYMENT>`;
+  const responseString = `<sig algo="sha256" date="${responseDate}">${responseHash}</sig>`;
+  return responseString;// `<EPAYMENT>${data.IPN_DATE}|${hash}</EPAYMENT>`;
 };

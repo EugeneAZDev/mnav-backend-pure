@@ -61,6 +61,23 @@ const parseOptions = (options) => {
   return Object.fromEntries(values);
 };
 
+const serializeHashArray = (obj) => {
+  let retValue = '';
+  for (const [key, value] of Object.entries(obj)) {
+    if (['HASH', 'SIGNATURE_SHA2_256', 'SIGNATURE_SHA3_256'].includes(key)) {
+        continue;
+    }
+    if (typeof value === 'object' && !Array.isArray(value)) {
+        retValue += serializeHashArray(value);
+    } else {
+      const stringValue = String(value);
+      const length = Buffer.byteLength(stringValue, 'utf-8');
+      retValue += length + stringValue;
+    }
+  }
+  return retValue;
+}
+
 const deserializeHash = (phcString) => {
   const [, name, options, salt64, hash64] = phcString.split('$');
   if (name !== 'scrypt') {
@@ -112,13 +129,11 @@ const generateToken = (id) => {
   const hmac = crypto.createHmac('sha256', process.env.SECRET_KEY);
   hmac.update(`${base64Header}.${base64Payload}`);
   const base64Signature = encodeBase64URL(hmac.digest('base64'));
-
   return `${base64Header}.${base64Payload}.${base64Signature}`;
 };
 
-const generateMD5Token = (secret, data) => {
-  const hmac = crypto.createHmac('md5', secret);
-  hmac.update(data);
+const generateSHA256Token = (secret, data) => {
+  const hmac = crypto.createHmac('sha256', secret).update(data);
   return hmac.digest('hex');
 };
 
@@ -324,13 +339,14 @@ module.exports = {
   getHtmlContent,
   generateTempToken,
   generateToken,
-  generateMD5Token,
+  generateSHA256Token,
   hashPassword,
   jsonParse,
   PAYMENT_CONFIG,
   receiveBody,
   removeEmptyValues,
   sendEmail,
+  serializeHashArray,
   splitObjectIntoArraysByField,
   transformToPureDate,
   validatePassword,

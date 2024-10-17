@@ -16,7 +16,7 @@
       } else {
         if (!userSettings.premium) {
           const scheduledAt = userSettings.updatedDetailsAt;
-          scheduledAt.setMonth(scheduledAt.getMonth() + 1);
+          scheduledAt.setDate(scheduledAt.getDate() + 7); // scheduledAt.setMonth(scheduledAt.getMonth() + 1);
           const now = await domain.getLocalTime(clientId);
           if (scheduledAt.getTime() - now.getTime() <= 0) updateDetails = true;
         }
