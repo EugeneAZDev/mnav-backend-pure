@@ -157,7 +157,7 @@ const MY_ACTIVITY = 'MyActivity';
           if (valueType === 'text' && cell.value.length > 1) {
             cell.value
               .replace('\n', '')
-              .split(',')
+              .split(';')
               .map((value) => {
                 values.push({ value: value.trim(), ...time });
               });
@@ -274,11 +274,11 @@ const MY_ACTIVITY = 'MyActivity';
           let resultString = itemValues.values[0];
           if (itemValues.values.length !== 1) {
             const combinedValues = itemValues.values.reduce((res, str) => {
-              const separator = ', \n';
+              const separator = ';\n';
               res += `${str}${separator}`;
               return res;
             }, '');
-            resultString = combinedValues.slice(0, -3);
+            resultString = combinedValues.slice(0, -2);
           }
           cellValues.set(cell, resultString);
           cellsToCenterWrapTextStyle.push(cell);

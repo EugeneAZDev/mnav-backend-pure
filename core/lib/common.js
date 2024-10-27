@@ -132,8 +132,19 @@ const generateToken = (id) => {
   return `${base64Header}.${base64Payload}.${base64Signature}`;
 };
 
+const generateMD5Token = (secret, data) => {
+  const hmac = crypto.createHmac('md5', secret);
+  hmac.update(data);
+  return hmac.digest('hex');
+};
+
 const generateSHA256Token = (secret, data) => {
   const hmac = crypto.createHmac('sha256', secret).update(data);
+  return hmac.digest('hex');
+};
+
+const generateSHA3256Token = (secret, data) => {
+  const hmac = crypto.createHmac('sha3-256', secret).update(data);
   return hmac.digest('hex');
 };
 
@@ -339,7 +350,9 @@ module.exports = {
   getHtmlContent,
   generateTempToken,
   generateToken,
+  generateMD5Token,
   generateSHA256Token,
+  generateSHA3256Token,
   hashPassword,
   jsonParse,
   PAYMENT_CONFIG,

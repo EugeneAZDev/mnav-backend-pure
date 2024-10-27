@@ -7,33 +7,74 @@ async (pool, paymentData) => {
   });
   const [user] = dbUserRecords.rows.length > 0 && dbUserRecords.rows;
   if (!user) throw new Error('Email not found');
-  const signatureSha2 = paymentData.SIGNATURE_SHA2_256 || '';
   const stringForHash = common.serializeHashArray(paymentData).replace(/\+/g, ' ').replace('GMT ', 'GMT+');
-  const computedHash = common.generateSHA256Token(
+
+  const signatureMd5 = paymentData.HASH || '';
+  const signatureSha2 = paymentData.SIGNATURE_SHA2_256 || '';
+  const signatureSha3 = paymentData.SIGNATURE_SHA3_256 || '';
+  const computedMD5Hash = common.generateMD5Token(
     common.PAYMENT_CONFIG.secretKey,
     stringForHash,
   );
-  const validHash = computedHash === signatureSha2;
-  console.debug('validHash', validHash);
-  if (!validHash) console.error(`Invalid cache for ${email}`, error);
-  const responseDate = new Date().toISOString().replace(/[-:TZ.]/g, '').slice(0, 14);
-  const IPN_PNAME = paymentData['IPN_PNAME%5B%5D'].replace(/\+/g, ' ');
-  const payload = {
-    IPN_PID: paymentData['IPN_PID%5B%5D'],
-    IPN_PNAME: IPN_PNAME,
-    IPN_DATE: paymentData.IPN_DATE,
-    DATE: responseDate, // paymentData.IPN_DATE,
-  };
-  // console.log('payload', payload);
-  const arrayForResponseHash = [
-    paymentData['IPN_PID%5B%5D'][0], IPN_PNAME, paymentData.IPN_DATE, responseDate
-  ];
-  // console.debug('arrayForResponseHash', arrayForResponseHash);
-  const stringForResponseHash = common.serializeHashArray(arrayForResponseHash);  
-  const responseHash = common.generateSHA256Token(
+  const computed256Hash = common.generateSHA256Token(
     common.PAYMENT_CONFIG.secretKey,
-    stringForResponseHash,
+    stringForHash,
   );
+  const computed3256Hash = common.generateSHA3256Token(
+    common.PAYMENT_CONFIG.secretKey,
+    stringForHash,
+  );
+
+  const validMD5Hash = computedMD5Hash === signatureMd5;
+  const valid256Hash = computed256Hash === signatureSha2;
+  const valid3256Hash = computed3256Hash === signatureSha3;
+  let responseDate = new Date().toISOString().replace(/[-:TZ.]/g, '').slice(0, 14);  
+  responseDate = responseDate.slice(0, 8) + paymentData.IPN_DATE.slice(8, 10) + responseDate.slice(10);
+  console.log('IPN_DATE', paymentData.IPN_DATE, responseDate);
+  const arrayForResponseHash = {
+    IPN_PID: paymentData['IPN_PID%5B%5D'],
+    IPN_PNAME: paymentData['IPN_PNAME%5B%5D'],
+    IPN_DATE: paymentData.IPN_DATE,
+    DATE: paymentData.IPN_DATE,
+  };
+
+  const sourceHMAC = common.serializeHashArray(arrayForResponseHash).replace(/\+/g, ' ').replace('GMT ', 'GMT+');;
+  /**
+   * OR
+      let sourceHMAC = '';
+      let valueLengthInBytes;
+      Similar to common.serializeHashArray
+      Object.keys(arrayForResponseHash).forEach((key) => {
+        valueLengthInBytes = common.byteLength(arrayForResponseHash[key].toString());
+        if (valueLengthInBytes > 0) {
+          sourceHMAC += valueLengthInBytes + arrayForResponseHash[key].toString();
+        }
+      }); 
+   */
+  
+  const md5Hash = common.generateMD5Token(
+    common.PAYMENT_CONFIG.secretKey,
+    sourceHMAC,
+  );
+  const sha2Hash = common.generateSHA256Token(
+    common.PAYMENT_CONFIG.secretKey,
+    sourceHMAC,
+  );
+  const sha3Hash = common.generateSHA3256Token(
+    common.PAYMENT_CONFIG.secretKey,
+    sourceHMAC,
+  )
+  
+  const responseMD5String = `<EPAYMENT>${paymentData.IPN_DATE}|${md5Hash}</EPAYMENT>`;
+  const responseSHA2tring = `<sig algo="sha256" date="${paymentData.IPN_DATE}">${sha2Hash}</sig>`;
+  const responseSHA3String = `<sig algo="sha3-256" date="${paymentData.IPN_DATE}">${sha3Hash}</sig>`;
+  
+  console.log('String for hash', stringForHash);
+  console.log('validMD5Hash', validMD5Hash, 'valid256Hash', valid256Hash, 'valid3256Hash', valid3256Hash);
+  console.log('HMAC Source:', sourceHMAC);
+  console.log(responseSHA2tring, responseSHA3String);
+  console.log();
+
   const payment = await crud('Payment').select({
     fields: ['id'],
     where: { paymentId: paymentData.REFNO },
@@ -79,20 +120,27 @@ async (pool, paymentData) => {
       fields: { premiumAt, premiumPeriod, autoDetailsUpdate: true },
       transaction: pool,
     });
-    // TODO UNCOMMENT LINE
-    // await api.user.sendEmail().method({
-    //   clientId: user.id && parseInt(user.id),
-    //   email,
-    //   undefined,
-    //   undefined,
-    //   type: 'premium',
-    //   inputLocale: user.locale,
-    // });
-  };
-  console.log(
-    // eslint-disable-next-line max-len
-    `PAYMENT INFORMATION User id: ${user.id} Status: ${paymentData.ORDERSTATUS}`,
-  );
-  const responseString = `<sig algo="sha256" date="${responseDate}">${responseHash}</sig>`;
-  return responseString;// `<EPAYMENT>${data.IPN_DATE}|${hash}</EPAYMENT>`;
+    // !Warning: WHEN DEBUG THIS FILE THE LINE BELOW SHOULD BE COMMENTED OUT
+    await api.user.sendEmail().method({
+      clientId: user.id && parseInt(user.id),
+      email,
+      undefined,
+      undefined,
+      type: 'premium',
+      inputLocale: user.locale,
+    });
+    console.log(
+      // eslint-disable-next-line max-len
+      `PAYMENT INFORMATION User id: ${user.id} Status: ${paymentData.ORDERSTATUS}`,
+    );
+  } else if (
+    paymentData.ORDERSTATUS === 'PENDING' &&
+    paymentData.GATEWAY_RESPONSE === 'General+issuer+decline'
+  ) {    
+    console.log(`Unable to process payment ID #${paymentId}: Decline reason!`);
+  } else {
+    console.log(`ID #${paymentId}; Status: ${paymentData.ORDERSTATUS}; Response: ${paymentData.GATEWAY_RESPONSE}`);
+  }
+
+  return responseMD5String;
 };

@@ -11,6 +11,7 @@
 
       return { code: 200, body: res };
     } catch (error) {
+      console.error(error);
       return { ...responseType.error(), error };
     }
   },
