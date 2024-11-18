@@ -336,6 +336,17 @@ const getHtmlContent = (contentPath, locale, type, params) => {
   };
 }
 
+const readJsonFromFile = async (filePath) => {
+  try {
+    const data = await fs.promises.readFile(filePath, 'utf8');
+    const jsonData = JSON.parse(data);    
+    return jsonData;
+  } catch (err) {
+    console.error(`Error reading JSON from file: ${err.message}`);
+    throw err;
+  }
+};
+
 module.exports = {
   API_VERSION,
   Buffer,
@@ -356,6 +367,7 @@ module.exports = {
   hashPassword,
   jsonParse,
   PAYMENT_CONFIG,
+  readJsonFromFile,
   receiveBody,
   removeEmptyValues,
   sendEmail,

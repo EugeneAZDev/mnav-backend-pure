@@ -11,7 +11,8 @@
           'syncToServer',
           'timeZone',
           'syncProcess',
-          'turnOffSync'
+          'turnOffSync',
+          'mobCodeVersion'
         ]
       });
       if (result.rows.length === 1) {
