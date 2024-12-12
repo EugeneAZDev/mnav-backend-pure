@@ -40,7 +40,7 @@
         await common.sendEmail(email, subject, modifiedUserContent, buffer);
       else { // `<MOCK.RESULT.EMAIL@uriToReset:${url}>`;
         console.log(`Email to ${email} just sent`);
-        // console.log(modifiedUserContent);
+        console.log(modifiedUserContent);
       };
       return responseType.success();
     } catch (error) {

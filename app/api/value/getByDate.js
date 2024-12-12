@@ -3,6 +3,10 @@
     try {
       const localTime = await domain.getLocalTime(clientId, date);
       const localDate = new Date(localTime).toISOString().split('T')[0];
+      // console.log( // TODO DEBUG TEMP LINE
+      //   '\nlocalTime', localTime,
+      //   '\nlocalDate', localDate,
+      // );
       const idCondition = id ? `AND i.id = ${id}` : '';
       let datesCondition = `AND DATE(iv."createdAt") = '${localDate}'`;
       let createdAt = '';

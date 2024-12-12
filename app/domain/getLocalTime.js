@@ -7,7 +7,7 @@ async (clientId, time) => {
         fields: ['timeZone'],
       })
     ).rows[0].timeZone;
-    if (!tz) throw Error('Unable to identify user locale');
+    if (!tz) throw Error('Unable to identify user locale due to No Time Zone!');
     common.userTimeZoneMap.set(clientId, tz);
   }
 

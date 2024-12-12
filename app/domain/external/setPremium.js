@@ -9,25 +9,25 @@ async (pool, paymentData) => {
   if (!user) throw new Error('Email not found');
   const stringForHash = common.serializeHashArray(paymentData).replace(/\+/g, ' ').replace('GMT ', 'GMT+');
 
-  const signatureMd5 = paymentData.HASH || '';
+  // const signatureMd5 = paymentData.HASH || '';
   const signatureSha2 = paymentData.SIGNATURE_SHA2_256 || '';
-  const signatureSha3 = paymentData.SIGNATURE_SHA3_256 || '';
-  const computedMD5Hash = common.generateMD5Token(
-    common.PAYMENT_CONFIG.secretKey,
-    stringForHash,
-  );
+  // const signatureSha3 = paymentData.SIGNATURE_SHA3_256 || '';
+  // const computedMD5Hash = common.generateMD5Token(
+  //   common.PAYMENT_CONFIG.secretKey,
+  //   stringForHash,
+  // );
   const computed256Hash = common.generateSHA256Token(
     common.PAYMENT_CONFIG.secretKey,
     stringForHash,
   );
-  const computed3256Hash = common.generateSHA3256Token(
-    common.PAYMENT_CONFIG.secretKey,
-    stringForHash,
-  );
+  // const computed3256Hash = common.generateSHA3256Token(
+  //   common.PAYMENT_CONFIG.secretKey,
+  //   stringForHash,
+  // );
 
-  const validMD5Hash = computedMD5Hash === signatureMd5;
+  // const validMD5Hash = computedMD5Hash === signatureMd5;
   const valid256Hash = computed256Hash === signatureSha2;
-  const valid3256Hash = computed3256Hash === signatureSha3;
+  // const valid3256Hash = computed3256Hash === signatureSha3;
   let responseDate = new Date().toISOString().replace(/[-:TZ.]/g, '').slice(0, 14);  
   responseDate = responseDate.slice(0, 8) + paymentData.IPN_DATE.slice(8, 10) + responseDate.slice(10);
   console.log('IPN_DATE', paymentData.IPN_DATE, responseDate);
@@ -52,28 +52,29 @@ async (pool, paymentData) => {
       }); 
    */
   
-  const md5Hash = common.generateMD5Token(
-    common.PAYMENT_CONFIG.secretKey,
-    sourceHMAC,
-  );
+  // const md5Hash = common.generateMD5Token(
+  //   common.PAYMENT_CONFIG.secretKey,
+  //   sourceHMAC,
+  // );
   const sha2Hash = common.generateSHA256Token(
     common.PAYMENT_CONFIG.secretKey,
     sourceHMAC,
   );
-  const sha3Hash = common.generateSHA3256Token(
-    common.PAYMENT_CONFIG.secretKey,
-    sourceHMAC,
-  )
+  // const sha3Hash = common.generateSHA3256Token(
+  //   common.PAYMENT_CONFIG.secretKey,
+  //   sourceHMAC,
+  // )
   
-  const responseMD5String = `<EPAYMENT>${paymentData.IPN_DATE}|${md5Hash}</EPAYMENT>`;
+  // const responseMD5String = `<EPAYMENT>${paymentData.IPN_DATE}|${md5Hash}</EPAYMENT>`;
   const responseSHA2tring = `<sig algo="sha256" date="${paymentData.IPN_DATE}">${sha2Hash}</sig>`;
-  const responseSHA3String = `<sig algo="sha3-256" date="${paymentData.IPN_DATE}">${sha3Hash}</sig>`;
+  // const responseSHA3String = `<sig algo="sha3-256" date="${paymentData.IPN_DATE}">${sha3Hash}</sig>`;
   
-  console.log('String for hash', stringForHash);
-  console.log('validMD5Hash', validMD5Hash, 'valid256Hash', valid256Hash, 'valid3256Hash', valid3256Hash);
-  console.log('HMAC Source:', sourceHMAC);
-  console.log(responseSHA2tring, responseSHA3String);
-  console.log();
+  // console.log('String for hash', stringForHash);
+  // console.log('\nvalidMD5Hash', validMD5Hash, '\nvalid256Hash', valid256Hash, '\nvalid3256Hash', valid3256Hash);
+  // console.log('HMAC Source:', sourceHMAC);
+  // console.log(responseSHA2tring, responseSHA3String);
+  // console.log();
+  if (!valid256Hash) console.warn('Hash is not valid, needs to be investigated');
 
   const payment = await crud('Payment').select({
     fields: ['id'],
@@ -142,5 +143,6 @@ async (pool, paymentData) => {
     console.log(`ID #${paymentId}; Status: ${paymentData.ORDERSTATUS}; Response: ${paymentData.GATEWAY_RESPONSE}`);
   }
 
-  return responseMD5String;
+  // return responseMD5String;
+  return responseSHA2tring;
 };

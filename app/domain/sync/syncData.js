@@ -84,10 +84,10 @@ async (pool, clientId, tableName, syncDate, recordsToUpdate) => {
     delete rec['id'];
     const value = common.validNumberValue(rec.value) ?? rec.value;      
     if (value) rec['value'] = value;
-    // console.log('rec', rec);
+    // console.log('rec', rec); // TODO DEBUG TEMP LINE
     if (tableName === 'ItemValue') {      
       serverId = await domain.value.create(pool, clientId, rec);
-      console.log('server create rec Id', serverId);
+      // console.log('server create rec Id', serverId); // TODO DEBUG TEMP LINE
       if (serverId) {
         await crud(tableName).update({
           id: serverId,

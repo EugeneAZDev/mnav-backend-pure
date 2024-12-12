@@ -229,6 +229,10 @@ module.exports = (routing, port, console) => {
             res.end(result.html);
             return;
           };
+          if (lowerName === 'external' && lowerMethod === 'ipn') {
+            res.end(result.body);
+            return;
+          };
           res.end(JSON.stringify(result.body));
           return;
         }
