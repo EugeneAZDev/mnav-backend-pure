@@ -1,0 +1,8 @@
+CREATE TABLE "Settings" (
+  id SERIAL PRIMARY KEY,
+  "adminEmail" VARCHAR(255),
+  "disableRegistration" BOOLEAN NOT NULL DEFAULT false,
+  "createdAt" timestamp WITHOUT time ZONE DEFAULT NOW(),
+	"updatedAt" timestamp WITHOUT time ZONE,
+	"deletedAt" timestamp WITHOUT time ZONE
+);

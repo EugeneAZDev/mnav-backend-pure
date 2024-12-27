@@ -1,12 +1,14 @@
 ({
-  method: async ({ clientId, id, date, daysCount }) => {
+  method: async ({ clientId, id, date, daysCount, graph }) => {
     try {
       const localTime = await domain.getLocalTime(clientId, date);
-      const localDate = new Date(localTime).toISOString().split('T')[0];
-      // console.log( // TODO DEBUG TEMP LINE
-      //   '\nlocalTime', localTime,
-      //   '\nlocalDate', localDate,
-      // );
+      const localDate = graph ?
+        new Date(date.slice(0, 10)).toISOString() :
+        new Date(localTime).toISOString().split('T')[0];
+      console.log( // TODO DEBUG TEMP LINE
+        '\ndate', date,
+        '\nlocalDate', localDate,
+      );
       const idCondition = id ? `AND i.id = ${id}` : '';
       let datesCondition = `AND DATE(iv."createdAt") = '${localDate}'`;
       let createdAt = '';
@@ -14,9 +16,11 @@
         const secondDateTime = new Date(date);
         secondDateTime.setDate(secondDateTime.getDate() + daysCount);
         const secondDate = secondDateTime.toISOString().slice(0, 10);
-        datesCondition = `AND DATE(iv."createdAt") >= '${localDate}' AND DATE(iv."createdAt") <= '${secondDate}'`
+        // eslint-disable-next-line max-len
+        datesCondition = `AND DATE(iv."createdAt") >= '${localDate}' AND DATE(iv."createdAt") <= '${secondDate}'`;
+        // eslint-disable-next-line quotes
         createdAt = `, iv."createdAt"`;
-      }      
+      }
       const sql = `
         SELECT iv.id, value, iv."itemId"${createdAt}
         FROM "ItemValue" iv

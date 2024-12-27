@@ -10,4 +10,4 @@
       return { ...responseType.error(), error };
     }
   },
-});      
+});

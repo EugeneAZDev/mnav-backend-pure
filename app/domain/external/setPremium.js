@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 async (pool, paymentData) => {
   const email = paymentData.CUSTOMEREMAIL || paymentData.EMAIL_D;
   if (!email) throw new Error('Email not found');
@@ -28,7 +29,7 @@ async (pool, paymentData) => {
   // const validMD5Hash = computedMD5Hash === signatureMd5;
   const valid256Hash = computed256Hash === signatureSha2;
   // const valid3256Hash = computed3256Hash === signatureSha3;
-  let responseDate = new Date().toISOString().replace(/[-:TZ.]/g, '').slice(0, 14);  
+  let responseDate = new Date().toISOString().replace(/[-:TZ.]/g, '').slice(0, 14);
   responseDate = responseDate.slice(0, 8) + paymentData.IPN_DATE.slice(8, 10) + responseDate.slice(10);
   console.log('IPN_DATE', paymentData.IPN_DATE, responseDate);
   const arrayForResponseHash = {
@@ -38,7 +39,7 @@ async (pool, paymentData) => {
     DATE: paymentData.IPN_DATE,
   };
 
-  const sourceHMAC = common.serializeHashArray(arrayForResponseHash).replace(/\+/g, ' ').replace('GMT ', 'GMT+');;
+  const sourceHMAC = common.serializeHashArray(arrayForResponseHash).replace(/\+/g, ' ').replace('GMT ', 'GMT+');
   /**
    * OR
       let sourceHMAC = '';
@@ -49,9 +50,9 @@ async (pool, paymentData) => {
         if (valueLengthInBytes > 0) {
           sourceHMAC += valueLengthInBytes + arrayForResponseHash[key].toString();
         }
-      }); 
+      });
    */
-  
+
   // const md5Hash = common.generateMD5Token(
   //   common.PAYMENT_CONFIG.secretKey,
   //   sourceHMAC,
@@ -64,11 +65,11 @@ async (pool, paymentData) => {
   //   common.PAYMENT_CONFIG.secretKey,
   //   sourceHMAC,
   // )
-  
+
   // const responseMD5String = `<EPAYMENT>${paymentData.IPN_DATE}|${md5Hash}</EPAYMENT>`;
   const responseSHA2tring = `<sig algo="sha256" date="${paymentData.IPN_DATE}">${sha2Hash}</sig>`;
   // const responseSHA3String = `<sig algo="sha3-256" date="${paymentData.IPN_DATE}">${sha3Hash}</sig>`;
-  
+
   // console.log('String for hash', stringForHash);
   // console.log('\nvalidMD5Hash', validMD5Hash, '\nvalid256Hash', valid256Hash, '\nvalid3256Hash', valid3256Hash);
   // console.log('HMAC Source:', sourceHMAC);
@@ -112,7 +113,7 @@ async (pool, paymentData) => {
       fields: { status: paymentData.ORDERSTATUS, updatedAt: new Date() },
       transaction: pool,
     });
-  };
+  }
   if (paymentData.ORDERSTATUS === 'COMPLETE') {
     const premiumAt = await domain.getLocalTime(user.id);
     const premiumPeriod = 'month';
@@ -126,6 +127,7 @@ async (pool, paymentData) => {
       clientId: user.id && parseInt(user.id),
       email,
       undefined,
+      // eslint-disable-next-line no-dupe-keys
       undefined,
       type: 'premium',
       inputLocale: user.locale,
@@ -137,7 +139,7 @@ async (pool, paymentData) => {
   } else if (
     paymentData.ORDERSTATUS === 'PENDING' &&
     paymentData.GATEWAY_RESPONSE === 'General+issuer+decline'
-  ) {    
+  ) {
     console.log(`Unable to process payment ID #${paymentId}: Decline reason!`);
   } else {
     console.log(`ID #${paymentId}; Status: ${paymentData.ORDERSTATUS}; Response: ${paymentData.GATEWAY_RESPONSE}`);
