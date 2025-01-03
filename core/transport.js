@@ -174,7 +174,7 @@ module.exports = (routing, port, console) => {
         const lowerName = name.toLowerCase();
         const lowerMethod = method.toLowerCase();
 
-        // TODO POSSIBLE OUTDATED IF: External Payment Handler
+        // TODO: POSSIBLE OUTDATED
         if (lowerName === 'external' && lowerMethod === 'ipn') {
           const args = await receiveArgs(req);
           classicArgs = Object.keys(args).length > 0 && args;
