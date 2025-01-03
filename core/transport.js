@@ -3,7 +3,7 @@
 const http = require('node:http');
 
 const TRY_LIMITATIONS = 10000;
-const TRY_LIMIT = 15;
+const TRY_LIMIT = 57;
 const MINUTE = 60 * 1000;
 const HOUR = 60 * MINUTE;
 const REQUEST_LIMITS = [
@@ -138,23 +138,22 @@ module.exports = (routing, port, console) => {
               method.toLowerCase() === 'deletion'
             ) {
               // DO NOTHING
-            } 
-            else {
+            } else {
               resEnd400('"Method not found"');
               return;
             }
           } else {
             resEnd400('"Method not found"');
             return;
-          }          
+          }
         }
-        
+
         const ip =
           req.headers.remote_addr ||
           req.headers['x-real-ip'] ||
-          req.headers['x-forwarded-for'];        
+          req.headers['x-forwarded-for'];
         console.log(`${url}, IP ${ip ? ip : '-'};`);
-        
+
         if (place !== 'api') {
           resEnd400('"API not found"');
           return;
@@ -175,19 +174,20 @@ module.exports = (routing, port, console) => {
         const lowerName = name.toLowerCase();
         const lowerMethod = method.toLowerCase();
 
-        // TODO POSSIBLE OUDATED IF: External Payment Handler
+        // TODO POSSIBLE OUTDATED IF: External Payment Handler
         if (lowerName === 'external' && lowerMethod === 'ipn') {
           const args = await receiveArgs(req);
           classicArgs = Object.keys(args).length > 0 && args;
         }
 
         if (lowerName === 'external' && lowerMethod === 'deletion') {
-          const [,,,token] = url.substring(1).split('/');
+          const [,,, token] = url.substring(1).split('/');
           if (token) deletionToken = token;
         }
         const { args, file } = !classicArgs && (await receiveArgs(req));
         const recordArgs = classicArgs || args || {};
         if (deletionToken) recordArgs.deletionToken = deletionToken;
+        // eslint-disable-next-line max-len
         const records = { ...recordArgs, clientId: recordArgs && recordArgs.clientId || client.id };
 
         if (!handler().access || handler().access !== 'public') {
@@ -228,11 +228,11 @@ module.exports = (routing, port, console) => {
           if (lowerName === 'external' && lowerMethod === 'deletion') {
             res.end(result.html);
             return;
-          };
+          }
           if (lowerName === 'external' && lowerMethod === 'ipn') {
             res.end(result.body);
             return;
-          };
+          }
           res.end(JSON.stringify(result.body));
           return;
         }
