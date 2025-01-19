@@ -5,10 +5,6 @@
       const localDate = graph ?
         new Date(date.slice(0, 10)).toISOString() :
         new Date(localTime).toISOString().split('T')[0];
-      console.log( // TODO DEBUG TEMP LINE
-        '\ndate', date,
-        '\nlocalDate', localDate,
-      );
       const idCondition = id ? `AND i.id = ${id}` : '';
       let datesCondition = `AND DATE(iv."createdAt") = '${localDate}'`;
       let createdAt = '';
