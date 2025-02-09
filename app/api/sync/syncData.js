@@ -7,9 +7,12 @@
         tableName,
         syncDate,
         recordsToUpdate);
-      return responseType.modifiedBodyTemplate(responseType.success, { result });
+      return responseType.modifiedBodyTemplate(
+        responseType.success,
+        { result },
+      );
     } catch (error) {
-      console.error(error)
+      console.error(error);
       return { ...responseType.error(), error };
     }
   },

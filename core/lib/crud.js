@@ -45,6 +45,7 @@ const crud = (pool) => (table) => ({
     where,
     orderBy,
     limit,
+    noDeletedCheck = false,
     transaction = pool,
   }) {
     const args = [];
@@ -58,7 +59,7 @@ const crud = (pool) => (table) => ({
       }
     })();
     let sql = `SELECT ${selectedColumns} FROM "${table}"`;
-    let finalWhere = { deletedAt: '+NULL' };
+    let finalWhere = noDeletedCheck ? {} : { deletedAt: '+NULL' };
     if (id) {
       finalWhere = { id, ...finalWhere };
     } else if (where) {
@@ -91,7 +92,7 @@ const crud = (pool) => (table) => ({
     return this.query(sql, args, transaction);
   },
 
-  async update({ id, fields, where, transaction = pool }) {
+  async update({ id, fields, where, restore = false, transaction = pool }) {
     const args = [];
 
     let sql;
@@ -110,7 +111,7 @@ const crud = (pool) => (table) => ({
       throw new Error('No fields provided for update');
     }
 
-    let finalWhere = { deletedAt: '+NULL' };
+    let finalWhere = restore ? { deletedAt: '-NULL' } : { deletedAt: '+NULL' };
     if (id) {
       finalWhere = { id, ...finalWhere };
     } else if (where) {

@@ -13,6 +13,6 @@
       return responseType.modifiedBodyTemplate(responseType.error, {
         message: `Import failed: ${error.message}`
       });
-    }    
+    }
   },
 });
