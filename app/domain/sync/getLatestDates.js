@@ -1,14 +1,18 @@
 async (pool, clientId, tableName, param) => {
   const basicQuery = `
     SELECT "${param}At" FROM "${tableName}" s
-    WHERE s."userId" = ${clientId} AND s."${param}At" IS NOT NULL AND s."deletedAt" IS NULL
+    WHERE s."userId" = ${clientId}
+      AND s."${param}At" IS NOT NULL
+      AND s."deletedAt" IS NULL
     ORDER BY s."${param}At" DESC LIMIT 1;
   `;
   const itemValueQuery = `
     SELECT iv."${param}At" FROM "${tableName}" iv
       JOIN "Item" i ON iv."itemId" = i.id
       LEFT JOIN "ItemSection" its ON its.id = i."sectionId"
-    WHERE	i."userId" = ${clientId} AND iv."${param}At" IS NOT NULL AND iv."deletedAt" IS NULL
+    WHERE	i."userId" = ${clientId}
+      AND iv."${param}At" IS NOT NULL
+      AND iv."deletedAt" IS NULL
     ORDER BY iv."${param}At" DESC LIMIT 1;
   `;
   const query = tableName === 'ItemValue' ? itemValueQuery : basicQuery;
@@ -23,4 +27,4 @@ async (pool, clientId, tableName, param) => {
     const { [`${param}At`]: timestamp } = queryResult.rows[0];
     return timestamp;
   } else return undefined;
-}
+};

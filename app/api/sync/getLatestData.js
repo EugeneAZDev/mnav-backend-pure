@@ -1,12 +1,17 @@
 ({
-  method: async ({ clientId, tableName, localDates }) => {
+  method: async ({ clientId, tableName, localDates, mobVersion }) => {
     try {
       const records = await db.processTransaction(
         domain.sync.getLatestData,
         clientId,
         tableName,
-        localDates);
-      return responseType.modifiedBodyTemplate(responseType.success, { records });
+        localDates,
+        mobVersion,
+      );
+
+      return responseType.modifiedBodyTemplate(
+        responseType.success, { records }
+      );
     } catch (error) {
       return { ...responseType.error(), error };
     }

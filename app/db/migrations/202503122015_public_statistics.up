@@ -1,0 +1,1 @@
+ALTER TABLE "Item" ADD COLUMN "publicStatisticsId" varchar(32) unique;

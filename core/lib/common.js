@@ -65,10 +65,10 @@ const serializeHashArray = (obj) => {
   let retValue = '';
   for (const [key, value] of Object.entries(obj)) {
     if (['HASH', 'SIGNATURE_SHA2_256', 'SIGNATURE_SHA3_256'].includes(key)) {
-        continue;
+      continue;
     }
     if (typeof value === 'object' && !Array.isArray(value)) {
-        retValue += serializeHashArray(value);
+      retValue += serializeHashArray(value);
     } else {
       const stringValue = String(value);
       const length = Buffer.byteLength(stringValue, 'utf-8');
@@ -76,7 +76,7 @@ const serializeHashArray = (obj) => {
     }
   }
   return retValue;
-}
+};
 
 const deserializeHash = (phcString) => {
   const [, name, options, salt64, hash64] = phcString.split('$');
@@ -314,7 +314,7 @@ const sendEmail = async (email, subject, content, buffer) => {
       .then((data) => data.messageId)
       .catch((error) => {
         throw new Error(error);
-    });
+      });
   } catch (error) {
     console.error('Email sending', error);
     throw new Error(error);
@@ -331,15 +331,15 @@ const getHtmlContent = (contentPath, locale, type, params) => {
     const modifiedItemsContent = modifiedValuesContent.replace('${items}', items);
     const modifiedSectionsContent = modifiedItemsContent.replace('${sections}', sections);
     return modifiedSectionsContent;
-  } else {    
+  } else {
     return originContent;
-  };
-}
+  }
+};
 
 const readJsonFromFile = async (filePath) => {
   try {
     const data = await fs.promises.readFile(filePath, 'utf8');
-    const jsonData = JSON.parse(data);    
+    const jsonData = JSON.parse(data);
     return jsonData;
   } catch (err) {
     console.error(`Error reading JSON from file: ${err.message}`);

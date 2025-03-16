@@ -2,7 +2,6 @@ async (storeMonths) => {
   const startKeepTime = new Date();
   startKeepTime.setMonth(startKeepTime.getMonth() - storeMonths);
   const startKeepDate = startKeepTime.toISOString().split('T')[0];
-
   // Excluded from the sql;
   // DELETE FROM "Item" i WHERE i."deletedAt" < '${startKeepDate}';
   const sql = `
@@ -16,7 +15,6 @@ async (storeMonths) => {
     // { rowCount: removedItems },
     { rowCount: removedSections },
   ] = await crud().query(sql);
-
   console.log(
     `CRON RUNNED ${
       new Date().toISOString().split('T')[0]
