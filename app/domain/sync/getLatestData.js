@@ -19,8 +19,7 @@ async (pool, clientId, tableName, localDates, mobVersion) => {
        * TEMP implementation: mob code version 13
        */
       let modifiedResult = [];
-      if (mobVersion < 14 && tableName === 'Item') {
-        console.log(mobVersion, tableName);
+      if ((mobVersion < 14 || !mobVersion) && tableName === 'Item') {
         const newResult =
           // eslint-disable-next-line no-unused-vars
           result.rows.map(({ publicStatisticsId, ...rest }) => rest);

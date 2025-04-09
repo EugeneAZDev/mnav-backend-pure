@@ -347,6 +347,110 @@ const readJsonFromFile = async (filePath) => {
   }
 };
 
+/**
+ * Calculating stats: average, maximum and minimum for the following periods: days, weeks, months, years
+ */
+const getISOWeekNumber = (date) => {
+  const tempDate = new Date(date.getTime());
+  const dayNum = (tempDate.getDay() + 6) % 7;
+  tempDate.setDate(tempDate.getDate() - dayNum + 3);
+  const firstThursday = new Date(tempDate.getFullYear(), 0, 4);
+  const diff = tempDate - firstThursday;
+  return 1 + Math.round(diff / (7 * 24 * 60 * 60 * 1000));
+};
+const getISOWeekYear = (date) => {
+  const tempDate = new Date(date.getTime());
+  const dayNum = (tempDate.getDay() + 6) % 7;
+  tempDate.setDate(tempDate.getDate() - dayNum + 3);
+  return tempDate.getFullYear();
+};
+const aggregateDataToArrays = (data) => {
+  const groups = {
+    days: {},
+    weeks: {},
+    months: {},
+    years: {},
+  };
+
+  for (const item of data) {
+    const value = Number(item.value);
+    const date = new Date(item.createdAt);
+
+    const dayKey = date.toISOString().slice(0, 10);
+    groups.days[dayKey] = (groups.days[dayKey] || 0) + value;
+
+    const weekYear = getISOWeekYear(date);
+    const weekNumber = getISOWeekNumber(date);
+    const weekKey = `${weekYear}-W${weekNumber}`;
+    groups.weeks[weekKey] = (groups.weeks[weekKey] || 0) + value;
+
+    const monthKey = date.toISOString().slice(0, 7);
+    groups.months[monthKey] = (groups.months[monthKey] || 0) + value;
+
+    const yearKey = date.getFullYear().toString();
+    groups.years[yearKey] = (groups.years[yearKey] || 0) + value;
+  }
+
+  const sortedValues = (obj) =>
+    Object.keys(obj)
+      .sort()
+      .map((key) => obj[key]);
+
+  return {
+    days: sortedValues(groups.days),
+    weeks: sortedValues(groups.weeks),
+    months: sortedValues(groups.months),
+    years: sortedValues(groups.years),
+  };
+};
+const getStats = (array) => {
+  if (!Array.isArray(array) || array.length === 0) {
+    return { min: null, max: null, avg: null };
+  }
+
+  let min = array[0];
+  let max = array[0];
+  let sum = 0;
+
+  for (const num of array) {
+    if (num < min) min = num;
+    if (num > max) max = num;
+    sum += num;
+  }
+
+  return {
+    min: Math.round(min),
+    max: Math.round(max),
+    avg: Math.round(sum / array.length),
+  };
+};
+const getProgressPercentage = (current, prev) => parseInt((current * 100) / prev - 100, 10);
+const getAvgMaxMinStats = (data) => {
+  const { days, weeks, months, years } = aggregateDataToArrays(data);
+
+  const dayStats = getStats(days);
+  const weekStats = getStats(weeks);
+  const monthStats = getStats(months);
+  const yearStats = getStats(years);
+
+  const dayPercentageDynamics = getProgressPercentage(days[days.length - 1], days[days.length - 2]);
+  const weekPercentageDynamics = getProgressPercentage(weeks[weeks.length - 1], weeks[weeks.length - 2]);
+  const monthPercentageDynamics = getProgressPercentage(months[months.length - 1], months[months.length - 2]);
+  const yearPercentageDynamics = getProgressPercentage(years[years.length - 1], years[years.length - 2]);
+
+  return {
+    days: dayStats,
+    weeks: weekStats,
+    months: monthStats,
+    years: yearStats,
+    dayPercentageDynamics,
+    weekPercentageDynamics,
+    monthPercentageDynamics,
+    yearPercentageDynamics
+  };
+};
+/* Calculating stats: End section */
+
 module.exports = {
   API_VERSION,
   Buffer,
@@ -356,6 +460,7 @@ module.exports = {
   fetch,
   fs,
   extractArguments,
+  getAvgMaxMinStats,
   getDaysByDates,
   getEmailContent,
   getHtmlContent,

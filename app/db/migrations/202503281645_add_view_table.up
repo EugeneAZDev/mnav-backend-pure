@@ -1,0 +1,4 @@
+CREATE TABLE IF NOT EXISTS "View" (
+  id    VARCHAR(32) NOT NULL, -- actually that is statsId
+  views INTEGER DEFAULT 0
+);

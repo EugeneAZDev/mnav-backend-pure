@@ -4,6 +4,7 @@ async (clientId, values, valueTarget, valueType) => {
   const boolTargetReachedAllDays = {};
 
   const commonCalculation = (values, nowLocal, target) => {
+    const stats = common.getAvgMaxMinStats(values);
     const sortedValues = [...values];
     sortedValues.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
     const startedAt = sortedValues[0].createdAt;
@@ -38,10 +39,28 @@ async (clientId, values, valueTarget, valueType) => {
       dateMaxPerDay: null,
       dateMin: null,
       dateMinPerDay: null,
+      minOfDays: stats.days.min || 0,
+      maxOfDays: stats.days.max || 0,
+      avgOfDays: stats.days.avg || 0,
+      minOfWeeks: stats.weeks.min || 0,
+      maxOfWeeks: stats.weeks.max || 0,
+      avgOfWeeks: stats.weeks.avg || 0,
+      minOfMonths: stats.months.min || 0,
+      maxOfMonths: stats.months.max || 0,
+      avgOfMonths: stats.months.avg || 0,
+      minOfYears: stats.years.min || 0,
+      maxOfYears: stats.years.max || 0,
+      avgOfYears: stats.years.avg || 0,
+      dayPercentageDynamics: stats.dayPercentageDynamics || 0,
+      weekPercentageDynamics: stats.weekPercentageDynamics || 0,
+      monthPercentageDynamics: stats.monthPercentageDynamics || 0,
+      yearPercentageDynamics: stats.yearPercentageDynamics || 0,
     };
     if (target) {
       commonDetails['daysTargetMissed'] = 0;
       commonDetails['daysTargetDone'] = 0;
+      commonDetails['daysPerActionTargetMissed'] = 0;
+      commonDetails['daysPerActionTargetDone'] = 0;
     }
 
     const sortedDatesOnly = Object.keys(valuesAllDays).sort();
@@ -49,6 +68,11 @@ async (clientId, values, valueTarget, valueType) => {
       const objOfValue = valuesAllDays[date];
       const sum = objOfValue.reduce((acc, next) => {
         const num = parseInt(next.value);
+        if (target) {
+          const targetPerActionReached = num >= target;
+          if (targetPerActionReached) commonDetails.daysPerActionTargetDone++;
+          else commonDetails.daysPerActionTargetMissed++;
+        }
         if (!isNaN(num)) {
           if (num >= commonDetails.max) {
             commonDetails.max = num;

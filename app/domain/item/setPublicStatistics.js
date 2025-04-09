@@ -7,6 +7,14 @@ async (pool, records) => {
     publicStatisticsId: hexId,
     updatedAt,
   };
+  if (turnOn) {
+    await crud('View').create([{ id: hexId }], pool);
+  } else {
+    const itemQuery = await crud('Item').select({ id });
+    const [item] = itemQuery.rows;
+    const sql = 'DELETE FROM "View" v WHERE v.id = $1;';
+    await crud().query(sql, [item?.publicStatisticsId], pool);
+  }
   await crud('Item').update({ id, fields, transaction: pool });
   await crud('User').update({
     id: clientId,
