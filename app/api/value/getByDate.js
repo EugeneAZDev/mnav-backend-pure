@@ -1,4 +1,5 @@
 ({
+  access: 'public',
   method: async ({ clientId, id, date, daysCount, graph }) => {
     try {
       const localTime = await domain.getLocalTime(clientId, date);
@@ -10,18 +11,21 @@
       let createdAt = '';
       if (daysCount && daysCount > 1) {
         const secondDateTime = new Date(date);
-        secondDateTime.setDate(secondDateTime.getDate() + daysCount);
+        secondDateTime.setDate(secondDateTime.getDate() + daysCount - 1);
         const secondDate = secondDateTime.toISOString().slice(0, 10);
         // eslint-disable-next-line max-len
         datesCondition = `AND DATE(iv."createdAt") >= '${localDate}' AND DATE(iv."createdAt") <= '${secondDate}'`;
         // eslint-disable-next-line quotes
         createdAt = `, iv."createdAt"`;
       }
+      const clientIdCondition = clientId ?
+        `i."userId" = ${clientId}` : 'i."userId" IS NOT NULL';
       const sql = `
         SELECT iv.id, value, iv."itemId"${createdAt}
         FROM "ItemValue" iv
           JOIN "Item" i ON	iv."itemId" = i.id
-        WHERE	i."userId" = ${clientId}
+        WHERE
+          ${clientIdCondition}
           ${idCondition}
           ${datesCondition}
           AND iv."deletedAt" IS NULL;

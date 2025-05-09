@@ -34,7 +34,7 @@ const MY_ACTIVITY = 'MyActivity';
     }
   },
 
-  formatToDay(date) {
+  formatToDayOld(date) {
     return date
       .toLocaleDateString('en-GB', {
         day: 'numeric', // '2-digit'
@@ -42,6 +42,18 @@ const MY_ACTIVITY = 'MyActivity';
         year: 'numeric',
       })
       .replace(/ /g, '-');
+  },
+
+  formatToDay(dateString) {
+    const date = new Date(dateString);
+    const year = date.getUTCFullYear();
+    const month = date.getUTCMonth();
+    const day = date.getUTCDate();
+
+    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+    return `${day}-${monthNames[month]}-${year}`;
   },
 
   getActivitySheet(wb) {

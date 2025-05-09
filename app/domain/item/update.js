@@ -7,9 +7,8 @@ async (pool, records, restore) => {
     updatedAt,
     ...data,
   };
-  if (target) {
-    fields.target = validTarget;
-  }
+
+  fields.target = validTarget || null;
   if (restore) {
     fields.deletedAt = null;
   }
