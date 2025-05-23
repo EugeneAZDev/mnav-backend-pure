@@ -11,12 +11,17 @@
       let createdAt = '';
       if (daysCount && daysCount > 1) {
         const secondDateTime = new Date(date);
-        secondDateTime.setDate(secondDateTime.getDate() + daysCount - 1);
+        const millisecondsToAdd = (daysCount - 1) * 24 * 60 * 60 * 1000;
+        secondDateTime.setTime(secondDateTime.getTime() + millisecondsToAdd);
         const secondDate = secondDateTime.toISOString().slice(0, 10);
         // eslint-disable-next-line max-len
         datesCondition = `AND DATE(iv."createdAt") >= '${localDate}' AND DATE(iv."createdAt") <= '${secondDate}'`;
         // eslint-disable-next-line quotes
         createdAt = `, iv."createdAt"`;
+        // console.log( // DEBUG INFO
+        //   '\n\tsecondDateTime', secondDateTime,
+        //   '\n\tsecondDate', secondDate,
+        // );
       }
       const clientIdCondition = clientId ?
         `i."userId" = ${clientId}` : 'i."userId" IS NOT NULL';
@@ -35,6 +40,7 @@
       //   '\n\tdaysCount', daysCount,
       //   '\n\tlocalTime', localTime,
       //   '\n\tlocalDate', localDate,
+      //   '\n\tdatesCondition', datesCondition,
       //   '\n\tsql', sql,
       // );
       const result = await crud().query(sql);

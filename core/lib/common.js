@@ -3,11 +3,15 @@
 
 const { Buffer } = require('node:buffer');
 const ExcelJS = require('exceljs');
+const { OAuth2Client } = require('google-auth-library');
 const cron = require('node-cron');
 const crypto = require('node:crypto');
 const fs = require('node:fs');
 const { fetch } = require('undici');
 const path = require('node:path');
+
+// OAuth2Client
+const oAuth2Client = new OAuth2Client(process.env.REACT_APP_MNAVGAUTH_PUBLIC_KEY);
 
 // Brevo Mailer
 const BrevoSDK = require('sib-api-v3-sdk');
@@ -485,4 +489,5 @@ module.exports = {
   userStatusMap,
   userTimeZoneMap,
   URLSearchParams,
+  oAuth2Client,
 };

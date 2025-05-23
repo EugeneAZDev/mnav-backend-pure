@@ -3,7 +3,7 @@
     try {
       const statsId =
         await db.processTransaction(domain.item.setPublicStatistics, records);
-      return responseType.modifiedBodyTemplate(responseType.created, {
+      return responseType.modifiedBodyTemplate(responseType.success, {
         statsId,
       });
     } catch (error) {
