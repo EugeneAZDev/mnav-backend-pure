@@ -1,0 +1,12 @@
+CREATE TABLE IF NOT EXISTS "RecordChallenge" (
+    id SERIAL PRIMARY KEY,
+    "userId" bigint NOT NULL,
+	"createdAt" timestamp WITHOUT time ZONE DEFAULT NOW(),
+    "updatedAt" timestamp WITHOUT time ZONE,
+    "startedAt" timestamp WITHOUT time ZONE,
+    "finishedAt" timestamp WITHOUT time ZONE,
+    "itemIds" INTEGER[],
+    "doneItemIds" INTEGER[]
+);
+
+ALTER TABLE "Settings" ADD COLUMN domain TEXT;

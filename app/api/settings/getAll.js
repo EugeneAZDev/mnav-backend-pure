@@ -3,7 +3,12 @@
   method: async () => {
     try {
       const result = await crud('Settings').select({
-        fields: ['adminEmail', 'disableRegistration', 'releaseNoteMobTitle'],
+        fields: [
+          'adminEmail',
+          'domain',
+          'disableRegistration',
+          'releaseNoteMobTitle',
+        ],
       });
       if (result.rows.length > 0) {
         const [ settings ] = result.rows;

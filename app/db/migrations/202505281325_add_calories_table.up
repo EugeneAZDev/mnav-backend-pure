@@ -1,0 +1,7 @@
+CREATE TABLE IF NOT EXISTS "Calories" (
+    id SERIAL PRIMARY KEY,
+    kcal INTEGER NOT NULL,
+    minutes INTEGER NOT NULL,
+    "userId" bigint NOT NULL,
+	"createdAt" timestamp WITHOUT time ZONE DEFAULT NOW()
+);

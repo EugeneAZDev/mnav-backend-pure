@@ -1,5 +1,5 @@
 async (pool, records) => {
-  const { clientId, id, turnOn } = records;
+  const { clientId, id, turnOn } = records; // id is itemId
   const updatedAt = await domain.getLocalTime(clientId);
   const hexId = !!turnOn && common.generateTempToken() || undefined;
   const fields = {
