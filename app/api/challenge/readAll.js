@@ -4,6 +4,10 @@
       const result = await crud('RecordChallenge').select({
         where: { userId: clientId },
         noDeletedCheck: true,
+        orderBy: {
+          fields: ['finishedAt'],
+          order: 'ASC',
+        },
       });
       if (result.rows.length > 0) {
         const records = result.rows;
