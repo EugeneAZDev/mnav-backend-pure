@@ -1,7 +1,5 @@
 'use strict';
 
-require('../src/getEnv.js');
-
 const fs = require('node:fs')
 const path = require('node:path');
 

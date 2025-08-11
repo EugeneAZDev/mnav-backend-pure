@@ -21,7 +21,7 @@ const transactionEmailApi = new BrevoSDK.TransactionalEmailsApi();
 const smtpMailData = new BrevoSDK.SendSmtpEmail();
 const sender = {
   email: process.env.SOURCE_EMAIL,
-  name: process.env.FIRM,
+  name: 'My Activity Navigator (mnav)',
 };
 
 // Payment Config

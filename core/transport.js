@@ -137,7 +137,7 @@ module.exports = (routing, port, console) => {
             if (
               place.toLowerCase() === 'api' &&
               name.toLowerCase() === 'external' &&
-              method.toLowerCase() === 'deletion'
+              (method.toLowerCase() === 'deletion' || method.toLowerCase() === 'health')
             ) {
               // DO NOTHING
             } else {

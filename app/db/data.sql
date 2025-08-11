@@ -54,3 +54,8 @@ VALUES
 -- "startedAt":'2023-04-22 08:00:00'
 -- "daysDone": 1
 -- "daysMissed": 0
+
+INSERT INTO "Settings" 
+  ("adminEmail", "releaseNoteMobTitle", domain)
+VALUES
+  ('eugene.zolotkov@gmail.com', '20250527_v.1.4.3', 'top');

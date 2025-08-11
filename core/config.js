@@ -2,10 +2,10 @@
 
 module.exports = {
   api: {
-    port: parseInt(process.env.API_PORT),
+    port: parseInt(process.env.API_PORT) || 8001,
   },
   sandbox: {
-    timeout: parseInt(process.env.SANDBOX_TIMEOUT),
+    timeout: parseInt(process.env.SANDBOX_TIMEOUT) || 5000,
     displayErrors: false,
   },
   db: {

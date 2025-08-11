@@ -13,11 +13,11 @@ const { processTransaction } = require('../core/lib/db.js');
 const DB = path.join(__dirname, './db');
 
 const CONNECTION = {
-  host: '127.0.0.1',
-  port: 7000,
-  database: 'mnav',
-  user: 'admin',
-  password: 'admin',
+  host: process.env.DB_HOST || 'db',
+  port: parseInt(process.env.DB_PORT || '5432', 10),
+  database: process.env.POSTGRES_DB || 'mnav_local',
+  user: process.env.POSTGRES_USER || 'admin',
+  password: process.env.POSTGRES_PASSWORD || 'admin',
 };
 
 const read = (name) => fsp.readFile(path.join(DB, name), 'utf8');
